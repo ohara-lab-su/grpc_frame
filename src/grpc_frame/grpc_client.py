@@ -4,6 +4,12 @@ cobotta2.server_grpc.grpc_client
 
 汎用 gRPC client（ctrl <-> client 対称モデル）
 """
+#!/usr/bin/env python3
+"""
+cobotta2.server_grpc.grpc_client
+
+汎用 gRPC client（ctrl <-> client 対称モデル）
+"""
 
 from __future__ import annotations
 
@@ -212,6 +218,54 @@ class GrpcClient:
             )
             setattr(self, name, dispatcher)
 
+    def _is_protobuf_message(self, obj: Any) -> bool:
+        descriptor = getattr(obj, "DESCRIPTOR", None)
+        if descriptor is None:
+            return False
+        fields = getattr(descriptor, "fields", None)
+        if fields is None:
+            return False
+        return True
+
+    def _unwrap_response(self, resp: Any) -> Any:
+        """
+        gRPC Response を ctrl 側の戻り値に正規化して返す。
+
+        ルール:
+        - resp.ok があれば bool を返す
+        - フィールドが 1 個:
+            - repeated なら list
+            - それ以外はスカラ
+        - フィールドが複数: dict を返す
+        - protobuf 以外: そのまま返す
+        """
+        if self._is_protobuf_message(resp) is False:
+            return resp
+
+        if hasattr(resp, "ok"):
+            ok_val = getattr(resp, "ok")
+            return bool(ok_val)
+
+        fields = list(resp.DESCRIPTOR.fields)
+
+        if len(fields) == 1:
+            field = fields[0]
+            value = getattr(resp, field.name)
+
+            if field.label == field.LABEL_REPEATED:
+                return list(value)
+
+            return value
+
+        out: Dict[str, Any] = {}
+        for field in fields:
+            value = getattr(resp, field.name)
+            if field.label == field.LABEL_REPEATED:
+                out[field.name] = list(value)
+            else:
+                out[field.name] = value
+        return out
+
     def _make_dispatcher(
         self,
         *,
@@ -255,12 +309,8 @@ class GrpcClient:
                 resp = rpc(request)
                 self._logger.info("[GrpcClient] rpc call done")
 
-                if hasattr(resp, "ok"):
-                    ok_val = getattr(resp, "ok")
-                    self._logger.info(f"[GrpcClient] resp.ok={ok_val}")
-                    return bool(ok_val)
-
-                return resp
+                unwrapped = self._unwrap_response(resp)
+                return unwrapped
 
             except Exception as e:
                 self._logger.error(
@@ -285,13 +335,13 @@ class GrpcClient:
         except Exception:
             req = request_cls()
 
-            # ★ repeated 1-field 対応
             if len(req_kwargs) == 1:
                 key, value = next(iter(req_kwargs.items()))
                 field = req.DESCRIPTOR.fields_by_name.get(key)
-                if field is not None and field.label == field.LABEL_REPEATED:
-                    getattr(req, key).extend(value)
-                    return req
+                if field is not None:
+                    if field.label == field.LABEL_REPEATED:
+                        getattr(req, key).extend(value)
+                        return req
 
             for k, v in req_kwargs.items():
                 setattr(req, k, v)
