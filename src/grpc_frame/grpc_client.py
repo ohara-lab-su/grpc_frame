@@ -1,18 +1,11 @@
 #!/usr/bin/env python3
 """
+K.NAKADA, kengo.nakada@mat.shimane-u.ac.jp, kengo.nakada@gmail.com
+
 cobotta2.server_grpc.grpc_client
 
 汎用 gRPC client（ctrl <-> client 対称モデル）
 """
-#!/usr/bin/env python3
-"""
-cobotta2.server_grpc.grpc_client
-
-汎用 gRPC client（ctrl <-> client 対称モデル）
-"""
-
-from __future__ import annotations
-
 from typing import Any, Callable, Dict, Optional, Type
 import importlib
 import inspect
@@ -286,8 +279,8 @@ class GrpcClient:
         )
 
         def _method(*args: Any, **kwargs: Any) -> Any:
-            self._logger.info(f"[GrpcClient] CALL {method_name}() begin")
-            self._logger.info(f"[GrpcClient] args={args}, kwargs={kwargs}")
+            self._logger.debug(f"[GrpcClient] CALL {method_name}() begin")
+            self._logger.debug(f"[GrpcClient] args={args}, kwargs={kwargs}")
 
             try:
                 bound = sig.bind_partial(None, *args, **kwargs)
@@ -299,15 +292,15 @@ class GrpcClient:
                         continue
                     req_kwargs[k] = v
 
-                self._logger.info(f"[GrpcClient] req_kwargs={req_kwargs}")
+                self._logger.debug(f"[GrpcClient] req_kwargs={req_kwargs}")
                 request = self._build_request(request_cls, req_kwargs)
-                self._logger.info(
+                self._logger.debug(
                     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
                 )
 
-                self._logger.info("[GrpcClient] rpc call start")
+                self._logger.debug("[GrpcClient] rpc call start")
                 resp = rpc(request)
-                self._logger.info("[GrpcClient] rpc call done")
+                self._logger.debug("[GrpcClient] rpc call done")
 
                 unwrapped = self._unwrap_response(resp)
                 return unwrapped
