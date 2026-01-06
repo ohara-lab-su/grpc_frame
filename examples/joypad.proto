@@ -1,0 +1,273 @@
+syntax = "proto3";
+
+package cobotta;
+
+service JoyPadControl {
+  // --- JoyPad pose
+  rpc SendDpose(SendDposeRequest) returns (SendDposeResponse);
+
+  // --- JoyPad 移動命令のキャンセル
+  rpc Halt(HaltRequest) returns (HaltResponse);
+
+  // ---- JoyPatRuntime
+  rpc JoypadStart(JoypadStartRequest) returns (JoypadStartResponse);
+  rpc JoypadStop(JoypadStopRequest) returns (JoypadStopResponse);
+ //
+  rpc JoypadSetScale(JoypadSetScaleRequest) returns (JoypadSetScaleResponse);
+  rpc JoypadSetDt(JoypadSetDtRequest) returns (JoypadSetDtResponse);
+
+
+  // ---- 情報系
+  rpc GetCurrentPosition(GetCurrentPositionRequest) returns (GetCurrentPositionResponse);
+  rpc GetCurrentAngle(GetCurrentAngleRequest) returns (GetCurrentAngleResponse);
+
+  // --- 内部変数の取り扱い
+  rpc GetValue(VarGetRequest) returns (VarGetResponse);
+  rpc PutValue(VarPutRequest) returns (VarPutResponse);
+
+  // ---- Motor
+  rpc MotorOn (MotorOnRequest) returns (MotorOnResponse);
+  rpc MotorOff (MotorOffRequest) returns (MotorOffResponse);
+
+  // ---- Hand
+  rpc HandMoveH (HandMoveHRequest) returns (HandMoveHResponse);
+  rpc HandMoveA (HandMoveARequest) returns (HandMoveAResponse);
+
+  // ---- Move 系（CobottaJoyPad.move_pose / move_p_index / move 用）
+  // 座標位置指定
+  rpc MovePose (MovePoseRequest) returns (MovePoseResponse);
+  // 座標番号指定
+  rpc MoveP (MovePRequest) returns (MovePResponse);
+  // 上位系API
+  rpc Move (MoveRequest) returns (MoveResponse);
+
+  // ---- Arm 権限制御
+  rpc TakeArm(TakeArmRequest) returns (TakeArmResponse);
+  rpc GiveArm(GiveArmRequest) returns (GiveArmResponse);
+
+  // ---- Error 処理
+  // 任意の error_code から説明文字列を取得
+  rpc GetErrorCount(GetErrorCountRequest)
+      returns (GetErrorCountResponse);
+
+  rpc GetErrorDescription(GetErrorDescriptionRequest)
+      returns (GetErrorDescriptionResponse);
+
+  // ある番号でのエラー
+  rpc GetErrorInfo(GetErrorInfoRequest)
+      returns (GetErrorInfoResponse);
+
+  // 現在のエラー
+  rpc GetCurrentErrorInfo(GetCurrentErrorInfoRequest)
+      returns (GetCurrentErrorInfoResponse);
+
+  // RC8 側のエラーリセット（ManualResetPreparation + ClearError + α）
+  rpc ResetError(ResetErrorRequest)
+      returns (ResetErrorResponse);
+}
+
+message CloseRequest {}
+message CloseResponse { bool ok = 1; }
+
+// Jot Mode STOP
+message HaltRequest {}
+message HaltResponse { bool ok = 1; }
+
+
+// 位置
+message GetCurrentPositionRequest {}
+message GetCurrentPositionResponse {
+    repeated float position = 1;  // [x, y, z, rx, ry, rz]
+}
+
+// 角度
+message GetCurrentAngleRequest {}
+message GetCurrentAngleResponse {
+  repeated float angle = 1;  // [j1, j2, j3, j4, j5, j6]
+}
+
+// ---------------------------
+// 内部変数
+// ---------------------------
+message VarGetRequest {
+    string type = 1;   // "I", "F", "P", "J", ...
+    int32 index = 2;   // 変数番号
+}
+message VarGetResponse {
+    repeated double values = 1;  // スカラなら長さ1、P/Jなら複数
+}
+
+message VarPutRequest {
+    string type = 1;
+    int32 index = 2;
+    repeated double values = 3;  // スカラも長さ1で渡す
+}
+message VarPutResponse { bool ok = 1; }
+
+// ---------------------------
+// Motor
+// ---------------------------
+message MotorOnRequest  {}
+message MotorOnResponse { bool ok = 1; }
+
+message MotorOffRequest  {}
+message MotorOffResponse { bool ok = 1; }
+
+
+// ---------------------------
+// Hand
+// ---------------------------
+message HandMoveHRequest {
+    double force = 1;
+    int32 dir = 2;   // 0 close / 1 open
+}
+message HandMoveHResponse { bool ok = 1; }
+
+message HandMoveARequest {
+    double position = 1;
+    double speed = 2;
+}
+message HandMoveAResponse { bool ok = 1; }
+
+// ---------------------------
+// Move 系
+// ---------------------------
+
+// Pxx Move (正数 P 指定), P10 -> 10 をクライアント側で渡す場合
+message MovePIntRequest { int32 p_index = 1; }
+
+// Pxx Move (文字列 P 指定), "P10" をそのまま送りたい場合
+message MovePStrRequest { string p_index = 1; } // "P10"
+
+// 座標番号指定
+message MovePRequest {
+  oneof target {
+    MovePStrRequest str_value = 1; // str
+    MovePIntRequest int_value = 2; // int
+  }
+}
+message MovePResponse { bool ok = 1; }
+
+// 座標位置指定 (float-list)
+// message MovePoseRequest {
+//   float pos_x = 1;
+//   float pos_y = 2;
+//   float pos_z = 3;
+//   float pos_rx = 4;
+//   float pos_ry = 5;
+//   float pos_rz = 6;
+// } // float list(repeated)
+message MovePoseRequest {
+  repeated float pose = 1;  // [x, y, z, rx, ry, rz]
+}
+message MovePoseResponse { bool ok = 1; }
+
+
+// 高機能版 Move(CobottaJoyPad.move) 用
+message MoveRequest {
+  oneof target {
+    MovePStrRequest str_value = 1; // str
+    MovePIntRequest int_value = 2; // int
+    MovePoseRequest list_value = 3; // list
+  }
+}
+message MoveResponse { bool ok = 1; }
+
+// ---------------------------
+// Arm 制御用
+// ---------------------------
+message TakeArmRequest {}
+message TakeArmResponse { bool ok = 1; }
+
+message GiveArmRequest {}
+message GiveArmResponse { bool ok = 1; }
+
+// ---------------------------
+// Runtime control
+// ---------------------------
+
+// Jog移動指令
+
+// message SendDposeRequest {
+//   float dx = 1;
+//   float dy = 2;
+//   float dz = 3;
+//   float rx = 4;
+//   float ry = 5;
+//   float rz = 6;
+//   float opt = 7;
+// }
+message SendDposeRequest {
+  repeated float dpose = 1;  // [dx, dy, dz, rx, ry, rz, opt]
+}
+
+// Jog 返信
+message SendDposeResponse { bool ok = 1; }
+
+message JoypadStartRequest {}
+message JoypadStartResponse { bool ok = 1; }
+
+message JoypadStopRequest {}
+message JoypadStopResponse { bool ok = 1; }
+
+message JoypadSetScaleRequest { double scale = 1; }
+message JoypadSetScaleResponse { bool ok = 1; }
+
+message JoypadSetDtRequest { double dt = 1; }
+message JoypadSetDtResponse { bool ok = 1; }
+
+
+// ---------------------------
+// Error 表示/ハンドリング
+// ---------------------------
+
+// Error: count
+message GetErrorCountRequest {}
+message GetErrorCountResponse {
+  int32 count = 1;  // RC8 の GetCurErrorCount と同じ意味
+}
+
+// 任意の error_code から説明文字列を取る
+message GetErrorDescriptionRequest {
+  int32 code = 1;
+}
+
+message GetErrorDescriptionResponse {
+  string description = 1;
+}
+
+// RC8 の GetCurErrorInfo の戻り値に対応する 1 エントリ
+message ErrorInfo {
+  int32 error_code    = 1; // エラーコード (VT_I4)
+  string description = 2; // エラーメッセージ (VT_BSTR)
+  int32 subcode      = 3; // サブコード (VT_I4)
+  int32 file_line    = 4; // ファイルID+行番号 (VT_I4)
+  string progname    = 5; // プログラム名 (VT_BSTR)
+  int32 line         = 6; // 行番号 (VT_I4)
+  int32 file_id      = 7; // ファイルID (VT_I4)
+}
+
+// エラーInfoを履歴番号から取り出す
+message GetErrorInfoRequest {
+  int32 index = 1;
+}
+message GetErrorInfoResponse {
+  ErrorInfo error_info = 1;
+}
+
+// 現在のエラー履歴の エラーInfo
+message GetCurrentErrorInfoRequest {}
+message GetCurrentErrorInfoResponse {
+  ErrorInfo error_info = 1;
+}
+
+// エラー情報一覧
+message GetErrorInfoListRequest {}
+message GetErrorInfoListResponse {
+  repeated ErrorInfo error_info = 1;
+}
+
+// エラーリセット
+message ResetErrorRequest {}
+message ResetErrorResponse { bool ok = 1; }
+

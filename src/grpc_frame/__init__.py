@@ -1,2 +1,2 @@
-from grpc_frame.grpc_client import GrpcCleint
-from grpc_frame.grpc_server import *
+from grpc_frame.grpc_client import GrpcClient
+from grpc_frame.grpc_server import build_dynamic_servicer_class
