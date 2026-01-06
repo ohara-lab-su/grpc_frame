@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grpc_frame"
+
+version = "0.1.0"
+
+description = "gRPC server/client frame"
+authors = [
+  { name="Kengo NAKADA", email="kengo.nakada@email.com" }
+]
+readme = "README.md"
+#requires-python = ">=3.8"
+requires-python = ">=3.11"
+dependencies = [
+"x_logger",
+#
+"coloredlogs",
+"colorlog",
+#
+"nest_asyncio",
+"sphinx",
+"myst-parser",
+"sphinx-autobuild",
+"sphinx-rtd-theme",
+"sphinxcontrib-napoleon",
+"linkify-it-py",
+#
+"grpcio",
+"grpcio-tools",
+"google",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+# ここでpytestのiniと同じようにオプションが書ける
+# 例えばテストマーク、フィルタ、カバレッジなども追記可能
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
