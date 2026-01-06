@@ -1,9 +1,7 @@
 setuptools
 python-dotenv
-httpx
 coloredlogs
 colorlog
-toml
 grpcio
 nest_asyncio
 sphinx
