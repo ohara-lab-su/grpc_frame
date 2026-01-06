@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+grpc_server.py
+
 gRPC server implementation (framework layer)
 
 責務:
-- proto service 定義から Servicer を構築
-- request を dispatch_core に渡す
-- ctrl を呼び、response を返す
+- proto service 定義から Servicer を構築する
+- request を core に渡して「ctrl 呼び出し計画」を生成する
+- ctrl を呼び、戻り値を response message に詰めて返す
+
+前提:
+- ここは framework 層なので grpc / pb2 / pb2_grpc を扱う
+- 「値の意味処理」は grpc_dispatch_core に寄せる
 """
 
-import grpc
+from __future__ import annotations
+
 import traceback
 from typing import Any, Type
 
-from .dispatch_core import (
-    camel_to_snake,
-    build_call_plan,
-    fill_response_message,
-)
+import grpc
+
+import grpc_dispatch_core
+from x_logger import XLogger
 
 
 def build_servicer(
@@ -26,31 +32,41 @@ def build_servicer(
     pb2_grpc: Any,
     service_name: str,
 ) -> Type[Any]:
+    service_desc: Any = pb2.DESCRIPTOR.services_by_name[service_name]
+    base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 
-    service_desc = pb2.DESCRIPTOR.services_by_name[service_name]
-    base = getattr(pb2_grpc, f"{service_name}Servicer")
+    class Servicer(base_cls):
+        def __init__(self, *, ctrl: Any, logger: XLogger) -> None:
+            self._ctrl: Any = ctrl
+            self._logger: XLogger = logger
 
-    class Servicer(base):
-        def __init__(self, ctrl: Any, logger: Any):
-            self._ctrl = ctrl
-            self._logger = logger
+    for m in service_desc.methods:
+        rpc_name: str = m.name
+        ctrl_name: str = grpc_dispatch_core.camel_to_snake(rpc_name)
+        response_cls: Any = getattr(pb2, m.output_type.name)
 
-    for method in service_desc.methods:
-        rpc_name = method.name
-        ctrl_name = camel_to_snake(rpc_name)
-        response_cls = getattr(pb2, method.output_type.name)
-
-        def make_handler(rpc_name_local, ctrl_name_local, response_cls_local):
-            def handler(self, request, context):
+        def make_handler(
+            rpc_name_local: str,
+            ctrl_name_local: str,
+            response_cls_local: Any,
+        ):
+            def handler(self: Any, request: Any, context: Any) -> Any:
                 try:
-                    fn = getattr(self._ctrl, ctrl_name_local)
-                    plan = build_call_plan(fn, request)
-                    ret = fn(*plan.args, **plan.kwargs)
+                    fn: Any = getattr(self._ctrl, ctrl_name_local)
+
+                    plan = grpc_dispatch_core.build_call_plan(fn, request)
+
+                    if len(plan.kwargs) == 0:
+                        ret = fn(*plan.args)
+                    else:
+                        ret = fn(*plan.args, **plan.kwargs)
+
                 except AttributeError:
                     context.abort(
                         grpc.StatusCode.UNIMPLEMENTED,
                         f"ctrl has no method '{ctrl_name_local}'",
                     )
+
                 except Exception as e:
                     self._logger.error(traceback.format_exc())
                     context.abort(
@@ -58,8 +74,8 @@ def build_servicer(
                         f"{rpc_name_local} failed: {e}",
                     )
 
-                resp = response_cls_local()
-                return fill_response_message(resp, ret)
+                resp: Any = response_cls_local()
+                return grpc_dispatch_core.fill_response_message(resp, ret)
 
             return handler
 
