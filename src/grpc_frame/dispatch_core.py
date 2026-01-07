@@ -1,4 +1,6 @@
-# grpc_frame/core.py
+"""
+K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
