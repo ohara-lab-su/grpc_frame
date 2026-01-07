@@ -1,4 +1,6 @@
-# grpc_frame/grpc_client.py
+"""
+K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
+"""
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional, Type
