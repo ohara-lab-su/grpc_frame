@@ -1,10 +1,4 @@
-#!/usr/bin/env python3
-"""
-cobotta2.server_grpc.grpc_client
-
-汎用 gRPC client（ctrl <-> client 対称モデル）
-"""
-
+# grpc_frame/grpc_client.py
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional, Type
@@ -14,88 +8,65 @@ import inspect
 import grpc
 from google.protobuf import empty_pb2
 
+
+import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
 
-def _snake_to_camel(name: str) -> str:
-    return "".join(word.capitalize() for word in name.split("_"))
-
-
-def _to_rpc_name(method_name: str) -> str:
-    """
-    ctrl 側メソッド名 -> stub 側 RPC 名
-
-    - snake_case は CamelCase に変換
-    - moveP のように既に大文字を含む場合は、先頭だけ大文字化して残りは保持
-    """
-    if method_name == "":
-        raise ValueError("empty method name")
-
-    if "_" in method_name:
-        return _snake_to_camel(method_name)
-
-    head = method_name[0].upper()
-    tail = method_name[1:]
-    return f"{head}{tail}"
-
-
 def _normalize_method_path(method_path: Any) -> str:
-    if isinstance(method_path, bytes):
+    if isinstance(method_path, bytes) is True:
         try:
             return method_path.decode("utf-8")
         except Exception:
             return method_path.decode("latin-1", errors="replace")
 
-    if isinstance(method_path, str):
+    if isinstance(method_path, str) is True:
         return method_path
 
     return str(method_path)
 
 
 def _parse_rpc_name_from_method_path(method_path: Any) -> str:
-    path = _normalize_method_path(method_path)
-    parts = path.split("/")
+    path: str = _normalize_method_path(method_path)
+    parts: list[str] = path.split("/")
     if len(parts) < 2:
         raise ValueError(f"unexpected rpc method path: {path}")
 
-    rpc_name = parts[-1]
+    rpc_name: str = parts[-1]
     if rpc_name == "":
         raise ValueError(f"empty rpc name: {path}")
 
     return rpc_name
 
 
-def _get_bound_owner(obj: Any) -> Optional[type]:
-    owner = getattr(obj, "__self__", None)
+def _stub_module_to_pb2_module(stub_module_name: str) -> str:
+    if stub_module_name.endswith("_pb2_grpc") is False:
+        raise RuntimeError(f"stub module does not look like *_pb2_grpc: {stub_module_name}")
+
+    prefix: str = stub_module_name[: -len("_grpc")]
+    return prefix
+
+
+def _get_owner_from_serializer(serializer: Any) -> Optional[type]:
+    owner: Any = getattr(serializer, "__self__", None)
     if owner is None:
         return None
-    if inspect.isclass(owner) is False:
+
+    is_class: bool = inspect.isclass(owner)
+    if is_class is False:
         return None
+
     return owner
 
 
 def _is_protobuf_base_message_class(cls: Type[Any]) -> bool:
-    module_name = getattr(cls, "__module__", "")
-    class_name = getattr(cls, "__name__", "")
+    module_name: str = getattr(cls, "__module__", "")
+    class_name: str = getattr(cls, "__name__", "")
     if module_name != "google._upb._message":
         return False
     if class_name != "Message":
         return False
     return True
-
-
-def _stub_module_to_pb2_module(stub_module_name: str) -> str:
-    """
-    例:
-        "cobotta2.server_grpc.joypad_pb2_grpc" -> "cobotta2.server_grpc.joypad_pb2"
-    """
-    if stub_module_name.endswith("_pb2_grpc") is False:
-        raise RuntimeError(
-            f"stub module does not look like *_pb2_grpc: {stub_module_name}"
-        )
-
-    prefix = stub_module_name[: -len("_grpc")]
-    return prefix
 
 
 def _resolve_request_class_from_rpc(
@@ -104,54 +75,45 @@ def _resolve_request_class_from_rpc(
     stub_class: Type[Any],
     logger: XLogger,
 ) -> Type[Any]:
-    """
-    rpc (UnaryUnaryMultiCallable 等) から request message class を復元する。
-
-    優先順位:
-    1) rpc._request_deserializer / _request_serializer の束縛先(__self__) から具体クラス
-    2) stub_class.__module__ ( *_pb2_grpc ) から *_pb2 を import し、
-       "<RpcName>Request" を探す
-    3) それも無ければ google.protobuf.empty_pb2.Empty を返す（最後の逃げ）
-    """
-    request_deserializer = getattr(rpc, "_request_deserializer", None)
+    request_deserializer: Any = getattr(rpc, "_request_deserializer", None)
     if request_deserializer is not None:
-        owner = _get_bound_owner(request_deserializer)
+        owner = _get_owner_from_serializer(request_deserializer)
         if owner is not None:
-            if _is_protobuf_base_message_class(owner) is False:
+            is_base: bool = _is_protobuf_base_message_class(owner)
+            if is_base is False:
                 return owner
 
-    request_serializer = getattr(rpc, "_request_serializer", None)
+    request_serializer: Any = getattr(rpc, "_request_serializer", None)
     if request_serializer is not None:
-        owner = _get_bound_owner(request_serializer)
-        if owner is not None:
-            if _is_protobuf_base_message_class(owner) is False:
-                return owner
+        owner2 = _get_owner_from_serializer(request_serializer)
+        if owner2 is not None:
+            is_base2: bool = _is_protobuf_base_message_class(owner2)
+            if is_base2 is False:
+                return owner2
 
-    method_path = getattr(rpc, "_method", None)
+    method_path: Any = getattr(rpc, "_method", None)
     if method_path is None:
-        raise RuntimeError("rpc has no _method; cannot resolve request class")
+        logger.info("[GrpcClient] rpc has no _method; fallback Empty")
+        return empty_pb2.Empty
 
-    rpc_name = _parse_rpc_name_from_method_path(method_path)
-    request_name = f"{rpc_name}Request"
+    rpc_name: str = _parse_rpc_name_from_method_path(method_path)
+    request_name: str = f"{rpc_name}Request"
 
-    stub_module_name = getattr(stub_class, "__module__", "")
+    stub_module_name: str = getattr(stub_class, "__module__", "")
     if stub_module_name == "":
         raise RuntimeError("stub_class has no __module__")
 
-    pb2_module_name = _stub_module_to_pb2_module(stub_module_name)
+    pb2_module_name: str = _stub_module_to_pb2_module(stub_module_name)
 
-    logger.info(
-        f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}"
-    )
+    logger.info(f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}")
 
     pb2_module = importlib.import_module(pb2_module_name)
 
-    if hasattr(pb2_module, request_name):
+    has_req: bool = hasattr(pb2_module, request_name)
+    if has_req is True:
         return getattr(pb2_module, request_name)
 
-    logger.info(
-        f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty"
-    )
+    logger.info(f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty")
     return empty_pb2.Empty
 
 
@@ -168,13 +130,12 @@ class GrpcClient:
     ) -> None:
         self._logger: XLogger = logger or XLogger()
 
-        addr = f"{server_ip}:{server_port}"
+        addr: str = f"{server_ip}:{server_port}"
         self._channel: grpc.Channel = grpc.insecure_channel(addr)
         self._stub: Any = self._stub_class(self._channel)
 
         self._logger.info(f"== Create {self._client_log_title}")
-        self._logger.info(f" gRPC serer IP   = {server_ip}")
-        self._logger.info(f" gRPC serer port = {server_port}")
+        self._logger.info(f" gRPC server = {server_ip}:{server_port}")
 
         self._logger.info("bind_ctrl_method")
         self._bind_ctrl_methods()
@@ -191,18 +152,16 @@ class GrpcClient:
             if name.startswith("_"):
                 continue
 
-            rpc_name = _to_rpc_name(name)
-            has_rpc = hasattr(self._stub, rpc_name)
+            rpc_name: str = core.ctrl_method_to_rpc_name(name)
+            has_rpc: bool = hasattr(self._stub, rpc_name)
 
-            self._logger.info(
-                f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}"
-            )
+            self._logger.info(f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}")
 
             if has_rpc is False:
                 continue
 
-            rpc = getattr(self._stub, rpc_name)
-            sig = inspect.signature(method)
+            rpc: Any = getattr(self._stub, rpc_name)
+            sig: inspect.Signature = inspect.signature(method)
 
             dispatcher = self._make_dispatcher(
                 method_name=name,
@@ -246,7 +205,9 @@ class GrpcClient:
                     req_kwargs[k] = v
 
                 self._logger.info(f"[GrpcClient] req_kwargs={req_kwargs}")
-                request = self._build_request(request_cls, req_kwargs)
+
+                request = core.build_request_message(request_cls, req_kwargs)
+
                 self._logger.info(
                     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
                 )
@@ -255,44 +216,12 @@ class GrpcClient:
                 resp = rpc(request)
                 self._logger.info("[GrpcClient] rpc call done")
 
-                if hasattr(resp, "ok"):
-                    ok_val = getattr(resp, "ok")
-                    self._logger.info(f"[GrpcClient] resp.ok={ok_val}")
-                    return bool(ok_val)
-
-                return resp
+                return core.unwrap_response(resp)
 
             except Exception as e:
-                self._logger.error(
-                    f"[{self.__class__.__name__}] {method_name} failed: {e}"
-                )
+                self._logger.error(f"[{self.__class__.__name__}] {method_name} failed: {e}")
                 return False
 
         _method.__name__ = method_name
         _method.__signature__ = sig
         return _method
-
-    def _build_request(
-        self,
-        request_cls: Type[Any],
-        req_kwargs: Dict[str, Any],
-    ) -> Any:
-        """
-        SendDpose のような repeated フィールド 1 個構成を正しく扱う
-        """
-        try:
-            return request_cls(**req_kwargs)
-        except Exception:
-            req = request_cls()
-
-            # ★ repeated 1-field 対応
-            if len(req_kwargs) == 1:
-                key, value = next(iter(req_kwargs.items()))
-                field = req.DESCRIPTOR.fields_by_name.get(key)
-                if field is not None and field.label == field.LABEL_REPEATED:
-                    getattr(req, key).extend(value)
-                    return req
-
-            for k, v in req_kwargs.items():
-                setattr(req, k, v)
-            return req
