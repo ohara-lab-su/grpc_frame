@@ -43,7 +43,7 @@ def camel_to_snake(
     name: str,
 ) -> str:
     """
-    CamelCase / PascalCase 風の文字列を snake_case へ変換します。
+    CamelCase / PascalCase 風の文字列を snake_case へ変換
 
     仕様:
     - 大文字の直前に "_" を挿入し、小文字化
@@ -72,7 +72,7 @@ def ctrl_method_to_rpc_name(
     ctrl_method: str,
 ) -> str:
     """
-    ctrl 側メソッド名から、gRPC の RPC 名へ変換します。
+    ctrl 側メソッド名から、gRPC の RPC 名へ変換
 
     変換ルール（従来仕様踏襲）:
     - ctrl_method が snake_case の場合: snake_to_camel(ctrl_method)
@@ -384,7 +384,7 @@ def fill_message(
     value: Any,
 ) -> None:
     """
-    python 値（dict/list/scalar）から protobuf message を descriptor 駆動で埋めます。
+    python 値（dict/list/scalar）から protobuf message を descriptor 駆動で埋める
 
     入力 value の解釈:
     - dict:
@@ -398,8 +398,8 @@ def fill_message(
         - msg が「フィールド 1 個だけ」のときのみ、そのフィールドへ代入（単純ケース）
 
     注意:
-    - msg が protobuf message でない場合は何もしません。
-    - 型不一致や想定外の形は、黙って無視する分岐が含まれます（例: repeated に list 以外）。
+    - msg が protobuf message でない場合は何もしない
+    - 型不一致や想定外の形は、黙って無視する分岐が含まれる（例: repeated に list 以外）。
     """
     if not is_protobuf_message(msg):
         return
@@ -449,7 +449,7 @@ def _fill_message_by_dict(
     value: Dict[str, Any],
 ) -> None:
     """
-    dict 形式の入力から protobuf message を埋めます。
+    dict 形式の入力から protobuf message を埋める
 
     対応する dict 形式:
     1) oneof:
@@ -457,9 +457,9 @@ def _fill_message_by_dict(
        - selected_field_name が実在し、その field が oneof に属している場合のみ反映
     2) 通常フィールド:
         { field_name: val }
-       - oneof 自体のキー（oneof.name）は通常フィールドとしては扱いません
+       - oneof 自体のキー（oneof.name）は通常フィールドとしては扱わない
 
-    実際の代入は _set_field_by_value() に委譲します。
+    実際の代入は _set_field_by_value() に委譲
     """
     desc: Any = msg.DESCRIPTOR
     oneofs: Any = getattr(desc, "oneofs", [])
@@ -516,7 +516,7 @@ def _set_field_by_value(
     val: Any,
 ) -> None:
     """
-    descriptor の Field と python 値から、msg の該当フィールドへ値を設定します。
+    descriptor の Field と python 値から、msg の該当フィールドへ値を設定
 
     対応:
     - repeated:
@@ -569,7 +569,7 @@ def _fill_message_by_position(
     values: List[Any],
 ) -> None:
     """
-    list（位置引数相当）から protobuf message を埋めます。
+    list（位置引数相当）から protobuf message を埋める
 
     仕様:
     - msg.DESCRIPTOR.fields を field.number 昇順に処理
@@ -629,7 +629,7 @@ def fill_response_message(
     value: Any,
 ) -> Any:
     """
-    ctrl の戻り値 value を、protobuf response message resp へ詰めます。
+    ctrl の戻り値 value を、protobuf response message resp へ詰める
 
     対応:
     - value が None:
@@ -692,7 +692,7 @@ def unwrap_response(
     - それ以外: protobuf_to_python(resp) を返す（oneof を可逆表現で保持）
 
     注意:
-    - ok の有無だけで処理が分岐するため、response 設計側の規約が重要になります。
+    - ok の有無だけで処理が分岐するため、response 設計側の規約が重要
     """
     if not is_protobuf_message(resp):
         return resp
