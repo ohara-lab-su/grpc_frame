@@ -165,6 +165,42 @@ def _resolve_request_class_from_rpc(
     return empty_pb2.Empty
 
 
+def build_request_message(
+    request_cls: Type[Any],
+    kwargs: Dict[str, Any],
+) -> Any:
+    """
+
+    Args:
+        request_cls:
+        kwargs:
+
+    Returns:
+
+    """
+    logger.debug(f"[DEBUG][build_request_message] BEGIN")
+    logger.debug(f"  request_cls =", request_cls)
+    logger.debug(f"  input kwargs =", kwargs)
+
+    # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
+    try:
+        logger.debug("[DEBUG][build_request_message] try: calling constructor")
+        return request_cls(**kwargs)
+    except Exception as e:
+        logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
+
+    req: Any = request_cls()
+    logger.debug(
+        "[DEBUG][build_request_message] fallback: empty request created =", req
+    )
+
+    fill_message(req, kwargs)
+
+    logger.debug("[DEBUG][build_request_message] after fill_message =", req)
+    logger.debug("[DEBUG][build_request_message] END")
+    return req
+
+
 class GrpcClient:
     _ctrl_class: type
     _stub_class: type
