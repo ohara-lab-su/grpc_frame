@@ -32,7 +32,7 @@ def request_to_positional(
     Returns:
 
     """
-    logger.debug("[request_to_positional] req =", req)
+    _logger.debug("[request_to_positional] req =", req)
 
     fields: List[Any] = list(req.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
@@ -100,7 +100,7 @@ def request_to_positional(
 
         values.append(protobuf_to_python(raw))
 
-    logger.debug("[request_to_positional] result values =", values)
+    _logger.debug("[request_to_positional] result values =", values)
     return values
 
 
