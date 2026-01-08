@@ -200,17 +200,17 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     positional: List[Any] = request_to_positional(request)
 
     # 追加ログ
-    self._logger.info("[DEBUG][CallPlan]")
-    self._logger.info("  ctrl_fn =", ctrl_fn)
-    self._logger.info("  signature =", sig)
-    self._logger.info("  params =", [p.name for p in params])
-    self._logger.info("  positional =", positional)
-    self._logger.info("  kwargs =", kwargs)
+    print("[DEBUG][CallPlan]")
+    print("  ctrl_fn =", ctrl_fn)
+    print("  signature =", sig)
+    print("  params =", [p.name for p in params])
+    print("  positional =", positional)
+    print("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
-    self._logger.info("  has_varkw =", has_varkw)
-    self._logger.info("  len(params) =", len(params))
-    self._logger.info("  len(positional) =", len(positional))
+    print("  has_varkw =", has_varkw)
+    print("  len(params) =", len(params))
+    print("  len(positional) =", len(positional))
 
     if has_varkw is True:
         return CtrlCallPlan(args=(), kwargs=kwargs)
