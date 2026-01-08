@@ -693,9 +693,9 @@ def fill_response_message(
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
+    if is_repeated:
         container = getattr(resp, f0.name)
-        if isinstance(value, list) is True:
+        if isinstance(value, list):
             container.extend(value)
         return resp
 
@@ -703,7 +703,7 @@ def fill_response_message(
     if f0.message_type is not None:
         is_msg = True
 
-    if is_msg is False:
+    if not is_msg:
         setattr(resp, f0.name, value)
         return resp
 
