@@ -158,15 +158,29 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
 
 
 def request_to_positional(req: Any) -> List[Any]:
+    """"""
+    logger.debug("[request_to_positional] req =", req)
+
     fields: List[Any] = list(req.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
 
     values: List[Any] = []
     for f in fields:
+        logger.debug(
+            "[request_to_positional] field:",
+            f.name,
+            "number=",
+            f.number,
+            "oneof=",
+            f.containing_oneof.name if f.containing_oneof else None,
+            "label=",
+            f.label,
+        )
         # if f.containing_oneof is not None:
         #     continue
         if f.containing_oneof is not None:
             oneof_name: str = f.containing_oneof.name
+
             selected: Optional[str] = req.WhichOneof(oneof_name)
             if selected is None:
                 continue
@@ -175,12 +189,25 @@ def request_to_positional(req: Any) -> List[Any]:
 
             raw_sel: Any = getattr(req, f.name)
 
+            logger.debug(
+                "[request_to_positional][oneof]",
+                "oneof=",
+                oneof_name,
+                "selected=",
+                f.name,
+                "raw=",
+                raw_sel,
+            )
+
             if f.label == f.LABEL_REPEATED:
                 tmp_sel: List[Any] = []
                 for x in raw_sel:
                     tmp_sel.append(protobuf_to_python(x))
+
+                logger.debug("[request_to_positional] append value =", tmp_sel)
                 values.append(tmp_sel)
             else:
+                logger.debug("[request_to_positional] append value =", raw_sel)
                 values.append(protobuf_to_python(raw_sel))
 
             continue
@@ -191,7 +218,7 @@ def request_to_positional(req: Any) -> List[Any]:
         if f.label == f.LABEL_REPEATED:
             is_repeated = True
 
-        if is_repeated is True:
+        if is_repeated:
             tmp: List[Any] = []
             for x in raw:
                 tmp.append(protobuf_to_python(x))
@@ -200,6 +227,7 @@ def request_to_positional(req: Any) -> List[Any]:
 
         values.append(protobuf_to_python(raw))
 
+    logger.debug("[request_to_positional] result values =", values)
     return values
 
 
@@ -254,6 +282,7 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
         return CtrlCallPlan(args=(), kwargs={})
 
     if len(params) == len(positional):
+        logger.debug("[build_call_plan] USE positional ONLY:", positional)
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     if len(params) == 1:
@@ -273,6 +302,13 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     # positional が存在しても、kwargs に oneof（pairs 等）が含まれる場合は
     # positional を使ってはいけない
     if len(positional) > 0:
+        logger.debug(
+            "[build_call_plan] positional EXISTS but fallback to kwargs",
+            "positional=",
+            positional,
+            "kwargs=",
+            kwargs,
+        )
         # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
@@ -287,18 +323,21 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
 
 
 def fill_message(msg: Any, value: Any) -> None:
-    if is_protobuf_message(msg) is False:
+    if not is_protobuf_message(msg):
         return
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
+        logger.debug("[fill_message] (dict) by POSITION:", value)
         _fill_message_by_dict(msg, value)
         return
 
-    if isinstance(value, list) is True:
+    if isinstance(value, list):
+        logger.debug("[fill_message] (list) by POSITION:", value)
         _fill_message_by_position(msg, value)
         return
 
-    if isinstance(value, tuple) is True:
+    if isinstance(value, tuple):
+        logger.debug("[fill_message] (tuple) by POSITION:", value)
         _fill_message_by_position(msg, list(value))
         return
 
@@ -385,8 +424,8 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
     if field.label == field.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
-        if isinstance(val, list) is False:
+    if is_repeated:
+        if not isinstance(val, list):
             return
 
         container = getattr(msg, field.name)
@@ -417,6 +456,9 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
 
 
 def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
+    logger.debug("[fill_message] msg =", msg)
+    logger.debug("[fill_message] value =", value)
+
     fields: List[Any] = list(msg.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
 
@@ -431,17 +473,35 @@ def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
         v: Any = values[index]
         index += 1
 
+        logger.debug(
+            "[fill_message] set field",
+            "field=",
+            field.name,
+            "value=",
+            val,
+        )
         _set_field_by_value(msg, field, v)
 
 
 def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any:
+    logger.debug("[DEBUG][build_request_message] BEGIN")
+    logger.debug("  request_cls =", request_cls)
+    logger.debug("  input kwargs =", kwargs)
     try:
+        logger.debug("[DEBUG][build_request_message] try: calling constructor")
         return request_cls(**kwargs)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
 
     req: Any = request_cls()
+    logger.debug(
+        "[DEBUG][build_request_message] fallback: empty request created =", req
+    )
+
     fill_message(req, kwargs)
+
+    logger.debug("[DEBUG][build_request_message] after fill_message =", req)
+    logger.debug("[DEBUG][build_request_message] END")
     return req
 
 
