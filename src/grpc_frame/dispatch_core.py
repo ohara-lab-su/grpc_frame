@@ -199,6 +199,22 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     kwargs: Dict[str, Any] = request_to_kwargs(request)
     positional: List[Any] = request_to_positional(request)
 
+    # --------------------------------------------------
+    # 必須引数（default を持たない引数）を kwargs から args に昇格
+    # --------------------------------------------------
+    required_param_names: List[str] = []
+    for p in params:
+        if p.kind == inspect.Parameter.POSITIONAL_ONLY and p.default is inspect._empty:
+            required_param_names.append(p.name)
+
+    promoted_args: List[Any] = []
+    for name in required_param_names:
+        if name in kwargs:
+            promoted_args.append(kwargs.pop(name))
+
+    if len(promoted_args) > 0:
+        return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
+
     has_varkw: bool = _has_varkw(sig)
     if has_varkw is True:
         return CtrlCallPlan(args=(), kwargs=kwargs)
