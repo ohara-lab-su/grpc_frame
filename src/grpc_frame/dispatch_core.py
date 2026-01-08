@@ -150,7 +150,26 @@ def request_to_positional(req: Any) -> List[Any]:
 
     values: List[Any] = []
     for f in fields:
+        # if f.containing_oneof is not None:
+        #     continue
         if f.containing_oneof is not None:
+            oneof_name: str = f.containing_oneof.name
+            selected: Optional[str] = req.WhichOneof(oneof_name)
+            if selected is None:
+                continue
+            if selected != f.name:
+                continue
+
+            raw_sel: Any = getattr(req, f.name)
+
+            if f.label == f.LABEL_REPEATED:
+                tmp_sel: List[Any] = []
+                for x in raw_sel:
+                    tmp_sel.append(protobuf_to_python(x))
+                values.append(tmp_sel)
+            else:
+                values.append(protobuf_to_python(raw_sel))
+
             continue
 
         raw: Any = getattr(req, f.name)
@@ -215,7 +234,7 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     logger.debug("  len(params) =", len(params))
     logger.debug("  len(positional) =", len(positional))
 
-    if has_varkw is True:
+    if has_varkw:
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if len(params) == 0:
@@ -302,7 +321,7 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
             continue
 
         oneof_payload: Any = value[oneof.name]
-        if isinstance(oneof_payload, dict) is False:
+        if not isinstance(oneof_payload, dict):
             continue
 
         if len(oneof_payload) != 1:
@@ -336,8 +355,8 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
         field: Any = desc.fields_by_name.get(key)
         if field is None:
             continue
-        if field.containing_oneof is not None:
-            continue
+        # if field.containing_oneof is not None:
+        #     continue
 
         _set_field_by_value(msg, field, val)
 
