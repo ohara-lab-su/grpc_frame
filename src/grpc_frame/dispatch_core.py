@@ -254,14 +254,18 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     required_param_names: List[str] = []
     for p in params:
         if p.default is inspect._empty:
-            required_param_names.append(p.name)
+            if p.kind in (
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            ):
+                required_param_names.append(p.name)
 
     promoted_args: List[Any] = []
     for name in required_param_names:
         if name in kwargs:
             promoted_args.append(kwargs.pop(name))
 
-    ## 解析開始
+    # 必須位置引数が1つでもあれば、ここで確定
     if len(promoted_args) > 0:
         return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
 
