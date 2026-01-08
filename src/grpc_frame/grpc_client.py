@@ -12,7 +12,7 @@ from google.protobuf import empty_pb2
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
-_logger = XLogger(log_level="info")
+_logger = XLogger(log_level="info", logger_name="grpc_client")
 
 
 def _normalize_method_path(
@@ -210,7 +210,7 @@ def _resolve_request_class_from_rpc(
 
     method_path: Any = getattr(rpc, "_method", None)
     if method_path is None:
-        logger.info("[GrpcClient] rpc has no _method; fallback Empty")
+        logger.debug("[GrpcClient] rpc has no _method; fallback Empty")
         return empty_pb2.Empty
 
     rpc_name: str = _parse_rpc_name_from_method_path(method_path)
@@ -222,7 +222,7 @@ def _resolve_request_class_from_rpc(
 
     pb2_module_name: str = _stub_module_to_pb2_module(stub_module_name)
 
-    logger.info(
+    logger.debug(
         f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}"
     )
 
@@ -232,7 +232,7 @@ def _resolve_request_class_from_rpc(
     if has_req:
         return getattr(pb2_module, request_name)
 
-    logger.info(
+    logger.debug(
         f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty"
     )
     return empty_pb2.Empty
@@ -435,19 +435,18 @@ class GrpcClient:
                         continue
                     req_kwargs[k] = v
 
-                self._logger.info(f"[GrpcClient] req_kwargs={req_kwargs}")
+                self._logger.debug(f"[GrpcClient] req_kwargs={req_kwargs}")
 
                 request = build_request_message(request_cls, req_kwargs)
 
-                self._logger.info(f"[GrpcClient][DEBUG] request content = {request}")
-
-                self._logger.info(
+                self._logger.debug(f"[GrpcClient][DEBUG] request content = {request}")
+                self._logger.debug(
                     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
                 )
 
-                self._logger.info("[GrpcClient] rpc call start")
+                self._logger.debug("[GrpcClient] rpc call start")
                 resp = rpc(request)
-                self._logger.info("[GrpcClient] rpc call done")
+                self._logger.debug("[GrpcClient] rpc call done")
 
                 return core.unwrap_response(resp)
 

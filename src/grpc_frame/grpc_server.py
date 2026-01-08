@@ -12,7 +12,7 @@ import grpc
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
-_logger = XLogger(log_level="debug")
+_logger = XLogger(log_level="info", logger_name="grpc_server")
 
 
 @dataclass(frozen=True)
