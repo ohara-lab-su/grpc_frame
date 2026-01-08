@@ -11,7 +11,7 @@ import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
 
-def build_servicer(
+def build_dynamic_servicer_class(
     *,
     pb2: Any,
     pb2_grpc: Any,
