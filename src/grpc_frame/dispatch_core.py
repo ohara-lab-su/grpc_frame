@@ -297,6 +297,26 @@ def _fill_message_by_dict(
 
         _set_field_by_value(msg, field_obj, selected_value)
 
+    # --- oneof field name 直接指定への対応 ---
+    for field in desc.fields:
+        if field.containing_oneof is None:
+            continue
+
+        if field.name not in value:
+            continue
+
+        oneof = field.containing_oneof
+        selected = msg.WhichOneof(oneof.name)
+
+        # すでに別フィールドが選択されていたら触らない
+        if selected is not None and selected != field.name:
+            continue
+
+        logger.debug(
+            f"[fill_message][oneof-direct] set {oneof.name}.{field.name} = {value[field.name]}"
+        )
+        _set_field_by_value(msg, field, value[field.name])
+
     # normal fields
     for key, val in value.items():
         is_oneof_key: bool = False
