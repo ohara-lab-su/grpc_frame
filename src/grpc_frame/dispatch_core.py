@@ -1,9 +1,8 @@
 # grpc_frame/core.py
 from __future__ import annotations
 
-from dataclasses import dataclass
 import inspect
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from x_logger import XLogger
 

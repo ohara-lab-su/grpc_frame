@@ -1,7 +1,7 @@
 # grpc_frame/grpc_client.py
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 import importlib
 import inspect
 
