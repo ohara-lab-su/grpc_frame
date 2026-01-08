@@ -427,6 +427,10 @@ def fill_message(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] _fill_message_by_dict")
+    logger.debug(f"  msg =", msg)
+    logger.debug(f"  value", value)
+
     if not is_protobuf_message(msg):
         return
 
@@ -455,9 +459,9 @@ def fill_message(
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
+    if is_repeated:
         container = getattr(msg, f0.name)
-        if isinstance(value, list) is True:
+        if isinstance(value, list):
             container.extend(value)
         return
 
@@ -465,7 +469,7 @@ def fill_message(
     if f0.message_type is not None:
         is_msg = True
 
-    if is_msg is False:
+    if not is_msg:
         setattr(msg, f0.name, value)
         return
 
@@ -486,6 +490,10 @@ def _fill_message_by_dict(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] _fill_message_by_dict")
+    logger.debug(f"  msg =", msg)
+    logger.debug(f"  value", value)
+
     desc: Any = msg.DESCRIPTOR
     oneofs: Any = getattr(desc, "oneofs", [])
 
@@ -532,6 +540,9 @@ def _fill_message_by_dict(
         # if field.containing_oneof is not None:
         #     continue
 
+        logger.debug(
+            f"[DEBUG] _fill_message_by_dict: _set_field_by_value msg={msg}, field={field}, val={val}"
+        )
         _set_field_by_value(msg, field, val)
 
 
@@ -550,6 +561,10 @@ def _set_field_by_value(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] _set_field_by_value")
+    logger.debug(f"  field =", msg)
+    logger.debug(f"  val", val)
+
     is_repeated: bool = False
     if field.label == field.LABEL_REPEATED:
         is_repeated = True
@@ -582,6 +597,9 @@ def _set_field_by_value(
         return
 
     child2 = getattr(msg, field.name)
+    logger.debug(
+        f"[DEBUG] _set_field_by_value: fill_message, child2 ={msg}, field={field.name}, val={val}"
+    )
     fill_message(child2, val)
 
 
@@ -598,8 +616,9 @@ def _fill_message_by_position(
     Returns:
 
     """
-    logger.debug("[fill_message] msg =", msg)
-    logger.debug("[fill_message] values =", values)
+    logger.debug(f"[DEBUG] _fill_message_by_position")
+    logger.debug(f"  msg = {msg}")
+    logger.debug(f"  values= {values}")
 
     fields: List[Any] = list(msg.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
@@ -622,6 +641,10 @@ def _fill_message_by_position(
             "value=",
             v,
         )
+
+        logger.debug(
+            f"[DEBUG] _fill_message_by_position, _set_field_by_value, msg={msg}, field={field}, v={v}"
+        )
         _set_field_by_value(msg, field, v)
 
 
@@ -638,9 +661,11 @@ def build_request_message(
     Returns:
 
     """
-    logger.debug("[DEBUG][build_request_message] BEGIN")
-    logger.debug("  request_cls =", request_cls)
-    logger.debug("  input kwargs =", kwargs)
+    logger.debug(f"[DEBUG][build_request_message] BEGIN")
+    logger.debug(f"  request_cls =", request_cls)
+    logger.debug(f"  input kwargs =", kwargs)
+
+    # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
     try:
         logger.debug("[DEBUG][build_request_message] try: calling constructor")
         return request_cls(**kwargs)
@@ -677,6 +702,10 @@ def fill_response_message(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] fill_response_message")
+    logger.debug(f"  resp={resp}")
+    logger.debug(f"  value={value}")
+
     if value is None:
         return resp
 

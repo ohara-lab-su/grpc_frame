@@ -17,6 +17,16 @@ def build_dynamic_servicer_class(
     pb2_grpc: Any,
     service_name: str,
 ) -> Type[Any]:
+    """
+
+    Args:
+        pb2:
+        pb2_grpc:
+        service_name:
+
+    Returns:
+
+    """
     service_desc: Any = pb2.DESCRIPTOR.services_by_name[service_name]
     base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 

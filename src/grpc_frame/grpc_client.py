@@ -13,14 +13,24 @@ import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
 
-def _normalize_method_path(method_path: Any) -> str:
-    if isinstance(method_path, bytes) is True:
+def _normalize_method_path(
+    method_path: Any,
+) -> str:
+    """
+
+    Args:
+        method_path:
+
+    Returns:
+
+    """
+    if isinstance(method_path, bytes):
         try:
             return method_path.decode("utf-8")
         except Exception:
             return method_path.decode("latin-1", errors="replace")
 
-    if isinstance(method_path, str) is True:
+    if isinstance(method_path, str):
         return method_path
 
     return str(method_path)
@@ -39,8 +49,18 @@ def _parse_rpc_name_from_method_path(method_path: Any) -> str:
     return rpc_name
 
 
-def _stub_module_to_pb2_module(stub_module_name: str) -> str:
-    if stub_module_name.endswith("_pb2_grpc") is False:
+def _stub_module_to_pb2_module(
+    stub_module_name: str,
+) -> str:
+    """
+
+    Args:
+        stub_module_name:
+
+    Returns:
+
+    """
+    if not stub_module_name.endswith("_pb2_grpc"):
         raise RuntimeError(
             f"stub module does not look like *_pb2_grpc: {stub_module_name}"
         )
@@ -49,19 +69,31 @@ def _stub_module_to_pb2_module(stub_module_name: str) -> str:
     return prefix
 
 
-def _get_owner_from_serializer(serializer: Any) -> Optional[type]:
+def _get_owner_from_serializer(
+    serializer: Any,
+) -> Optional[type]:
     owner: Any = getattr(serializer, "__self__", None)
     if owner is None:
         return None
 
     is_class: bool = inspect.isclass(owner)
-    if is_class is False:
+    if not is_class:
         return None
 
     return owner
 
 
-def _is_protobuf_base_message_class(cls: Type[Any]) -> bool:
+def _is_protobuf_base_message_class(
+    cls: Type[Any],
+) -> bool:
+    """
+
+    Args:
+        cls:
+
+    Returns:
+
+    """
     module_name: str = getattr(cls, "__module__", "")
     class_name: str = getattr(cls, "__name__", "")
     if module_name != "google._upb._message":
@@ -77,12 +109,22 @@ def _resolve_request_class_from_rpc(
     stub_class: Type[Any],
     logger: XLogger,
 ) -> Type[Any]:
+    """
+
+    Args:
+        rpc:
+        stub_class:
+        logger:
+
+    Returns:
+
+    """
     request_deserializer: Any = getattr(rpc, "_request_deserializer", None)
     if request_deserializer is not None:
         owner = _get_owner_from_serializer(request_deserializer)
         if owner is not None:
             is_base: bool = _is_protobuf_base_message_class(owner)
-            if is_base is False:
+            if not is_base:
                 return owner
 
     request_serializer: Any = getattr(rpc, "_request_serializer", None)
@@ -90,7 +132,7 @@ def _resolve_request_class_from_rpc(
         owner2 = _get_owner_from_serializer(request_serializer)
         if owner2 is not None:
             is_base2: bool = _is_protobuf_base_message_class(owner2)
-            if is_base2 is False:
+            if not is_base2:
                 return owner2
 
     method_path: Any = getattr(rpc, "_method", None)
@@ -114,7 +156,7 @@ def _resolve_request_class_from_rpc(
     pb2_module = importlib.import_module(pb2_module_name)
 
     has_req: bool = hasattr(pb2_module, request_name)
-    if has_req is True:
+    if has_req:
         return getattr(pb2_module, request_name)
 
     logger.info(
@@ -134,6 +176,13 @@ class GrpcClient:
         server_port: int,
         logger: Optional[XLogger] = None,
     ) -> None:
+        """
+
+        Args:
+            server_ip:
+            server_port:
+            logger:
+        """
         self._logger: XLogger = logger or XLogger()
 
         addr: str = f"{server_ip}:{server_port}"
@@ -154,6 +203,11 @@ class GrpcClient:
             return False
 
     def _bind_ctrl_methods(self) -> None:
+        """
+
+        Returns:
+
+        """
         for name, method in inspect.getmembers(self._ctrl_class, inspect.isfunction):
             if name.startswith("_"):
                 continue
