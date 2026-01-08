@@ -270,8 +270,11 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
         # positional が無い場合は kwargs をそのまま渡す
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
+    # positional が存在しても、kwargs に oneof（pairs 等）が含まれる場合は
+    # positional を使ってはいけない
     if len(positional) > 0:
-        return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
+        # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
+        return CtrlCallPlan(args=(), kwargs=kwargs)
 
     return CtrlCallPlan(args=(), kwargs=kwargs)
 
