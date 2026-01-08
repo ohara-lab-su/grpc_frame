@@ -5,6 +5,9 @@ from dataclasses import dataclass
 import inspect
 from typing import Any, Dict, List, Optional, Tuple, Type
 
+from x_logger import XLogger
+
+logger = XLogger(log_level="debug")
 
 # ============================================================
 # name mapping
@@ -200,17 +203,17 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     positional: List[Any] = request_to_positional(request)
 
     # 追加ログ
-    print("[DEBUG][CallPlan]")
-    print("  ctrl_fn =", ctrl_fn)
-    print("  signature =", sig)
-    print("  params =", [p.name for p in params])
-    print("  positional =", positional)
-    print("  kwargs =", kwargs)
+    logger.debug("[DEBUG][CallPlan]")
+    logger.debug("  ctrl_fn =", ctrl_fn)
+    logger.debug("  signature =", sig)
+    logger.debug("  params =", [p.name for p in params])
+    logger.debug("  positional =", positional)
+    logger.debug("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
-    print("  has_varkw =", has_varkw)
-    print("  len(params) =", len(params))
-    print("  len(positional) =", len(positional))
+    logger.debug("  has_varkw =", has_varkw)
+    logger.debug("  len(params) =", len(params))
+    logger.debug("  len(positional) =", len(positional))
 
     if has_varkw is True:
         return CtrlCallPlan(args=(), kwargs=kwargs)
