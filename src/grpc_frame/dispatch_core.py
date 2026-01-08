@@ -401,7 +401,8 @@ def build_call_plan(
             kwargs,
         )
         # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
-        return CtrlCallPlan(args=(), kwargs=kwargs)
+        # return CtrlCallPlan(args=(), kwargs=kwargs)
+        return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     return CtrlCallPlan(args=(), kwargs=kwargs)
 
