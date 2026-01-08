@@ -311,6 +311,59 @@ def fill_message(msg: Any, value: Any) -> None:
         _fill_message_by_dict(msg, value)
         return
 
+    fields: List[Any] = list(msg.DESCRIPTOR.fields)
+    if len(fields) == 1:
+        f0: Any = fields[0]
+
+        is_repeated: bool = False
+        if f0.label == f0.LABEL_REPEATED:
+            is_repeated = True
+
+        if is_repeated is True:
+            container = getattr(msg, f0.name)
+
+            is_msg: bool = False
+            if f0.message_type is not None:
+                is_msg = True
+
+            if is_msg is False:
+                if isinstance(value, list) is True:
+                    container.extend(value)
+                    return
+                if isinstance(value, tuple) is True:
+                    container.extend(list(value))
+                    return
+                container.append(value)
+                return
+
+            if isinstance(value, list) is True:
+                for item in value:
+                    child = container.add()
+                    fill_message(child, item)
+                return
+
+            if isinstance(value, tuple) is True:
+                for item in list(value):
+                    child = container.add()
+                    fill_message(child, item)
+                return
+
+            child = container.add()
+            fill_message(child, value)
+            return
+
+        is_msg2: bool = False
+        if f0.message_type is not None:
+            is_msg2 = True
+
+        if is_msg2 is False:
+            setattr(msg, f0.name, value)
+            return
+
+        child2 = getattr(msg, f0.name)
+        fill_message(child2, value)
+        return
+
     if isinstance(value, list) is True:
         _fill_message_by_position(msg, value)
         return
@@ -319,13 +372,11 @@ def fill_message(msg: Any, value: Any) -> None:
         _fill_message_by_position(msg, list(value))
         return
 
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
     if len(fields) != 1:
         return
 
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
+    f0 = fields[0]
+    is_repeated = False
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
@@ -335,7 +386,7 @@ def fill_message(msg: Any, value: Any) -> None:
             container.extend(value)
         return
 
-    is_msg: bool = False
+    is_msg = False
     if f0.message_type is not None:
         is_msg = True
 
@@ -466,43 +517,6 @@ def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any
 # ============================================================
 # ctrl return -> response fill
 # ============================================================
-
-
-def fill_response_message(resp: Any, value: Any) -> Any:
-    if value is None:
-        return resp
-
-    if isinstance(value, dict) is True:
-        fill_message(resp, value)
-        return resp
-
-    fields: List[Any] = list(resp.DESCRIPTOR.fields)
-    if len(fields) != 1:
-        return resp
-
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
-    if f0.label == f0.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        container = getattr(resp, f0.name)
-        if isinstance(value, list) is True:
-            container.extend(value)
-        return resp
-
-    is_msg: bool = False
-    if f0.message_type is not None:
-        is_msg = True
-
-    if is_msg is False:
-        setattr(resp, f0.name, value)
-        return resp
-
-    child = getattr(resp, f0.name)
-    fill_message(child, value)
-    return resp
 
 
 def unwrap_response(resp: Any) -> Any:
