@@ -381,6 +381,13 @@ def _set_field_by_value(
 
         for item in val:
             child = container.add()
+
+            if isinstance(item, tuple):
+                # フィールド順で dict 化
+                fields = list(child.DESCRIPTOR.fields)
+                fields.sort(key=lambda f: int(f.number))
+                item = {f.name: v for f, v in zip(fields, item)}
+
             fill_message(child, item)
         return
 
