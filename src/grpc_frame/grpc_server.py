@@ -21,6 +21,89 @@ class CtrlCallPlan:
     kwargs: Dict[str, Any]
 
 
+def request_to_positional(
+    req: Any,
+) -> List[Any]:
+    """
+
+    Args:
+        req:
+
+    Returns:
+
+    """
+    logger.debug("[request_to_positional] req =", req)
+
+    fields: List[Any] = list(req.DESCRIPTOR.fields)
+    fields.sort(key=lambda f: int(f.number))
+
+    values: List[Any] = []
+    for f in fields:
+        logger.debug(
+            "[request_to_positional] field:",
+            f.name,
+            "number=",
+            f.number,
+            "oneof=",
+            f.containing_oneof.name if f.containing_oneof else None,
+            "label=",
+            f.label,
+        )
+        # if f.containing_oneof is not None:
+        #     continue
+        if f.containing_oneof is not None:
+            oneof_name: str = f.containing_oneof.name
+
+            selected: Optional[str] = req.WhichOneof(oneof_name)
+            if selected is None:
+                continue
+            if selected != f.name:
+                continue
+
+            raw_sel: Any = getattr(req, f.name)
+
+            logger.debug(
+                "[request_to_positional][oneof]",
+                "oneof=",
+                oneof_name,
+                "selected=",
+                f.name,
+                "raw=",
+                raw_sel,
+            )
+
+            if f.label == f.LABEL_REPEATED:
+                tmp_sel: List[Any] = []
+                for x in raw_sel:
+                    tmp_sel.append(protobuf_to_python(x))
+
+                logger.debug("[request_to_positional] append value =", tmp_sel)
+                values.append(tmp_sel)
+            else:
+                logger.debug("[request_to_positional] append value =", raw_sel)
+                values.append(protobuf_to_python(raw_sel))
+
+            continue
+
+        raw: Any = getattr(req, f.name)
+
+        is_repeated: bool = False
+        if f.label == f.LABEL_REPEATED:
+            is_repeated = True
+
+        if is_repeated:
+            tmp: List[Any] = []
+            for x in raw:
+                tmp.append(protobuf_to_python(x))
+            values.append(tmp)
+            continue
+
+        values.append(protobuf_to_python(raw))
+
+    logger.debug("[request_to_positional] result values =", values)
+    return values
+
+
 def request_to_kwargs(
     req: Any,
 ) -> Dict[str, Any]:
@@ -193,6 +276,11 @@ def build_call_plan(
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     return CtrlCallPlan(args=(), kwargs=kwargs)
+
+
+# ----------------------
+# サーバーの自動ディスパッチの心臓部分
+# ----------------------
 
 
 def build_dynamic_servicer_class(
