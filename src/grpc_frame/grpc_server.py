@@ -39,7 +39,7 @@ def request_to_positional(
 
     values: List[Any] = []
     for f in fields:
-        logger.debug(
+        _logger.debug(
             "[request_to_positional] field:",
             f.name,
             "number=",
@@ -62,7 +62,7 @@ def request_to_positional(
 
             raw_sel: Any = getattr(req, f.name)
 
-            logger.debug(
+            _logger.debug(
                 "[request_to_positional][oneof]",
                 "oneof=",
                 oneof_name,
@@ -77,10 +77,10 @@ def request_to_positional(
                 for x in raw_sel:
                     tmp_sel.append(core.protobuf_to_python(x))
 
-                logger.debug("[request_to_positional] append value =", tmp_sel)
+                _logger.debug("[request_to_positional] append value =", tmp_sel)
                 values.append(tmp_sel)
             else:
-                logger.debug("[request_to_positional] append value =", raw_sel)
+                _logger.debug("[request_to_positional] append value =", raw_sel)
                 values.append(core.protobuf_to_python(raw_sel))
 
             continue
