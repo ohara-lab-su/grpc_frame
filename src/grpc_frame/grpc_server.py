@@ -197,24 +197,26 @@ def build_call_plan(
         params.append(p)
 
     kwargs: Dict[str, Any] = request_to_kwargs(request)
-    positional: List[Any] = request_to_positional(request)
+    # positional: List[Any] = request_to_positional(request)
 
     # 追加ログ
     _logger.debug("[DEBUG][CallPlan]")
     _logger.debug("  ctrl_fn =", ctrl_fn)
     _logger.debug("  signature =", sig)
     _logger.debug("  params =", [p.name for p in params])
-    _logger.debug("  positional =", positional)
+    # _logger.debug("  positional =", positional)
     _logger.debug("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
     _logger.debug("  has_varkw =", has_varkw)
     _logger.debug("  len(params) =", len(params))
-    _logger.debug("  len(positional) =", len(positional))
+    # _logger.debug("  len(positional) =", len(positional))
 
-    # # kwargs が存在する時点で positional 禁止
-    # if kwargs:
-    #     return CtrlCallPlan(args=(), kwargs=kwargs)
+    # --- 重要 ---
+    # drive(pairs, *, relative=...) のような「必須引数 + keyword-only」を壊さないため、
+    # kwargs が来た場合は positional 化せず、そのまま kwargs 呼びに固定する。
+    if kwargs:
+        return CtrlCallPlan(args=(), kwargs=kwargs)
 
     # --- 必須 positional 引数を kwargs から昇格させる ---
     if kwargs and len(params) >= 1:
