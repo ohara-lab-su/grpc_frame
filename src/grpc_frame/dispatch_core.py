@@ -81,7 +81,7 @@ def is_protobuf_message(obj: Any) -> bool:
 
 
 def protobuf_to_python(obj: Any) -> Any:
-    if is_protobuf_message(obj) is False:
+    if not is_protobuf_message(obj):
         return obj
 
     desc: Any = obj.DESCRIPTOR
@@ -134,7 +134,9 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
         selected: Optional[str] = req.WhichOneof(oneof.name)
         if selected is None:
             continue
-        kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
+
+        # kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
+        kwargs[selected] = protobuf_to_python(getattr(req, selected))
 
     for field in desc.fields:
         if field.containing_oneof is not None:
