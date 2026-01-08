@@ -366,8 +366,25 @@ def build_call_plan(
     logger.debug("  len(params) =", len(params))
     logger.debug("  len(positional) =", len(positional))
 
-    # kwargs が存在する時点で positional 禁止
-    if kwargs:
+    # # kwargs が存在する時点で positional 禁止
+    # if kwargs:
+    #     return CtrlCallPlan(args=(), kwargs=kwargs)
+    # --- 必須 positional 引数を kwargs から昇格させる ---
+    if kwargs and len(params) >= 1:
+        p0 = params[0]
+
+        if p0.name in kwargs:
+            first = kwargs.pop(p0.name)
+
+            logger.debug(
+                "[build_call_plan] promote kwarg to positional:",
+                p0.name,
+                first,
+            )
+
+            return CtrlCallPlan(args=(first,), kwargs=kwargs)
+
+        # 必須引数が kwargs に無い場合のみ kwargs 呼び
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if has_varkw:
