@@ -430,17 +430,17 @@ def fill_message(
         return
 
     if isinstance(value, dict):
-        logger.debug("[fill_message] (dict) by POSITION:", value)
+        logger.debug("[fill_message] (dict):", value)
         _fill_message_by_dict(msg, value)
         return
 
     if isinstance(value, list):
-        logger.debug("[fill_message] (list) by POSITION:", value)
+        logger.debug("[fill_message] (list):", value)
         _fill_message_by_position(msg, value)
         return
 
     if isinstance(value, tuple):
-        logger.debug("[fill_message] (tuple) by POSITION:", value)
+        logger.debug("[fill_message] (tuple):", value)
         _fill_message_by_position(msg, list(value))
         return
 
@@ -598,7 +598,7 @@ def _fill_message_by_position(
 
     """
     logger.debug("[fill_message] msg =", msg)
-    logger.debug("[fill_message] value =", value)
+    logger.debug("[fill_message] values =", values)
 
     fields: List[Any] = list(msg.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
@@ -619,7 +619,7 @@ def _fill_message_by_position(
             "field=",
             field.name,
             "value=",
-            val,
+            v,
         )
         _set_field_by_value(msg, field, v)
 
