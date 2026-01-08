@@ -199,12 +199,9 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     kwargs: Dict[str, Any] = request_to_kwargs(request)
     positional: List[Any] = request_to_positional(request)
 
-    # --------------------------------------------------
-    # 必須引数（default を持たない引数）を kwargs から args に昇格
-    # --------------------------------------------------
     required_param_names: List[str] = []
     for p in params:
-        if p.kind == inspect.Parameter.POSITIONAL_ONLY and p.default is inspect._empty:
+        if p.default is inspect._empty:
             required_param_names.append(p.name)
 
     promoted_args: List[Any] = []
@@ -215,31 +212,31 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     if len(promoted_args) > 0:
         return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
 
-    has_varkw: bool = _has_varkw(sig)
-    if has_varkw is True:
-        return CtrlCallPlan(args=(), kwargs=kwargs)
+    # has_varkw: bool = _has_varkw(sig)
+    # if has_varkw is True:
+    #     return CtrlCallPlan(args=(), kwargs=kwargs)
 
-    if len(params) == 0:
-        return CtrlCallPlan(args=(), kwargs={})
+    # if len(params) == 0:
+    #     return CtrlCallPlan(args=(), kwargs={})
 
-    if len(params) == len(positional):
-        return CtrlCallPlan(args=tuple(positional), kwargs={})
+    # if len(params) == len(positional):
+    #     return CtrlCallPlan(args=tuple(positional), kwargs={})
 
-    if len(params) == 1:
-        if len(positional) == 0:
-            if len(kwargs) == 0:
-                return CtrlCallPlan(args=(), kwargs={})
-            if len(kwargs) == 1:
-                only_val: Any = next(iter(kwargs.values()))
-                return CtrlCallPlan(args=(only_val,), kwargs={})
-            return CtrlCallPlan(args=(), kwargs=kwargs)
+    # if len(params) == 1:
+    #     if len(positional) == 0:
+    #         if len(kwargs) == 0:
+    #             return CtrlCallPlan(args=(), kwargs={})
+    #         if len(kwargs) == 1:
+    #             only_val: Any = next(iter(kwargs.values()))
+    #             return CtrlCallPlan(args=(only_val,), kwargs={})
+    #         return CtrlCallPlan(args=(), kwargs=kwargs)
 
-        if len(positional) == 1:
-            return CtrlCallPlan(args=(positional[0],), kwargs={})
+    #     if len(positional) == 1:
+    #         return CtrlCallPlan(args=(positional[0],), kwargs={})
 
-        return CtrlCallPlan(args=(positional,), kwargs={})
+    #     return CtrlCallPlan(args=(positional,), kwargs={})
 
-    return CtrlCallPlan(args=(), kwargs=kwargs)
+    # return CtrlCallPlan(args=(), kwargs=kwargs)
 
 
 # ============================================================
