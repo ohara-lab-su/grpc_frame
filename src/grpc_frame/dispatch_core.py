@@ -330,9 +330,12 @@ def _fill_message_by_dict(
         field: Any = desc.fields_by_name.get(key)
         if field is None:
             continue
-        # if field.containing_oneof is not None:
-        #     continue
 
+        # oneof field はここでは触らない（既に処理済み）
+        if field.containing_oneof is not None:
+            continue
+
+        _set_field_by_value(msg, field, val)
         logger.debug(
             f"[DEBUG] _fill_message_by_dict: _set_field_by_value msg={msg}, field={field}, val={val}"
         )
