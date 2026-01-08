@@ -14,7 +14,17 @@ logger = XLogger(log_level="debug")
 # ============================================================
 
 
-def camel_to_snake(name: str) -> str:
+def camel_to_snake(
+    name: str,
+) -> str:
+    """
+
+    Args:
+        name:
+
+    Returns:
+
+    """
     out: List[str] = []
     for ch in name:
         if ch.isupper():
@@ -29,7 +39,17 @@ def camel_to_snake(name: str) -> str:
     return s
 
 
-def snake_to_camel(name: str) -> str:
+def snake_to_camel(
+    name: str,
+) -> str:
+    """
+
+    Args:
+        name:
+
+    Returns:
+
+    """
     parts: List[str] = name.split("_")
     out: List[str] = []
     for p in parts:
@@ -41,7 +61,17 @@ def snake_to_camel(name: str) -> str:
     return "".join(out)
 
 
-def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
+def ctrl_method_to_rpc_name(
+    ctrl_method: str,
+) -> str:
+    """
+
+    Args:
+        ctrl_method:
+
+    Returns:
+
+    """
     if ctrl_method == "":
         raise ValueError("empty ctrl_method")
 
@@ -49,7 +79,7 @@ def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
     if "_" in ctrl_method:
         has_underscore = True
 
-    if has_underscore is True:
+    if has_underscore:
         return snake_to_camel(ctrl_method)
 
     head: str = ctrl_method[:1].upper()
@@ -62,13 +92,23 @@ def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
 # ============================================================
 
 
-def is_protobuf_message(obj: Any) -> bool:
+def is_protobuf_message(
+    obj: Any,
+) -> bool:
+    """
+
+    Args:
+        obj:
+
+    Returns:
+
+    """
     desc: Any = getattr(obj, "DESCRIPTOR", None)
     if desc is None:
         return False
 
     has_fields: bool = hasattr(desc, "fields")
-    if has_fields is False:
+    if not has_fields:
         return False
 
     return True
@@ -80,7 +120,17 @@ def is_protobuf_message(obj: Any) -> bool:
 # ============================================================
 
 
-def protobuf_to_python(obj: Any) -> Any:
+def protobuf_to_python(
+    obj: Any,
+) -> Any:
+    """
+
+    Args:
+        obj:
+
+    Returns:
+
+    """
     if not is_protobuf_message(obj):
         return obj
 
@@ -125,7 +175,17 @@ def protobuf_to_python(obj: Any) -> Any:
     return out
 
 
-def request_to_kwargs(req: Any) -> Dict[str, Any]:
+def request_to_kwargs(
+    req: Any,
+) -> Dict[str, Any]:
+    """
+
+    Args:
+        req:
+
+    Returns:
+
+    """
     kwargs: Dict[str, Any] = {}
 
     for f in req.DESCRIPTOR.fields:
@@ -157,8 +217,17 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
     return kwargs
 
 
-def request_to_positional(req: Any) -> List[Any]:
-    """"""
+def request_to_positional(
+    req: Any,
+) -> List[Any]:
+    """
+
+    Args:
+        req:
+
+    Returns:
+
+    """
     logger.debug("[request_to_positional] req =", req)
 
     fields: List[Any] = list(req.DESCRIPTOR.fields)
@@ -243,14 +312,36 @@ class CtrlCallPlan:
     kwargs: Dict[str, Any]
 
 
-def _has_varkw(sig: inspect.Signature) -> bool:
+def _has_varkw(
+    sig: inspect.Signature,
+) -> bool:
+    """
+
+    Args:
+        sig:
+
+    Returns:
+
+    """
     for p in sig.parameters.values():
         if p.kind == p.VAR_KEYWORD:
             return True
     return False
 
 
-def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
+def build_call_plan(
+    ctrl_fn: Any,
+    request: Any,
+) -> CtrlCallPlan:
+    """
+
+    Args:
+        ctrl_fn:
+        request:
+
+    Returns:
+
+    """
     sig: inspect.Signature = inspect.signature(ctrl_fn)
 
     params: List[inspect.Parameter] = []
@@ -322,7 +413,19 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
 # ============================================================
 
 
-def fill_message(msg: Any, value: Any) -> None:
+def fill_message(
+    msg: Any,
+    value: Any,
+) -> None:
+    """
+
+    Args:
+        msg:
+        value:
+
+    Returns:
+
+    """
     if not is_protobuf_message(msg):
         return
 
@@ -369,7 +472,19 @@ def fill_message(msg: Any, value: Any) -> None:
     fill_message(child, value)
 
 
-def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
+def _fill_message_by_dict(
+    msg: Any,
+    value: Dict[str, Any],
+) -> None:
+    """
+
+    Args:
+        msg:
+        value:
+
+    Returns:
+
+    """
     desc: Any = msg.DESCRIPTOR
     oneofs: Any = getattr(desc, "oneofs", [])
 
@@ -419,7 +534,21 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
         _set_field_by_value(msg, field, val)
 
 
-def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
+def _set_field_by_value(
+    msg: Any,
+    field: Any,
+    val: Any,
+) -> None:
+    """
+
+    Args:
+        msg:
+        field:
+        val:
+
+    Returns:
+
+    """
     is_repeated: bool = False
     if field.label == field.LABEL_REPEATED:
         is_repeated = True
@@ -434,7 +563,7 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
         if field.message_type is not None:
             is_msg = True
 
-        if is_msg is False:
+        if not is_msg:
             container.extend(val)
             return
 
@@ -447,7 +576,7 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
     if field.message_type is not None:
         is_msg2 = True
 
-    if is_msg2 is False:
+    if not is_msg2:
         setattr(msg, field.name, val)
         return
 
@@ -455,7 +584,19 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
     fill_message(child2, val)
 
 
-def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
+def _fill_message_by_position(
+    msg: Any,
+    values: List[Any],
+) -> None:
+    """
+
+    Args:
+        msg:
+        values:
+
+    Returns:
+
+    """
     logger.debug("[fill_message] msg =", msg)
     logger.debug("[fill_message] value =", value)
 
@@ -483,7 +624,19 @@ def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
         _set_field_by_value(msg, field, v)
 
 
-def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any:
+def build_request_message(
+    request_cls: Type[Any],
+    kwargs: Dict[str, Any],
+) -> Any:
+    """
+
+    Args:
+        request_cls:
+        kwargs:
+
+    Returns:
+
+    """
     logger.debug("[DEBUG][build_request_message] BEGIN")
     logger.debug("  request_cls =", request_cls)
     logger.debug("  input kwargs =", kwargs)
@@ -510,11 +663,23 @@ def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any
 # ============================================================
 
 
-def fill_response_message(resp: Any, value: Any) -> Any:
+def fill_response_message(
+    resp: Any,
+    value: Any,
+) -> Any:
+    """
+
+    Args:
+        resp:
+        value:
+
+    Returns:
+
+    """
     if value is None:
         return resp
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
         fill_message(resp, value)
         return resp
 
@@ -547,12 +712,22 @@ def fill_response_message(resp: Any, value: Any) -> Any:
     return resp
 
 
-def unwrap_response(resp: Any) -> Any:
-    if is_protobuf_message(resp) is False:
+def unwrap_response(
+    resp: Any,
+) -> Any:
+    """
+
+    Args:
+        resp:
+
+    Returns:
+
+    """
+    if not is_protobuf_message(resp):
         return resp
 
     has_ok: bool = hasattr(resp, "ok")
-    if has_ok is True:
+    if has_ok:
         ok_val: Any = getattr(resp, "ok")
         return bool(ok_val)
 
