@@ -103,6 +103,9 @@ def is_protobuf_message(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] is_protobuf_message")
+    logger.debug(f"  obj={obj}")
+
     desc: Any = getattr(obj, "DESCRIPTOR", None)
     if desc is None:
         return False
@@ -131,6 +134,9 @@ def protobuf_to_python(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] protobuf_to_python")
+    logger.debug(f"  obj={obj}")
+
     if not is_protobuf_message(obj):
         return obj
 
@@ -259,12 +265,6 @@ def request_to_positional(
 
 
 # ============================================================
-# ctrl call planning
-#   proto + signature から自動決定（従来ルール踏襲）
-# ============================================================
-
-
-# ============================================================
 # python -> protobuf message filling (descriptor-driven)
 #   oneof input:
 #     { oneof_name: { selected_field_name: value } }
@@ -388,7 +388,7 @@ def _fill_message_by_dict(
             if key == oneof.name:
                 is_oneof_key = True
                 break
-        if is_oneof_key is True:
+        if is_oneof_key:
             continue
 
         field: Any = desc.fields_by_name.get(key)

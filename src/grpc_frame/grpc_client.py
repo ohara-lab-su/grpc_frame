@@ -12,6 +12,8 @@ from google.protobuf import empty_pb2
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
+_logger = XLogger(log_level="debug")
+
 
 def _normalize_method_path(
     method_path: Any,
@@ -24,6 +26,8 @@ def _normalize_method_path(
     Returns:
 
     """
+    _logger.debug(f"[DEBUG] _normalize_method_path: {method_path}")
+
     if isinstance(method_path, bytes):
         try:
             return method_path.decode("utf-8")
@@ -36,7 +40,19 @@ def _normalize_method_path(
     return str(method_path)
 
 
-def _parse_rpc_name_from_method_path(method_path: Any) -> str:
+def _parse_rpc_name_from_method_path(
+    method_path: Any,
+) -> str:
+    """
+
+    Args:
+        method_path:
+
+    Returns:
+
+    """
+    _logger.debug(f"[DEBUG] _parse_rpc_name_from_method_path: {method_path}")
+
     path: str = _normalize_method_path(method_path)
     parts: list[str] = path.split("/")
     if len(parts) < 2:
@@ -60,6 +76,8 @@ def _stub_module_to_pb2_module(
     Returns:
 
     """
+    _logger.debug(f"[DEBUG] _stub_module_to_pb2_module: {stub_module_name}")
+
     if not stub_module_name.endswith("_pb2_grpc"):
         raise RuntimeError(
             f"stub module does not look like *_pb2_grpc: {stub_module_name}"
@@ -72,6 +90,16 @@ def _stub_module_to_pb2_module(
 def _get_owner_from_serializer(
     serializer: Any,
 ) -> Optional[type]:
+    """
+
+    Args:
+        serializer:
+
+    Returns:
+
+    """
+    _logger.debug(f"[DEBUG] _get_owner_from_serializer: {serializer}")
+
     owner: Any = getattr(serializer, "__self__", None)
     if owner is None:
         return None
@@ -94,6 +122,8 @@ def _is_protobuf_base_message_class(
     Returns:
 
     """
+    _logger.debug(f"[DEBUG] _is_protobuf_base_message_class: {cls}")
+
     module_name: str = getattr(cls, "__module__", "")
     class_name: str = getattr(cls, "__name__", "")
     if module_name != "google._upb._message":
@@ -101,6 +131,11 @@ def _is_protobuf_base_message_class(
     if class_name != "Message":
         return False
     return True
+
+
+# ----------------------------
+# 以下クラス中で呼ばれる
+# ----------------------------
 
 
 def _resolve_request_class_from_rpc(
@@ -119,6 +154,8 @@ def _resolve_request_class_from_rpc(
     Returns:
 
     """
+    logger.debug(f"[DEBUG] _resolve_request_class_from_rpc: {rpc}")
+
     request_deserializer: Any = getattr(rpc, "_request_deserializer", None)
     if request_deserializer is not None:
         owner = _get_owner_from_serializer(request_deserializer)
@@ -178,26 +215,26 @@ def build_request_message(
     Returns:
 
     """
-    logger.debug(f"[DEBUG][build_request_message] BEGIN")
-    logger.debug(f"  request_cls =", request_cls)
-    logger.debug(f"  input kwargs =", kwargs)
+    _logger.debug(f"[DEBUG][build_request_message] BEGIN")
+    _logger.debug(f"  request_cls =", request_cls)
+    _logger.debug(f"  input kwargs =", kwargs)
 
     # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
     try:
-        logger.debug("[DEBUG][build_request_message] try: calling constructor")
+        _logger.debug("[DEBUG][build_request_message] try: calling constructor")
         return request_cls(**kwargs)
     except Exception as e:
-        logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
+        _logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
 
     req: Any = request_cls()
-    logger.debug(
+    _logger.debug(
         "[DEBUG][build_request_message] fallback: empty request created =", req
     )
 
     fill_message(req, kwargs)
 
-    logger.debug("[DEBUG][build_request_message] after fill_message =", req)
-    logger.debug("[DEBUG][build_request_message] END")
+    _logger.debug("[DEBUG][build_request_message] after fill_message =", req)
+    _logger.debug("[DEBUG][build_request_message] END")
     return req
 
 

@@ -10,6 +10,8 @@ import grpc
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
+_logger = XLogger(log_level="debug")
+
 
 @dataclass(frozen=True)
 class CtrlCallPlan:
@@ -28,6 +30,8 @@ def request_to_kwargs(
     Returns:
 
     """
+    _logger.debug(f"[DEBUG][request_to_kwargs] BEGIN")
+
     kwargs: Dict[str, Any] = {}
 
     for f in req.DESCRIPTOR.fields:
@@ -70,10 +74,18 @@ def _has_varkw(
     Returns:
 
     """
+    # _logger.debug(f"[DEBUG][_has_varkw]")
+
     for p in sig.parameters.values():
         if p.kind == p.VAR_KEYWORD:
             return True
     return False
+
+
+# ============================================================
+# ctrl call planning
+#   proto + signature から自動決定（従来ルール踏襲）
+# ============================================================
 
 
 def build_call_plan(
@@ -89,6 +101,8 @@ def build_call_plan(
     Returns:
 
     """
+    _logger.debug(f"[DEBUG][build_call_plan]")
+
     sig: inspect.Signature = inspect.signature(ctrl_fn)
 
     params: List[inspect.Parameter] = []
@@ -101,17 +115,17 @@ def build_call_plan(
     positional: List[Any] = request_to_positional(request)
 
     # 追加ログ
-    logger.debug("[DEBUG][CallPlan]")
-    logger.debug("  ctrl_fn =", ctrl_fn)
-    logger.debug("  signature =", sig)
-    logger.debug("  params =", [p.name for p in params])
-    logger.debug("  positional =", positional)
-    logger.debug("  kwargs =", kwargs)
+    _logger.debug("[DEBUG][CallPlan]")
+    _logger.debug("  ctrl_fn =", ctrl_fn)
+    _logger.debug("  signature =", sig)
+    _logger.debug("  params =", [p.name for p in params])
+    _logger.debug("  positional =", positional)
+    _logger.debug("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
-    logger.debug("  has_varkw =", has_varkw)
-    logger.debug("  len(params) =", len(params))
-    logger.debug("  len(positional) =", len(positional))
+    _logger.debug("  has_varkw =", has_varkw)
+    _logger.debug("  len(params) =", len(params))
+    _logger.debug("  len(positional) =", len(positional))
 
     # # kwargs が存在する時点で positional 禁止
     # if kwargs:
@@ -124,7 +138,7 @@ def build_call_plan(
         if p0.name in kwargs:
             first = kwargs.pop(p0.name)
 
-            logger.debug(
+            _logger.debug(
                 "[build_call_plan] promote kwarg to positional:",
                 p0.name,
                 first,
@@ -142,21 +156,21 @@ def build_call_plan(
         return CtrlCallPlan(args=(), kwargs={})
 
     if len(params) == len(positional):
-        logger.debug("[build_call_plan] USE positional ONLY:", positional)
+        _logger.debug("[build_call_plan] USE positional ONLY:", positional)
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     if len(params) == 1:
-        logger.debug("[build_call_plan] USE positional + oneof:", positional)
+        _logger.debug("[build_call_plan] USE positional + oneof:", positional)
         p0: inspect.Parameter = params[0]
 
         # positional が1つある場合は、それをそのまま使う
         if len(positional) == 1:
-            logger.debug("[build_call_plan] USE positional == 1", positional)
+            _logger.debug("[build_call_plan] USE positional == 1", positional)
             return CtrlCallPlan(args=(positional[0],), kwargs={})
 
         # positional が複数ある場合はまとめて1引数にする
         if len(positional) > 1:
-            logger.debug("[build_call_plan] USE positional > 1", positional)
+            _logger.debug("[build_call_plan] USE positional > 1", positional)
             return CtrlCallPlan(args=(positional,), kwargs={})
 
         # positional が無い場合は kwargs をそのまま渡す
@@ -165,7 +179,7 @@ def build_call_plan(
     # positional が存在しても、kwargs に oneof（pairs 等）が含まれる場合は
     # positional を使ってはいけない
     if len(positional) > 0:
-        logger.debug(
+        _logger.debug(
             "[build_call_plan] positional EXISTS but fallback to kwargs",
             "positional=",
             positional,
