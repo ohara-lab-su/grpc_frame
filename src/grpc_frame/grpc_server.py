@@ -1,79 +1,72 @@
+# grpc_frame/grpc_server.py
 from __future__ import annotations
 
-import inspect
 import traceback
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Type
 
-import grpc_frame.core as core
+import grpc
+
+
+import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
 
-def build_dynamic_servicer_class(
-    servicer_base_cls: Type[Any],
-    ctrl: Any,
-    logger: Optional[XLogger] = None,
+def build_servicer(
+    *,
+    pb2: Any,
+    pb2_grpc: Any,
+    service_name: str,
 ) -> Type[Any]:
-    logger_obj = logger or XLogger()
+    service_desc: Any = pb2.DESCRIPTOR.services_by_name[service_name]
+    base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 
-    rpc_names: List[str] = [
-        name
-        for name, member in servicer_base_cls.__dict__.items()
-        if callable(member) and not name.startswith("_")
-    ]
+    class Servicer(base_cls):
+        def __init__(self, *, ctrl: Any, logger: XLogger) -> None:
+            self._ctrl: Any = ctrl
+            self._logger: XLogger = logger
 
-    def _make_handler(rpc_name: str) -> Callable[..., Any]:
-        rpc_method = getattr(servicer_base_cls, rpc_name, None)
+    for m in service_desc.methods:
+        rpc_name: str = m.name
+        ctrl_name: str = core.camel_to_snake(rpc_name)
+        response_cls: Any = getattr(pb2, m.output_type.name)
 
-        response_cls = None
-        if rpc_method is not None:
-            ann = getattr(rpc_method, "__annotations__", None)
-            if ann:
-                response_cls = ann.get("return", None)
+        def make_handler(
+            rpc_name_local: str,
+            ctrl_name_local: str,
+            response_cls_local: Any,
+        ):
+            def handler(self: Any, request: Any, context: Any) -> Any:
+                try:
+                    fn: Any = getattr(self._ctrl, ctrl_name_local)
+                    plan = core.build_call_plan(fn, request)
 
-        def _handler(self: Any, request: Any, context: Any) -> Any:
-            method_name = core.camel_to_snake(rpc_name)
+                    if len(plan.kwargs) == 0:
+                        ret = fn(*plan.args)
+                    else:
+                        ret = fn(*plan.args, **plan.kwargs)
 
-            if not hasattr(ctrl, method_name):
-                if response_cls is None:
-                    return None
-                resp = response_cls()
-                if hasattr(resp, "ok"):
-                    resp.ok = False
-                return resp
+                except AttributeError:
+                    context.abort(
+                        grpc.StatusCode.UNIMPLEMENTED,
+                        f"ctrl has no method '{ctrl_name_local}'",
+                    )
 
-            try:
-                ctrl_fn = getattr(ctrl, method_name)
-                plan = core.build_call_plan(ctrl_fn, request)
-                ret = ctrl_fn(*plan.args, **plan.kwargs)
+                except Exception as e:
+                    self._logger.error(traceback.format_exc())
+                    context.abort(
+                        grpc.StatusCode.INTERNAL,
+                        f"{rpc_name_local} failed: {e}",
+                    )
 
-                if response_cls is None:
-                    return ret
+                resp: Any = response_cls_local()
+                return core.fill_response_message(resp, ret)
 
-                resp = response_cls()
-                core.fill_response_message(resp, ret)
-                return resp
+            return handler
 
-            except Exception:
-                logger_obj.error(traceback.format_exc())
-                if response_cls is None:
-                    return None
-                resp = response_cls()
-                if hasattr(resp, "ok"):
-                    resp.ok = False
-                return resp
+        setattr(
+            Servicer,
+            rpc_name,
+            make_handler(rpc_name, ctrl_name, response_cls),
+        )
 
-        _handler.__name__ = rpc_name
-        return _handler
-
-    attrs: Dict[str, Any] = {}
-
-    def _init(self: Any, injected_ctrl: Any, injected_logger: XLogger) -> None:
-        self._ctrl = injected_ctrl
-        self._logger = injected_logger
-
-    attrs["__init__"] = _init
-
-    for rpc in rpc_names:
-        attrs[rpc] = _make_handler(rpc)
-
-    return type(f"Dynamic{servicer_base_cls.__name__}", (servicer_base_cls,), attrs)
+    return Servicer
