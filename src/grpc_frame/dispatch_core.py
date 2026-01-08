@@ -126,22 +126,33 @@ def protobuf_to_python(obj: Any) -> Any:
 
 
 def request_to_kwargs(req: Any) -> Dict[str, Any]:
-    desc: Any = req.DESCRIPTOR
     kwargs: Dict[str, Any] = {}
 
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = req.WhichOneof(oneof.name)
-        if selected is None:
+    for f in req.DESCRIPTOR.fields:
+        # --- oneof 対応 ---
+        if f.containing_oneof is not None:
+            oneof_name: str = f.containing_oneof.name
+            selected: Optional[str] = req.WhichOneof(oneof_name)
+
+            if selected != f.name:
+                continue
+
+            raw_sel: Any = getattr(req, f.name)
+
+            if f.label == f.LABEL_REPEATED:
+                kwargs[f.name] = [protobuf_to_python(x) for x in raw_sel]
+            else:
+                kwargs[f.name] = protobuf_to_python(raw_sel)
+
             continue
 
-        # kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
-        kwargs[selected] = protobuf_to_python(getattr(req, selected))
+        # --- 通常フィールド ---
+        raw: Any = getattr(req, f.name)
 
-    for field in desc.fields:
-        if field.containing_oneof is not None:
-            continue
-        kwargs[field.name] = protobuf_to_python(getattr(req, field.name))
+        if f.label == f.LABEL_REPEATED:
+            kwargs[f.name] = [protobuf_to_python(x) for x in raw]
+        else:
+            kwargs[f.name] = protobuf_to_python(raw)
 
     return kwargs
 
