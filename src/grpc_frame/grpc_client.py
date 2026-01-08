@@ -133,6 +133,70 @@ def _is_protobuf_base_message_class(
     return True
 
 
+# ============================================================
+# protobuf -> python (oneof reversible)
+#   oneof: { oneof_name: { selected_field_name: value } }
+# ============================================================
+
+
+def protobuf_to_python(
+    obj: Any,
+) -> Any:
+    """
+
+    Args:
+        obj:
+
+    Returns:
+
+    """
+    logger.debug(f"[DEBUG] protobuf_to_python")
+    logger.debug(f"  obj={obj}")
+
+    if not is_protobuf_message(obj):
+        return obj
+
+    desc: Any = obj.DESCRIPTOR
+    out: Dict[str, Any] = {}
+
+    oneofs: Any = getattr(desc, "oneofs", [])
+    for oneof in oneofs:
+        selected: Optional[str] = obj.WhichOneof(oneof.name)
+        if selected is None:
+            continue
+        selected_val: Any = getattr(obj, selected)
+        out[oneof.name] = {selected: protobuf_to_python(selected_val)}
+
+    for field in desc.fields:
+        if field.containing_oneof is not None:
+            continue
+
+        raw: Any = getattr(obj, field.name)
+
+        is_repeated: bool = False
+        if field.label == field.LABEL_REPEATED:
+            is_repeated = True
+
+        if is_repeated:
+            tmp: List[Any] = []
+            for x in raw:
+                tmp.append(protobuf_to_python(x))
+            out[field.name] = tmp
+            continue
+
+        is_message: bool = False
+        if field.message_type is not None:
+            is_message = True
+
+        if is_message:
+            out[field.name] = protobuf_to_python(raw)
+            continue
+
+        out[field.name] = raw
+
+    return out
+
+
 # ----------------------------
 # 以下クラス中で呼ばれる
 # ----------------------------
