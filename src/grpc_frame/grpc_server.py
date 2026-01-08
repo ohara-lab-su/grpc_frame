@@ -131,7 +131,8 @@ def request_to_kwargs(
             raw_sel: Any = getattr(req, f.name)
 
             if f.label == f.LABEL_REPEATED:
-                kwargs[f.name] = [core.protobuf_to_python(x) for x in raw_sel]
+                # kwargs[f.name] = [core.protobuf_to_python(x) for x in raw_sel]
+                kwargs[f.name] = [_pbmsg_to_tuple(x) for x in raw_sel]
             else:
                 kwargs[f.name] = core.protobuf_to_python(raw_sel)
 
@@ -141,7 +142,8 @@ def request_to_kwargs(
         raw: Any = getattr(req, f.name)
 
         if f.label == f.LABEL_REPEATED:
-            kwargs[f.name] = [core.protobuf_to_python(x) for x in raw]
+            # kwargs[f.name] = [core.protobuf_to_python(x) for x in raw]
+            kwargs[f.name] = [_pbmsg_to_tuple(x) for x in raw]
         else:
             kwargs[f.name] = core.protobuf_to_python(raw)
 
@@ -165,6 +167,31 @@ def _has_varkw(
         if p.kind == p.VAR_KEYWORD:
             return True
     return False
+
+
+def _pbmsg_to_tuple(
+    obj: Any,
+) -> Any:
+    if not core.is_protobuf_message(obj):
+        return obj
+
+    fields: List[Any] = list(obj.DESCRIPTOR.fields)
+    fields.sort(key=lambda f: int(f.number))
+
+    out: List[Any] = []
+    for f in fields:
+        if f.containing_oneof is not None:
+            continue
+        if f.label == f.LABEL_REPEATED:
+            # ネストrepeatedはここでは展開しない（従来どおり）
+            return core.protobuf_to_python(obj)
+        if f.message_type is not None:
+            # ネストmessageもここではdictのまま（従来どおり）
+            return core.protobuf_to_python(obj)
+
+        out.append(getattr(obj, f.name))
+
+    return tuple(out)
 
 
 # ============================================================
