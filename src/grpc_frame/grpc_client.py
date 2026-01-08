@@ -1,188 +1,18 @@
-"""
-K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
-
-GrpcClient 側の汎用ディスパッチ実装。
-
-- ctrl クラスの public メソッドを自動スキャンし
-- 対応する gRPC Stub RPC を探索
-- Python 関数呼び出しを gRPC RPC 呼び出しへ動的に接続する
-
-本ファイルは **client 側専用** であり、
-runtime / server / mover 等の内部状態には一切触れない。
-"""
-
+# grpc_frame/client.py
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional, Type
-import importlib
 import inspect
 
 import grpc
-from google.protobuf import empty_pb2
-
 
 import grpc_frame.dispatch_core as core
+import grpc_frame.util_client as client_util
+
 from x_logger import XLogger
 
 
-def _normalize_method_path(
-    method_path: Any,
-) -> str:
-    """
-    gRPC 内部で保持される method_path を str に正規化する。
-
-    - bytes の場合は UTF-8 を優先し、失敗時は latin-1 でフォールバック
-    - str はそのまま返す
-    - それ以外は str() による文字列化
-    """
-    if isinstance(method_path, bytes):
-        try:
-            return method_path.decode("utf-8")
-        except Exception:
-            return method_path.decode("latin-1", errors="replace")
-
-    if isinstance(method_path, str):
-        return method_path
-
-    return str(method_path)
-
-
-def _parse_rpc_name_from_method_path(
-    method_path: Any,
-) -> str:
-    """
-    gRPC method path (例: /package.Service/Method) から
-    RPC 名 (Method) のみを抽出する。
-    """
-    path: str = _normalize_method_path(method_path)
-    parts: list[str] = path.split("/")
-    if len(parts) < 2:
-        raise ValueError(f"unexpected rpc method path: {path}")
-
-    rpc_name: str = parts[-1]
-    if rpc_name == "":
-        raise ValueError(f"empty rpc name: {path}")
-
-    return rpc_name
-
-
-def _stub_module_to_pb2_module(stub_module_name: str) -> str:
-    if not stub_module_name.endswith("_pb2_grpc"):
-        raise RuntimeError(
-            f"stub module does not look like *_pb2_grpc: {stub_module_name}"
-        )
-
-    prefix: str = stub_module_name[: -len("_grpc")]
-    return prefix
-
-
-def _get_owner_from_serializer(
-    serializer: Any,
-) -> Optional[type]:
-    """
-    gRPC serializer / deserializer が束縛されているクラスを取得する。
-
-    Protobuf Message クラスが直接参照できる場合の高速経路。
-    """
-    owner: Any = getattr(serializer, "__self__", None)
-    if owner is None:
-        return None
-
-    is_class: bool = inspect.isclass(owner)
-    if not is_class:
-        return None
-
-    return owner
-
-
-def _is_protobuf_base_message_class(
-    cls: Type[Any],
-) -> bool:
-    """
-    google._upb._message.Message そのものかどうかを判定する。
-
-    これは「具体的な Request/Response クラスではない」
-    ことを見分けるための判定。
-    """
-    module_name: str = getattr(cls, "__module__", "")
-    class_name: str = getattr(cls, "__name__", "")
-    if module_name != "google._upb._message":
-        return False
-    if class_name != "Message":
-        return False
-    return True
-
-
-def _resolve_request_class_from_rpc(
-    rpc: Any,
-    *,
-    stub_class: Type[Any],
-    logger: XLogger,
-) -> Type[Any]:
-    """
-    RPC オブジェクトから Request protobuf クラスを推定する。
-
-    優先順位:
-    1. _request_deserializer に束縛された Message クラス
-    2. _request_serializer に束縛された Message クラス
-    3. method path から <RpcName>Request を pb2 モジュールから探索
-    4. 見つからなければ Empty
-    """
-    request_deserializer: Any = getattr(rpc, "_request_deserializer", None)
-    if request_deserializer is not None:
-        owner = _get_owner_from_serializer(request_deserializer)
-        if owner is not None:
-            is_base: bool = _is_protobuf_base_message_class(owner)
-            if not is_base:
-                return owner
-
-    request_serializer: Any = getattr(rpc, "_request_serializer", None)
-    if request_serializer is not None:
-        owner2 = _get_owner_from_serializer(request_serializer)
-        if owner2 is not None:
-            is_base2: bool = _is_protobuf_base_message_class(owner2)
-            if not is_base2:
-                return owner2
-
-    method_path: Any = getattr(rpc, "_method", None)
-    if method_path is None:
-        logger.info("[GrpcClient] rpc has no _method; fallback Empty")
-        return empty_pb2.Empty
-
-    rpc_name: str = _parse_rpc_name_from_method_path(method_path)
-    request_name: str = f"{rpc_name}Request"
-
-    stub_module_name: str = getattr(stub_class, "__module__", "")
-    if stub_module_name == "":
-        raise RuntimeError("stub_class has no __module__")
-
-    pb2_module_name: str = _stub_module_to_pb2_module(stub_module_name)
-
-    logger.info(
-        f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}"
-    )
-
-    pb2_module = importlib.import_module(pb2_module_name)
-
-    has_req: bool = hasattr(pb2_module, request_name)
-    if has_req:
-        return getattr(pb2_module, request_name)
-
-    logger.info(
-        f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty"
-    )
-    return empty_pb2.Empty
-
-
 class GrpcClient:
-    """
-    ctrl クラスを基準に gRPC Stub をラップする汎用クライアント。
-
-    - ctrl の public メソッド名を RPC 名に変換
-    - 対応する Stub RPC が存在すれば dispatcher を動的生成
-    - client からは ctrl の API しか見えない構造を維持する
-    """
-
     _ctrl_class: type
     _stub_class: type
     _client_log_title: str
@@ -193,10 +23,6 @@ class GrpcClient:
         server_port: int,
         logger: Optional[XLogger] = None,
     ) -> None:
-        """
-        gRPC チャネルを生成し、Stub を初期化する。
-        同時に ctrl メソッドのバインドを行う。
-        """
         self._logger: XLogger = logger or XLogger()
 
         addr: str = f"{server_ip}:{server_port}"
@@ -210,9 +36,6 @@ class GrpcClient:
         self._bind_ctrl_methods()
 
     def is_connected(self, timeout: float = 0.5) -> bool:
-        """
-        gRPC channel が ready 状態かどうかを確認する。
-        """
         try:
             grpc.channel_ready_future(self._channel).result(timeout=timeout)
             return True
@@ -220,12 +43,8 @@ class GrpcClient:
             return False
 
     def _bind_ctrl_methods(self) -> None:
-        """
-        ctrl クラスの public メソッドを走査し、
-        対応する RPC が存在するものだけを client メソッドとして登録する。
-        """
         for name, method in inspect.getmembers(self._ctrl_class, inspect.isfunction):
-            if name.startswith("_"):
+            if name.startswith("_") is True:
                 continue
 
             rpc_name: str = core.ctrl_method_to_rpc_name(name)
@@ -235,7 +54,7 @@ class GrpcClient:
                 f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}"
             )
 
-            if not has_rpc:
+            if has_rpc is False:
                 continue
 
             rpc: Any = getattr(self._stub, rpc_name)
@@ -257,10 +76,7 @@ class GrpcClient:
         sig: inspect.Signature,
         rpc: Any,
     ) -> Callable[..., Any]:
-        """
-        ctrl メソッド呼び出しを gRPC RPC 呼び出しへ変換する dispatcher を生成する。
-        """
-        request_cls = _resolve_request_class_from_rpc(
+        request_cls: Type[Any] = client_util.resolve_request_class_from_rpc(
             rpc,
             stub_class=self._stub_class,
             logger=self._logger,
@@ -271,13 +87,7 @@ class GrpcClient:
             f"(request_cls={request_cls}, module={getattr(request_cls, '__module__', '')})"
         )
 
-        def _method(
-            *args: Any,
-            **kwargs: Any,
-        ) -> Any:
-            """
-            ctrl メソッド互換の client 側エントリポイント。
-            """
+        def _method(*args: Any, **kwargs: Any) -> Any:
             self._logger.info(f"[GrpcClient] CALL {method_name}() begin")
             self._logger.info(f"[GrpcClient] args={args}, kwargs={kwargs}")
 
