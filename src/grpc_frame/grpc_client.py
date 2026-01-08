@@ -231,7 +231,7 @@ def build_request_message(
         "[DEBUG][build_request_message] fallback: empty request created =", req
     )
 
-    fill_message(req, kwargs)
+    core.fill_message(req, kwargs)
 
     _logger.debug("[DEBUG][build_request_message] after fill_message =", req)
     _logger.debug("[DEBUG][build_request_message] END")
