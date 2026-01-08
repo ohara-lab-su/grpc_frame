@@ -369,6 +369,7 @@ def build_call_plan(
     # # kwargs が存在する時点で positional 禁止
     # if kwargs:
     #     return CtrlCallPlan(args=(), kwargs=kwargs)
+
     # --- 必須 positional 引数を kwargs から昇格させる ---
     if kwargs and len(params) >= 1:
         p0 = params[0]
