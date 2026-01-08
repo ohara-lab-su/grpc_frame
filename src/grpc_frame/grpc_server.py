@@ -263,17 +263,17 @@ def build_call_plan(
 
     # positional が存在しても、kwargs に oneof（pairs 等）が含まれる場合は
     # positional を使ってはいけない
-    if len(positional) > 0:
-        _logger.debug(
-            "[build_call_plan] positional EXISTS but fallback to kwargs",
-            "positional=",
-            positional,
-            "kwargs=",
-            kwargs,
-        )
-        # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
-        # return CtrlCallPlan(args=(), kwargs=kwargs)
-        return CtrlCallPlan(args=tuple(positional), kwargs={})
+    # if len(positional) > 0:
+    #     _logger.debug(
+    #         "[build_call_plan] positional EXISTS but fallback to kwargs",
+    #         "positional=",
+    #         positional,
+    #         "kwargs=",
+    #         kwargs,
+    #     )
+    #     # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
+    #     # return CtrlCallPlan(args=(), kwargs=kwargs)
+    #     return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     return CtrlCallPlan(args=(), kwargs=kwargs)
 

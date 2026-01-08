@@ -219,17 +219,23 @@ def build_request_message(
     _logger.debug(f"  request_cls =", request_cls)
     _logger.debug(f"  input kwargs =", kwargs)
 
-    # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
-    try:
-        _logger.debug("[DEBUG][build_request_message] try: calling constructor")
-        return request_cls(**kwargs)
-    except Exception as e:
-        _logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
+    # # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
+    # try:
+    #     _logger.debug("[DEBUG][build_request_message] try: calling constructor")
+    #     return request_cls(**kwargs)
+    # except Exception as e:
+    #     _logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
 
+    # req: Any = request_cls()
+    # _logger.debug(
+    #     "[DEBUG][build_request_message] fallback: empty request created =", req
+    # )
+
+    # core.fill_message(req, kwargs)
+
+    # constructor 経由は使わず、常に descriptor-driven で埋める
     req: Any = request_cls()
-    _logger.debug(
-        "[DEBUG][build_request_message] fallback: empty request created =", req
-    )
+    _logger.debug("[DEBUG][build_request_message] empty request created =", req)
 
     core.fill_message(req, kwargs)
 
