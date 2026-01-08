@@ -366,6 +366,10 @@ def build_call_plan(
     logger.debug("  len(params) =", len(params))
     logger.debug("  len(positional) =", len(positional))
 
+    # kwargs が存在する時点で positional 禁止
+    if kwargs:
+        return CtrlCallPlan(args=(), kwargs=kwargs)
+
     if has_varkw:
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
