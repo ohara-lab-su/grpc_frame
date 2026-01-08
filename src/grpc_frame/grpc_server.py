@@ -1,13 +1,10 @@
-# grpc_frame/server.py
 from __future__ import annotations
 
 import inspect
 import traceback
 from typing import Any, Callable, Dict, List, Optional, Type
 
-import grpc_frame.dispatch_core as core
-import grpc_frame.util_server as server_util
-
+import grpc_frame.core as core
 from x_logger import XLogger
 
 
@@ -16,88 +13,67 @@ def build_dynamic_servicer_class(
     ctrl: Any,
     logger: Optional[XLogger] = None,
 ) -> Type[Any]:
-    logger_obj: XLogger = logger or XLogger()
+    logger_obj = logger or XLogger()
 
-    base_attrs: Dict[str, Any] = dict(servicer_base_cls.__dict__)
-
-    rpc_name_list: List[str] = []
-    for name, member in base_attrs.items():
-        if name.startswith("_") is True:
-            continue
-        if callable(member) is False:
-            continue
-        rpc_name_list.append(name)
-
-    logger_obj.info(f"[GrpcServer] found rpc methods = {rpc_name_list}")
+    rpc_names: List[str] = [
+        name
+        for name, member in servicer_base_cls.__dict__.items()
+        if callable(member) and not name.startswith("_")
+    ]
 
     def _make_handler(rpc_name: str) -> Callable[..., Any]:
         rpc_method = getattr(servicer_base_cls, rpc_name, None)
 
-        response_cls: Optional[Type[Any]] = None
+        response_cls = None
         if rpc_method is not None:
-            ann: Any = getattr(rpc_method, "__annotations__", None)
-            if ann is not None:
+            ann = getattr(rpc_method, "__annotations__", None)
+            if ann:
                 response_cls = ann.get("return", None)
 
         def _handler(self: Any, request: Any, context: Any) -> Any:
-            method_name: str = core.camel_to_snake(rpc_name)
-            logger_obj.info(f"[GrpcServer] CALL {rpc_name} -> ctrl.{method_name}")
+            method_name = core.camel_to_snake(rpc_name)
 
-            if hasattr(ctrl, method_name) is False:
-                logger_obj.error(f"[GrpcServer] ctrl has no method: {method_name}")
+            if not hasattr(ctrl, method_name):
                 if response_cls is None:
                     return None
-                resp0: Any = response_cls()
-                if hasattr(resp0, "ok") is True:
-                    setattr(resp0, "ok", False)
-                return resp0
-
-            ctrl_fn: Any = getattr(ctrl, method_name)
+                resp = response_cls()
+                if hasattr(resp, "ok"):
+                    resp.ok = False
+                return resp
 
             try:
-                plan: server_util.CtrlCallPlan = server_util.build_call_plan(
-                    ctrl_fn, request
-                )
-                logger_obj.info(f"[GrpcServer] plan.args={plan.args}")
-                logger_obj.info(f"[GrpcServer] plan.kwargs={plan.kwargs}")
-
+                ctrl_fn = getattr(ctrl, method_name)
+                plan = core.build_call_plan(ctrl_fn, request)
                 ret = ctrl_fn(*plan.args, **plan.kwargs)
 
                 if response_cls is None:
                     return ret
 
-                resp: Any = response_cls()
-                server_util.fill_response_message(resp, ret)
+                resp = response_cls()
+                core.fill_response_message(resp, ret)
                 return resp
 
             except Exception:
-                tb: str = traceback.format_exc()
-                logger_obj.error(f"[GrpcServer] exception in {rpc_name}:\n{tb}")
-
+                logger_obj.error(traceback.format_exc())
                 if response_cls is None:
                     return None
-
-                resp2: Any = response_cls()
-                if hasattr(resp2, "ok") is True:
-                    setattr(resp2, "ok", False)
-                return resp2
+                resp = response_cls()
+                if hasattr(resp, "ok"):
+                    resp.ok = False
+                return resp
 
         _handler.__name__ = rpc_name
         return _handler
 
-    dynamic_attrs: Dict[str, Any] = {}
+    attrs: Dict[str, Any] = {}
 
     def _init(self: Any, injected_ctrl: Any, injected_logger: XLogger) -> None:
         self._ctrl = injected_ctrl
         self._logger = injected_logger
 
-    dynamic_attrs["__init__"] = _init
+    attrs["__init__"] = _init
 
-    for rpc_name in rpc_name_list:
-        dynamic_attrs[rpc_name] = _make_handler(rpc_name)
+    for rpc in rpc_names:
+        attrs[rpc] = _make_handler(rpc)
 
-    dynamic_name: str = f"Dynamic{servicer_base_cls.__name__}"
-    dynamic_cls: Type[Any] = type(dynamic_name, (servicer_base_cls,), dynamic_attrs)
-
-    logger_obj.info(f"[GrpcServer] dynamic servicer class created: {dynamic_cls}")
-    return dynamic_cls
+    return type(f"Dynamic{servicer_base_cls.__name__}", (servicer_base_cls,), attrs)

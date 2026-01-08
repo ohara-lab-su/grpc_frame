@@ -1,21 +1,8 @@
-# grpc_frame/dispatch_core.py
 from __future__ import annotations
 
 from dataclasses import dataclass
 import inspect
 from typing import Any, Dict, List, Optional, Tuple, Type
-
-
-def snake_to_camel(name: str) -> str:
-    parts: List[str] = name.split("_")
-    out: List[str] = []
-    for p in parts:
-        if p == "":
-            continue
-        head: str = p[:1].upper()
-        tail: str = p[1:]
-        out.append(head + tail)
-    return "".join(out)
 
 
 def camel_to_snake(name: str) -> str:
@@ -33,71 +20,91 @@ def camel_to_snake(name: str) -> str:
     return s
 
 
+def snake_to_camel(name: str) -> str:
+    parts: List[str] = name.split("_")
+    out: List[str] = []
+    for p in parts:
+        if p == "":
+            continue
+        out.append(p[:1].upper() + p[1:])
+    return "".join(out)
+
+
 def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
     if ctrl_method == "":
         raise ValueError("empty ctrl_method")
 
-    has_underscore: bool = False
     if "_" in ctrl_method:
-        has_underscore = True
-
-    if has_underscore:
         return snake_to_camel(ctrl_method)
 
-    head: str = ctrl_method[:1].upper()
-    tail: str = ctrl_method[1:]
-    return head + tail
+    return ctrl_method[:1].upper() + ctrl_method[1:]
 
 
 def is_protobuf_message(obj: Any) -> bool:
     desc: Any = getattr(obj, "DESCRIPTOR", None)
     if desc is None:
         return False
+    return hasattr(desc, "fields")
 
-    has_fields: bool = hasattr(desc, "fields")
-    if has_fields is False:
+
+def _is_number(obj: Any) -> bool:
+    if isinstance(obj, bool):
         return False
+    return isinstance(obj, (int, float))
 
-    return True
+
+def _is_scalar(obj: Any) -> bool:
+    return (
+        _is_number(obj)
+        or isinstance(obj, str)
+        or isinstance(obj, bytes)
+        or isinstance(obj, bool)
+    )
+
+
+def _field_names_of_message_cls(message_cls: Type[Any]) -> List[str]:
+    try:
+        desc: Any = getattr(message_cls, "DESCRIPTOR", None)
+        if desc is None:
+            return []
+        return [f.name for f in desc.fields]
+    except Exception:
+        return []
+
+
+def _message_cls_of_field(field: Any) -> Optional[Type[Any]]:
+    try:
+        msg_type: Any = getattr(field, "message_type", None)
+        if msg_type is None:
+            return None
+        return getattr(msg_type, "_concrete_class", None)
+    except Exception:
+        return None
 
 
 def protobuf_to_python(obj: Any) -> Any:
-    if is_protobuf_message(obj) is False:
+    if not is_protobuf_message(obj):
         return obj
 
     desc: Any = obj.DESCRIPTOR
     out: Dict[str, Any] = {}
 
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = obj.WhichOneof(oneof.name)
-        if selected is None:
-            continue
-        selected_val: Any = getattr(obj, selected)
-        out[oneof.name] = {selected: protobuf_to_python(selected_val)}
+    for oneof in getattr(desc, "oneofs", []):
+        selected = obj.WhichOneof(oneof.name)
+        if selected is not None:
+            out[oneof.name] = protobuf_to_python(getattr(obj, selected))
 
     for field in desc.fields:
         if field.containing_oneof is not None:
             continue
 
-        raw: Any = getattr(obj, field.name)
+        raw = getattr(obj, field.name)
 
-        is_repeated: bool = False
         if field.label == field.LABEL_REPEATED:
-            is_repeated = True
-
-        if is_repeated:
-            tmp: List[Any] = []
-            for x in raw:
-                tmp.append(protobuf_to_python(x))
-            out[field.name] = tmp
+            out[field.name] = [protobuf_to_python(x) for x in raw]
             continue
 
-        is_message: bool = False
         if field.message_type is not None:
-            is_message = True
-
-        if is_message:
             out[field.name] = protobuf_to_python(raw)
             continue
 
@@ -110,12 +117,10 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
     desc: Any = req.DESCRIPTOR
     kwargs: Dict[str, Any] = {}
 
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = req.WhichOneof(oneof.name)
-        if selected is None:
-            continue
-        kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
+    for oneof in getattr(desc, "oneofs", []):
+        selected = req.WhichOneof(oneof.name)
+        if selected is not None:
+            kwargs[oneof.name] = protobuf_to_python(getattr(req, selected))
 
     for field in desc.fields:
         if field.containing_oneof is not None:
@@ -126,28 +131,18 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
 
 
 def request_to_positional(req: Any) -> List[Any]:
-    fields: List[Any] = list(req.DESCRIPTOR.fields)
-    fields.sort(key=lambda f: int(f.number))
-
+    fields = sorted(req.DESCRIPTOR.fields, key=lambda f: int(f.number))
     values: List[Any] = []
+
     for f in fields:
         if f.containing_oneof is not None:
             continue
 
-        raw: Any = getattr(req, f.name)
-
-        is_repeated: bool = False
+        raw = getattr(req, f.name)
         if f.label == f.LABEL_REPEATED:
-            is_repeated = True
-
-        if is_repeated:
-            tmp: List[Any] = []
-            for x in raw:
-                tmp.append(protobuf_to_python(x))
-            values.append(tmp)
-            continue
-
-        values.append(protobuf_to_python(raw))
+            values.append([protobuf_to_python(x) for x in raw])
+        else:
+            values.append(protobuf_to_python(raw))
 
     return values
 
@@ -159,26 +154,18 @@ class CtrlCallPlan:
 
 
 def _has_varkw(sig: inspect.Signature) -> bool:
-    for p in sig.parameters.values():
-        if p.kind == p.VAR_KEYWORD:
-            return True
-    return False
+    return any(p.kind == p.VAR_KEYWORD for p in sig.parameters.values())
 
 
 def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
-    sig: inspect.Signature = inspect.signature(ctrl_fn)
+    sig = inspect.signature(ctrl_fn)
 
-    params: List[inspect.Parameter] = []
-    for p in sig.parameters.values():
-        if p.name == "self":
-            continue
-        params.append(p)
+    params = [p for p in sig.parameters.values() if p.name != "self"]
 
-    kwargs: Dict[str, Any] = request_to_kwargs(request)
-    positional: List[Any] = request_to_positional(request)
+    kwargs = request_to_kwargs(request)
+    positional = request_to_positional(request)
 
-    has_varkw: bool = _has_varkw(sig)
-    if has_varkw is True:
+    if _has_varkw(sig):
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if len(params) == 0:
@@ -189,11 +176,8 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
 
     if len(params) == 1:
         if len(positional) == 0:
-            if len(kwargs) == 0:
-                return CtrlCallPlan(args=(), kwargs={})
             if len(kwargs) == 1:
-                only_val: Any = next(iter(kwargs.values()))
-                return CtrlCallPlan(args=(only_val,), kwargs={})
+                return CtrlCallPlan(args=(next(iter(kwargs.values())),), kwargs={})
             return CtrlCallPlan(args=(), kwargs=kwargs)
 
         if len(positional) == 1:
@@ -205,206 +189,112 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
 
 
 def fill_message(msg: Any, value: Any) -> None:
-    if is_protobuf_message(msg) is False:
+    if not is_protobuf_message(msg):
         return
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
         _fill_message_by_dict(msg, value)
         return
 
-    if isinstance(value, list) is True:
-        _fill_message_by_position(msg, value)
-        return
-
-    if isinstance(value, tuple) is True:
+    if isinstance(value, (list, tuple)):
         _fill_message_by_position(msg, list(value))
         return
 
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
+    fields = list(msg.DESCRIPTOR.fields)
     if len(fields) != 1:
         return
 
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
+    f0 = fields[0]
     if f0.label == f0.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        container = getattr(msg, f0.name)
-        if isinstance(value, list) is True:
-            container.extend(value)
+        getattr(msg, f0.name).extend(value)
         return
 
-    is_msg: bool = False
-    if f0.message_type is not None:
-        is_msg = True
-
-    if is_msg is False:
+    if f0.message_type is None:
         setattr(msg, f0.name, value)
         return
 
-    child = getattr(msg, f0.name)
-    fill_message(child, value)
+    fill_message(getattr(msg, f0.name), value)
 
 
 def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
-    desc: Any = msg.DESCRIPTOR
-    oneofs: Any = getattr(desc, "oneofs", [])
-
-    for oneof in oneofs:
-        if oneof.name not in value:
-            continue
-
-        oneof_payload: Any = value[oneof.name]
-        if isinstance(oneof_payload, dict) is False:
-            continue
-
-        if len(oneof_payload) != 1:
-            continue
-
-        selected_field_name: str = next(iter(oneof_payload.keys()))
-        selected_value: Any = oneof_payload[selected_field_name]
-
-        field_obj: Any = desc.fields_by_name.get(selected_field_name)
-        if field_obj is None:
-            continue
-
-        if field_obj.containing_oneof is None:
-            continue
-
-        if field_obj.containing_oneof.name != oneof.name:
-            continue
-
-        _set_field_by_value(msg, field_obj, selected_value)
+    desc = msg.DESCRIPTOR
 
     for key, val in value.items():
-        is_oneof_key: bool = False
-        for oneof in oneofs:
-            if key == oneof.name:
-                is_oneof_key = True
-                break
-        if is_oneof_key is True:
-            continue
-
-        field: Any = desc.fields_by_name.get(key)
+        field = desc.fields_by_name.get(key)
         if field is None:
             continue
-        if field.containing_oneof is not None:
-            continue
-
         _set_field_by_value(msg, field, val)
 
 
 def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
-    is_repeated: bool = False
     if field.label == field.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        if isinstance(val, list) is False:
-            return
-
         container = getattr(msg, field.name)
-
-        is_msg: bool = False
-        if field.message_type is not None:
-            is_msg = True
-
-        if is_msg is False:
+        if field.message_type is None:
             container.extend(val)
-            return
-
-        for item in val:
-            child = container.add()
-            fill_message(child, item)
+        else:
+            for item in val:
+                child = container.add()
+                fill_message(child, item)
         return
 
-    is_msg2: bool = False
-    if field.message_type is not None:
-        is_msg2 = True
-
-    if is_msg2 is False:
+    if field.message_type is None:
         setattr(msg, field.name, val)
         return
 
-    child2 = getattr(msg, field.name)
-    fill_message(child2, val)
+    fill_message(getattr(msg, field.name), val)
 
 
 def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
-    fields.sort(key=lambda f: int(f.number))
-
-    index: int = 0
-    for field in fields:
-        if field.containing_oneof is not None:
+    fields = sorted(msg.DESCRIPTOR.fields, key=lambda f: int(f.number))
+    idx = 0
+    for f in fields:
+        if f.containing_oneof is not None:
             continue
-
-        if index >= len(values):
+        if idx >= len(values):
             break
-
-        v: Any = values[index]
-        index += 1
-
-        _set_field_by_value(msg, field, v)
+        _set_field_by_value(msg, f, values[idx])
+        idx += 1
 
 
 def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any:
     try:
         return request_cls(**kwargs)
     except Exception:
-        pass
-
-    req: Any = request_cls()
-    fill_message(req, kwargs)
-    return req
+        req = request_cls()
+        fill_message(req, kwargs)
+        return req
 
 
 def fill_response_message(resp: Any, value: Any) -> Any:
     if value is None:
         return resp
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
         fill_message(resp, value)
         return resp
 
-    fields: List[Any] = list(resp.DESCRIPTOR.fields)
+    fields = list(resp.DESCRIPTOR.fields)
     if len(fields) != 1:
         return resp
 
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
+    f0 = fields[0]
     if f0.label == f0.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        container = getattr(resp, f0.name)
-        if isinstance(value, list) is True:
-            container.extend(value)
+        getattr(resp, f0.name).extend(value)
         return resp
 
-    is_msg: bool = False
-    if f0.message_type is not None:
-        is_msg = True
-
-    if is_msg is False:
+    if f0.message_type is None:
         setattr(resp, f0.name, value)
         return resp
 
-    child = getattr(resp, f0.name)
-    fill_message(child, value)
+    fill_message(getattr(resp, f0.name), value)
     return resp
 
 
 def unwrap_response(resp: Any) -> Any:
-    if is_protobuf_message(resp) is False:
+    if not is_protobuf_message(resp):
         return resp
 
-    has_ok: bool = hasattr(resp, "ok")
-    if has_ok is True:
-        ok_val: Any = getattr(resp, "ok")
-        return bool(ok_val)
+    if hasattr(resp, "ok"):
+        return bool(getattr(resp, "ok"))
 
     return protobuf_to_python(resp)
