@@ -246,18 +246,18 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     if len(params) == 1:
-        if len(positional) == 0:
-            if len(kwargs) == 0:
-                return CtrlCallPlan(args=(), kwargs={})
-            if len(kwargs) == 1:
-                only_val: Any = next(iter(kwargs.values()))
-                return CtrlCallPlan(args=(only_val,), kwargs={})
-            return CtrlCallPlan(args=(), kwargs=kwargs)
+        p0: inspect.Parameter = params[0]
 
+        # positional が1つある場合は、それをそのまま使う
         if len(positional) == 1:
             return CtrlCallPlan(args=(positional[0],), kwargs={})
 
-        return CtrlCallPlan(args=(positional,), kwargs={})
+        # positional が複数ある場合はまとめて1引数にする
+        if len(positional) > 1:
+            return CtrlCallPlan(args=(positional,), kwargs={})
+
+        # positional が無い場合は kwargs をそのまま渡す
+        return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if len(positional) > 0:
         return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
