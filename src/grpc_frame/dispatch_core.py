@@ -17,12 +17,17 @@ def camel_to_snake(
     name: str,
 ) -> str:
     """
+    CamelCase / mixedCase の識別子を snake_case に変換する。
+
+    - 大文字の直前に '_' を挿入し、小文字化する
+    - 先頭が '_' になる場合は除去する
+    - protobuf / RPC 名称の正規化用途を想定
 
     Args:
-        name:
+        name (str): 変換対象の識別子
 
     Returns:
-
+        str: snake_case に変換された文字列
     """
     out: List[str] = []
     for ch in name:
@@ -42,12 +47,17 @@ def snake_to_camel(
     name: str,
 ) -> str:
     """
+    snake_case の識別子を CamelCase に変換する。
+
+    - '_' 区切りで分割し、各要素の先頭を大文字化
+    - 空要素は無視する
+    - RPC / protobuf 名称生成用途を想定
 
     Args:
-        name:
+        name (str): snake_case の識別子
 
     Returns:
-
+        str: CamelCase に変換された文字列
     """
     parts: List[str] = name.split("_")
     out: List[str] = []
@@ -64,12 +74,17 @@ def ctrl_method_to_rpc_name(
     ctrl_method: str,
 ) -> str:
     """
+    ctrl 側のメソッド名から RPC 名 (CamelCase) を生成する。
+
+    - snake_case の場合は snake_to_camel を適用
+    - underscore を含まない場合は先頭のみ大文字化
+    - ctrl <-> protobuf RPC の自動バインド用
 
     Args:
-        ctrl_method:
+        ctrl_method (str): ctrl クラス側のメソッド名
 
     Returns:
-
+        str: RPC 名として使用する CamelCase 名
     """
     if ctrl_method == "":
         raise ValueError("empty ctrl_method")
@@ -95,12 +110,17 @@ def is_protobuf_message(
     obj: Any,
 ) -> bool:
     """
+    対象オブジェクトが protobuf Message インスタンスかどうかを判定する。
+
+    判定条件:
+    - DESCRIPTOR 属性を持つ
+    - DESCRIPTOR.fields を持つ
 
     Args:
-        obj:
+        obj (Any): 判定対象オブジェクト
 
     Returns:
-
+        bool: protobuf Message であれば True
     """
     logger.debug(f"[DEBUG] is_protobuf_message")
     logger.debug(f"  obj={obj}")
@@ -133,12 +153,20 @@ def protobuf_to_python(
     obj: Any,
 ) -> Any:
     """
+    protobuf Message を Python の基本データ構造へ再帰的に変換する。
+
+    変換規則:
+    - scalar field -> 値
+    - repeated field -> list
+    - message field -> dict
+    - oneof:
+        { oneof_name: { selected_field_name: value } }
 
     Args:
-        obj:
+        obj (Any): protobuf Message または任意の値
 
     Returns:
-
+        Any: dict / list / scalar に変換された Python オブジェクト
     """
     logger.debug(f"[DEBUG] protobuf_to_python")
     logger.debug(f"  obj={obj}")
@@ -192,13 +220,20 @@ def fill_message(
     value: Any,
 ) -> None:
     """
+    Python オブジェクトから protobuf Message を埋めるための総合ディスパッチ関数。
+
+    value の型に応じて以下を行う:
+    - dict  : フィールド名指定による代入
+    - list  : フィールド番号順による positional 代入
+    - tuple : list と同様に positional 代入
+    - scalar: 単一フィールド Message の場合のみ代入
 
     Args:
-        msg:
-        value:
+        msg (Any): protobuf Message インスタンス
+        value (Any): 埋め込み元の Python オブジェクト
 
     Returns:
-
+        None
     """
     logger.debug(f"[DEBUG] _fill_message_by_dict")
     logger.debug(f"  msg =", msg)
@@ -255,13 +290,21 @@ def _fill_message_by_dict(
     value: Dict[str, Any],
 ) -> None:
     """
+    dict に基づいて protobuf Message の各フィールドを設定する。
+
+    対応内容:
+    - oneof:
+        - {oneof_name: {selected_field: value}}
+        - oneof field 名を直接 key とする指定
+    - 通常フィールド:
+        - field.name -> value
 
     Args:
-        msg:
-        value:
+        msg (Any): protobuf Message
+        value (Dict[str, Any]): フィールド名ベースの値
 
     Returns:
-
+        None
     """
     logger.debug(f"[DEBUG] _fill_message_by_dict")
     logger.debug(f"  msg =", msg)
@@ -347,14 +390,20 @@ def _set_field_by_value(
     val: Any,
 ) -> None:
     """
+    単一 protobuf フィールドに対して Python 値を設定する低レベル関数。
+
+    対応:
+    - repeated scalar / message
+    - message field の再帰埋め込み
+    - tuple は message field の positional shorthand として展開
 
     Args:
-        msg:
-        field:
-        val:
+        msg (Any): protobuf Message
+        field (Any): FieldDescriptor
+        val (Any): 設定する値
 
     Returns:
-
+        None
     """
     logger.debug(f"[DEBUG] _set_field_by_value")
     logger.debug(f"  field =", msg)
@@ -410,13 +459,17 @@ def _fill_message_by_position(
     values: List[Any],
 ) -> None:
     """
+    protobuf Message をフィールド番号順で positional に埋める。
+
+    - oneof フィールドはスキップ
+    - values は field.number 昇順で順次対応付け
 
     Args:
-        msg:
-        values:
+        msg (Any): protobuf Message
+        values (List[Any]): positional 値リスト
 
     Returns:
-
+        None
     """
     logger.debug(f"[DEBUG] _fill_message_by_position")
     logger.debug(f"  msg = {msg}")
@@ -460,13 +513,20 @@ def fill_response_message(
     value: Any,
 ) -> Any:
     """
+    ctrl 戻り値を protobuf Response Message に反映する。
+
+    規則:
+    - dict      -> fill_message に委譲
+    - scalar    -> 単一フィールド response に代入
+    - list      -> repeated フィールドに展開
+    - None      -> response をそのまま返す
 
     Args:
-        resp:
-        value:
+        resp (Any): Response protobuf Message
+        value (Any): ctrl 側の戻り値
 
     Returns:
-
+        Any: 設定済み response
     """
     logger.debug(f"[DEBUG] fill_response_message")
     logger.debug(f"  resp={resp}")
@@ -512,12 +572,17 @@ def unwrap_response(
     resp: Any,
 ) -> Any:
     """
+    protobuf Response Message を Python 値へ展開する。
+
+    規則:
+    - ok フィールドを持つ場合は bool を返す
+    - それ以外は protobuf_to_python により dict 化
 
     Args:
-        resp:
+        resp (Any): protobuf Response Message または任意の値
 
     Returns:
-
+        Any: bool / dict / scalar
     """
     if not is_protobuf_message(resp):
         return resp

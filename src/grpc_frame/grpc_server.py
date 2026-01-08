@@ -17,6 +17,16 @@ _logger = XLogger(log_level="debug")
 
 @dataclass(frozen=True)
 class CtrlCallPlan:
+    """
+    ctrl メソッド呼び出しのための実行計画を表すデータクラス。
+
+    - args: 位置引数として渡す値のタプル
+    - kwargs: キーワード引数として渡す辞書
+
+    dispatcher 層で決定された呼び出し形式を、
+    handler 側でそのまま実行するための中間表現。
+    """
+
     args: Tuple[Any, ...]
     kwargs: Dict[str, Any]
 
@@ -25,12 +35,17 @@ def request_to_positional(
     req: Any,
 ) -> List[Any]:
     """
+    protobuf Request Message から位置引数リストを生成する。
+
+    - フィールド番号順に値を抽出する
+    - oneof フィールドは選択されているもののみを対象とする
+    - repeated / message フィールドは Python オブジェクトに変換する
 
     Args:
-        req:
+        req: protobuf Request Message
 
     Returns:
-
+        List[Any]: ctrl メソッドに渡す位置引数候補のリスト
     """
     _logger.debug("[request_to_positional] req =", req)
 
@@ -108,12 +123,18 @@ def request_to_kwargs(
     req: Any,
 ) -> Dict[str, Any]:
     """
+    protobuf Request Message からキーワード引数 dict を生成する。
+
+    - フィールド名をキーとする
+    - oneof フィールドは選択されているもののみを含める
+    - repeated message は tuple に正規化する
+    - message / scalar は protobuf_to_python で変換する
 
     Args:
-        req:
+        req: protobuf Request Message
 
     Returns:
-
+        Dict[str, Any]: ctrl メソッドに渡すキーワード引数
     """
     _logger.debug(f"[DEBUG][request_to_kwargs] BEGIN")
 
@@ -154,12 +175,13 @@ def _has_varkw(
     sig: inspect.Signature,
 ) -> bool:
     """
+    関数シグネチャが可変キーワード引数 (**kwargs) を持つか判定する。
 
     Args:
-        sig:
+        sig (inspect.Signature): 判定対象のシグネチャ
 
     Returns:
-
+        bool: **kwargs を含む場合 True
     """
     # _logger.debug(f"[DEBUG][_has_varkw]")
 
@@ -172,6 +194,22 @@ def _has_varkw(
 def _pbmsg_to_tuple(
     obj: Any,
 ) -> Any:
+    """
+    protobuf Message をタプル形式に正規化する。
+
+    用途:
+    - repeated message を ctrl 側で tuple/list として扱うための変換
+    - ネストした message / repeated を含む場合は dict 形式にフォールバック
+
+    Args:
+        obj: protobuf Message または任意オブジェクト
+
+    Returns:
+        Any:
+            - scalar / 非 message: そのまま返す
+            - 単純な message: フィールド番号順の tuple
+            - 複雑な message: dict (protobuf_to_python 結果)
+    """
     if not core.is_protobuf_message(obj):
         return obj
 
@@ -205,13 +243,20 @@ def build_call_plan(
     request: Any,
 ) -> CtrlCallPlan:
     """
+    ctrl メソッドと Request Message から呼び出し計画を構築する。
+
+    設計方針:
+    - kwargs が存在する場合は positional 化しない
+    - keyword-only 引数を壊さない
+    - **kwargs を受け取る関数では常に kwargs 呼びにする
+    - 既存の挙動（drive 等）を壊さないことを最優先する
 
     Args:
-        ctrl_fn:
-        request:
+        ctrl_fn: 呼び出し対象の ctrl メソッド
+        request: protobuf Request Message
 
     Returns:
-
+        CtrlCallPlan: 実行すべき args / kwargs の組
     """
     _logger.debug(f"[DEBUG][build_call_plan]")
 
@@ -301,20 +346,33 @@ def build_dynamic_servicer_class(
     service_name: str,
 ) -> Type[Any]:
     """
+    protobuf 定義と ctrl オブジェクトから動的 gRPC Servicer クラスを生成する。
+
+    責務:
+    - service 定義を走査して RPC ごとの handler を生成
+    - RPC 名から ctrl メソッド名を自動対応付け
+    - Request → ctrl 呼び出し → Response の流れを統一的に処理
 
     Args:
-        pb2:
-        pb2_grpc:
-        service_name:
+        pb2: *_pb2 モジュール
+        pb2_grpc: *_pb2_grpc モジュール
+        service_name (str): 対象サービス名
 
     Returns:
-
+        Type[Any]: grpc サーバーに登録可能な Servicer クラス
     """
     service_desc: Any = pb2.DESCRIPTOR.services_by_name[service_name]
     base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 
     class Servicer(base_cls):
         def __init__(self, *, ctrl: Any, logger: XLogger) -> None:
+            """
+            動的に生成される Servicer の初期化処理。
+
+            Args:
+                ctrl: 実際の制御ロジックを持つオブジェクト
+                logger (XLogger): ログ出力用ロガー
+            """
             self._ctrl: Any = ctrl
             self._logger: XLogger = logger
 
@@ -328,7 +386,31 @@ def build_dynamic_servicer_class(
             ctrl_name_local: str,
             response_cls_local: Any,
         ):
-            def handler(self: Any, request: Any, context: Any) -> Any:
+            def handler(
+                self: Any,
+                request: Any,
+                context: Any,
+            ) -> Any:
+                """
+                単一 RPC に対応する gRPC ハンドラ。
+
+                処理手順:
+                1. ctrl メソッドを取得
+                2. Request Message から呼び出し計画を構築
+                3. ctrl メソッドを args / kwargs で実行
+                4. 戻り値を Response Message に変換
+
+                例外時:
+                - ctrl メソッド未実装: UNIMPLEMENTED
+                - 実行時例外: INTERNAL
+
+                Args:
+                    request: protobuf Request Message
+                    context: gRPC context
+
+                Returns:
+                    protobuf Response Message
+                """
 
                 self._logger.info(
                     f"[GrpcServer][DEBUG] rpc={rpc_name_local}, request={request}"

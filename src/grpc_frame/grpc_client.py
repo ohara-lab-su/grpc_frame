@@ -12,19 +12,24 @@ from google.protobuf import empty_pb2
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
-_logger = XLogger(log_level="debug")
+_logger = XLogger(log_level="info")
 
 
 def _normalize_method_path(
     method_path: Any,
 ) -> str:
     """
+    gRPC の method path を文字列として正規化する。
+
+    - bytes の場合は decode を試みる
+    - str の場合はそのまま返す
+    - それ以外は str() による文字列化を行う
 
     Args:
-        method_path:
+        method_path: gRPC 内部で保持される method path
 
     Returns:
-
+        str: 正規化された method path
     """
     _logger.debug(f"[DEBUG] _normalize_method_path: {method_path}")
 
@@ -44,12 +49,21 @@ def _parse_rpc_name_from_method_path(
     method_path: Any,
 ) -> str:
     """
+    gRPC method path から RPC 名を抽出する。
+
+    想定形式:
+        /<package>.<Service>/<RpcName>
+
+    最後の '/' 以降を RPC 名として取り出す。
 
     Args:
-        method_path:
+        method_path: gRPC method path (bytes / str)
 
     Returns:
+        str: RPC 名
 
+    Raises:
+        ValueError: path 形式が不正、または RPC 名が空の場合
     """
     _logger.debug(f"[DEBUG] _parse_rpc_name_from_method_path: {method_path}")
 
@@ -69,12 +83,19 @@ def _stub_module_to_pb2_module(
     stub_module_name: str,
 ) -> str:
     """
+    stub モジュール名 (*_pb2_grpc) から pb2 モジュール名を導出する。
+
+    例:
+        xxx_pb2_grpc -> xxx_pb2
 
     Args:
-        stub_module_name:
+        stub_module_name (str): stub クラスの __module__ 名
 
     Returns:
+        str: 対応する pb2 モジュール名
 
+    Raises:
+        RuntimeError: モジュール名が想定形式でない場合
     """
     _logger.debug(f"[DEBUG] _stub_module_to_pb2_module: {stub_module_name}")
 
@@ -91,12 +112,16 @@ def _get_owner_from_serializer(
     serializer: Any,
 ) -> Optional[type]:
     """
+    serializer / deserializer 関数から所有クラスを取得する。
+
+    grpc が内部に保持する serializer が
+    クラスメソッド由来の場合、その所有クラスを返す。
 
     Args:
-        serializer:
+        serializer: rpc が保持する serializer / deserializer
 
     Returns:
-
+        Optional[type]: Message クラス、取得できない場合は None
     """
     _logger.debug(f"[DEBUG] _get_owner_from_serializer: {serializer}")
 
@@ -115,12 +140,16 @@ def _is_protobuf_base_message_class(
     cls: Type[Any],
 ) -> bool:
     """
+    protobuf の基底 Message クラスそのものかどうかを判定する。
+
+    google._upb._message.Message を基底クラスとする
+    「抽象的な Message クラス」を除外する目的で用いる。
 
     Args:
-        cls:
+        cls (Type[Any]): 判定対象クラス
 
     Returns:
-
+        bool: protobuf の基底 Message クラスであれば True
     """
     _logger.debug(f"[DEBUG] _is_protobuf_base_message_class: {cls}")
 
@@ -145,14 +174,21 @@ def _resolve_request_class_from_rpc(
     logger: XLogger,
 ) -> Type[Any]:
     """
+    rpc オブジェクトから Request Message クラスを解決する。
+
+    解決順序:
+    1. rpc._request_deserializer の owner
+    2. rpc._request_serializer の owner
+    3. rpc._method から RPC 名を解析し <RpcName>Request を探索
+    4. 見つからない場合は Empty を使用
 
     Args:
-        rpc:
-        stub_class:
-        logger:
+        rpc: stub が保持する rpc callable
+        stub_class: 使用中の stub クラス
+        logger: ロガー
 
     Returns:
-
+        Type[Any]: Request Message クラス
     """
     logger.debug(f"[DEBUG] _resolve_request_class_from_rpc: {rpc}")
 
@@ -207,13 +243,18 @@ def build_request_message(
     kwargs: Dict[str, Any],
 ) -> Any:
     """
+    Request Message インスタンスを生成し、kwargs から内容を埋める。
+
+    - constructor は使用しない
+    - 常に descriptor-driven な fill_message を用いる
+    - kwargs は ctrl メソッド引数から生成される dict を想定
 
     Args:
-        request_cls:
-        kwargs:
+        request_cls (Type[Any]): Request Message クラス
+        kwargs (Dict[str, Any]): フィールド名 -> 値
 
     Returns:
-
+        Any: 構築済み Request Message
     """
     _logger.debug(f"[DEBUG][build_request_message] BEGIN")
     _logger.debug(f"  request_cls =", request_cls)
@@ -245,6 +286,20 @@ def build_request_message(
 
 
 class GrpcClient:
+    """
+    ctrl クラスと gRPC stub を動的にバインドする汎用 gRPC クライアント基底クラス。
+
+    責務:
+    - ctrl クラスの public メソッドを走査
+    - 対応する RPC が存在する場合に dispatcher を動的生成
+    - Python 呼び出しを gRPC Request/Response に変換
+
+    派生クラスは以下を定義する:
+    - _ctrl_class
+    - _stub_class
+    - _client_log_title
+    """
+
     _ctrl_class: type
     _stub_class: type
     _client_log_title: str
@@ -256,11 +311,12 @@ class GrpcClient:
         logger: Optional[XLogger] = None,
     ) -> None:
         """
+        gRPC チャンネルと stub を生成し、ctrl メソッドをバインドする。
 
         Args:
-            server_ip:
-            server_port:
-            logger:
+            server_ip (str): gRPC サーバの IP アドレス
+            server_port (int): gRPC サーバのポート番号
+            logger (Optional[XLogger]): 使用するロガー
         """
         self._logger: XLogger = logger or XLogger()
 
@@ -274,7 +330,19 @@ class GrpcClient:
         self._logger.info("bind_ctrl_method")
         self._bind_ctrl_methods()
 
-    def is_connected(self, timeout: float = 0.5) -> bool:
+    def is_connected(
+        self,
+        timeout: float = 0.5,
+    ) -> bool:
+        """
+        gRPC チャンネルが接続可能状態かどうかを確認する。
+
+        Args:
+            timeout (float): 接続待ちタイムアウト秒
+
+        Returns:
+            bool: 接続可能であれば True
+        """
         try:
             grpc.channel_ready_future(self._channel).result(timeout=timeout)
             return True
@@ -283,9 +351,13 @@ class GrpcClient:
 
     def _bind_ctrl_methods(self) -> None:
         """
+        ctrl クラスのメソッドを走査し、RPC が存在するものをバインドする。
+
+        - ctrl_method -> RpcName の名前変換を行う
+        - stub に該当 RPC が存在しない場合は無視する
 
         Returns:
-
+            None
         """
         for name, method in inspect.getmembers(self._ctrl_class, inspect.isfunction):
             if name.startswith("_"):
@@ -321,15 +393,22 @@ class GrpcClient:
         rpc: Any,
     ) -> Callable[..., Any]:
         """
+        ctrl メソッド呼び出しを gRPC RPC 呼び出しに変換する dispatcher を生成する。
+
+        dispatcher の責務:
+        - Python 引数を Signature に基づいて正規化
+        - Request Message を構築
+        - RPC を実行
+        - Response を unwrap して返す
 
         Args:
-            method_name:
-            rpc_name:
-            sig:
-            rpc:
+            method_name (str): ctrl 側メソッド名
+            rpc_name (str): RPC 名
+            sig (inspect.Signature): ctrl メソッドのシグネチャ
+            rpc: stub が保持する RPC callable
 
         Returns:
-
+            Callable[..., Any]: dispatcher 関数
         """
         request_cls = _resolve_request_class_from_rpc(
             rpc,
