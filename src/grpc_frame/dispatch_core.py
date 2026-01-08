@@ -259,6 +259,9 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
 
         return CtrlCallPlan(args=(positional,), kwargs={})
 
+    if len(positional) > 0:
+        return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
+
     return CtrlCallPlan(args=(), kwargs=kwargs)
 
 
