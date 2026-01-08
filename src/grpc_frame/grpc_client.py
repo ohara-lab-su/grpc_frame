@@ -41,7 +41,9 @@ def _parse_rpc_name_from_method_path(method_path: Any) -> str:
 
 def _stub_module_to_pb2_module(stub_module_name: str) -> str:
     if stub_module_name.endswith("_pb2_grpc") is False:
-        raise RuntimeError(f"stub module does not look like *_pb2_grpc: {stub_module_name}")
+        raise RuntimeError(
+            f"stub module does not look like *_pb2_grpc: {stub_module_name}"
+        )
 
     prefix: str = stub_module_name[: -len("_grpc")]
     return prefix
@@ -105,7 +107,9 @@ def _resolve_request_class_from_rpc(
 
     pb2_module_name: str = _stub_module_to_pb2_module(stub_module_name)
 
-    logger.info(f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}")
+    logger.info(
+        f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}"
+    )
 
     pb2_module = importlib.import_module(pb2_module_name)
 
@@ -113,7 +117,9 @@ def _resolve_request_class_from_rpc(
     if has_req is True:
         return getattr(pb2_module, request_name)
 
-    logger.info(f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty")
+    logger.info(
+        f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty"
+    )
     return empty_pb2.Empty
 
 
@@ -155,7 +161,9 @@ class GrpcClient:
             rpc_name: str = core.ctrl_method_to_rpc_name(name)
             has_rpc: bool = hasattr(self._stub, rpc_name)
 
-            self._logger.info(f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}")
+            self._logger.info(
+                f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}"
+            )
 
             if has_rpc is False:
                 continue
@@ -179,6 +187,17 @@ class GrpcClient:
         sig: inspect.Signature,
         rpc: Any,
     ) -> Callable[..., Any]:
+        """
+
+        Args:
+            method_name:
+            rpc_name:
+            sig:
+            rpc:
+
+        Returns:
+
+        """
         request_cls = _resolve_request_class_from_rpc(
             rpc,
             stub_class=self._stub_class,
@@ -208,6 +227,8 @@ class GrpcClient:
 
                 request = core.build_request_message(request_cls, req_kwargs)
 
+                self._logger.info(f"[GrpcClient][DEBUG] request content = {request}")
+
                 self._logger.info(
                     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
                 )
@@ -219,7 +240,9 @@ class GrpcClient:
                 return core.unwrap_response(resp)
 
             except Exception as e:
-                self._logger.error(f"[{self.__class__.__name__}] {method_name} failed: {e}")
+                self._logger.error(
+                    f"[{self.__class__.__name__}] {method_name} failed: {e}"
+                )
                 return False
 
         _method.__name__ = method_name

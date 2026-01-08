@@ -126,16 +126,12 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
     desc: Any = req.DESCRIPTOR
     kwargs: Dict[str, Any] = {}
 
-    # oneof フィールドの展開
     oneofs: Any = getattr(desc, "oneofs", [])
     for oneof in oneofs:
         selected: Optional[str] = req.WhichOneof(oneof.name)
         if selected is None:
             continue
-        val = protobuf_to_python(getattr(req, selected))
-        # oneof名と、選択されているフィールド名の両方でアクセス可能にする
-        kwargs[oneof.name] = {selected: val}
-        kwargs[selected] = val
+        kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
 
     for field in desc.fields:
         if field.containing_oneof is not None:
@@ -145,79 +141,31 @@ def request_to_kwargs(req: Any) -> Dict[str, Any]:
     return kwargs
 
 
-# def request_to_kwargs(req: Any) -> Dict[str, Any]:
-#     desc: Any = req.DESCRIPTOR
-#     kwargs: Dict[str, Any] = {}
-#
-#     oneofs: Any = getattr(desc, "oneofs", [])
-#     for oneof in oneofs:
-#         selected: Optional[str] = req.WhichOneof(oneof.name)
-#         if selected is None:
-#             continue
-#         kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
-#
-#     for field in desc.fields:
-#         if field.containing_oneof is not None:
-#             continue
-#         kwargs[field.name] = protobuf_to_python(getattr(req, field.name))
-#
-#     return kwargs
-
-
 def request_to_positional(req: Any) -> List[Any]:
     fields: List[Any] = list(req.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
 
     values: List[Any] = []
-    handled_oneofs = set()
-
     for f in fields:
-        # oneof 内のフィールドの場合
         if f.containing_oneof is not None:
-            oname = f.containing_oneof.name
-            if oname in handled_oneofs:
-                continue
-
-            selected = req.WhichOneof(oname)
-            if selected is not None:
-                # 選択されているブランチの値を位置引数として採用
-                values.append(protobuf_to_python(getattr(req, selected)))
-
-            handled_oneofs.add(oname)
             continue
 
-        # 通常のフィールド
         raw: Any = getattr(req, f.name)
+
+        is_repeated: bool = False
+        if f.label == f.LABEL_REPEATED:
+            is_repeated = True
+
+        if is_repeated is True:
+            tmp: List[Any] = []
+            for x in raw:
+                tmp.append(protobuf_to_python(x))
+            values.append(tmp)
+            continue
+
         values.append(protobuf_to_python(raw))
 
     return values
-
-
-# def request_to_positional(req: Any) -> List[Any]:
-#     fields: List[Any] = list(req.DESCRIPTOR.fields)
-#     fields.sort(key=lambda f: int(f.number))
-#
-#     values: List[Any] = []
-#     for f in fields:
-#         if f.containing_oneof is not None:
-#             continue
-#
-#         raw: Any = getattr(req, f.name)
-#
-#         is_repeated: bool = False
-#         if f.label == f.LABEL_REPEATED:
-#             is_repeated = True
-#
-#         if is_repeated is True:
-#             tmp: List[Any] = []
-#             for x in raw:
-#                 tmp.append(protobuf_to_python(x))
-#             values.append(tmp)
-#             continue
-#
-#         values.append(protobuf_to_python(raw))
-#
-#     return values
 
 
 # ============================================================
@@ -251,25 +199,19 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     kwargs: Dict[str, Any] = request_to_kwargs(request)
     positional: List[Any] = request_to_positional(request)
 
-    # required_param_names: List[str] = []
-    # for p in params:
-    #     if p.default is inspect._empty:
-    #         if p.kind in (
-    #             inspect.Parameter.POSITIONAL_ONLY,
-    #             inspect.Parameter.POSITIONAL_OR_KEYWORD,
-    #         ):
-    #             required_param_names.append(p.name)
-
-    # promoted_args: List[Any] = []
-    # for name in required_param_names:
-    #     if name in kwargs:
-    #         promoted_args.append(kwargs.pop(name))
-
-    # # 必須位置引数が1つでもあれば、ここで確定
-    # if len(promoted_args) > 0:
-    #     return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
+    # 追加ログ
+    self._logger.info("[DEBUG][CallPlan]")
+    self._logger.info("  ctrl_fn =", ctrl_fn)
+    self._logger.info("  signature =", sig)
+    self._logger.info("  params =", [p.name for p in params])
+    self._logger.info("  positional =", positional)
+    self._logger.info("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
+    self._logger.info("  has_varkw =", has_varkw)
+    self._logger.info("  len(params) =", len(params))
+    self._logger.info("  len(positional) =", len(positional))
+
     if has_varkw is True:
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
@@ -311,59 +253,6 @@ def fill_message(msg: Any, value: Any) -> None:
         _fill_message_by_dict(msg, value)
         return
 
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
-    if len(fields) == 1:
-        f0: Any = fields[0]
-
-        is_repeated: bool = False
-        if f0.label == f0.LABEL_REPEATED:
-            is_repeated = True
-
-        if is_repeated is True:
-            container = getattr(msg, f0.name)
-
-            is_msg: bool = False
-            if f0.message_type is not None:
-                is_msg = True
-
-            if is_msg is False:
-                if isinstance(value, list) is True:
-                    container.extend(value)
-                    return
-                if isinstance(value, tuple) is True:
-                    container.extend(list(value))
-                    return
-                container.append(value)
-                return
-
-            if isinstance(value, list) is True:
-                for item in value:
-                    child = container.add()
-                    fill_message(child, item)
-                return
-
-            if isinstance(value, tuple) is True:
-                for item in list(value):
-                    child = container.add()
-                    fill_message(child, item)
-                return
-
-            child = container.add()
-            fill_message(child, value)
-            return
-
-        is_msg2: bool = False
-        if f0.message_type is not None:
-            is_msg2 = True
-
-        if is_msg2 is False:
-            setattr(msg, f0.name, value)
-            return
-
-        child2 = getattr(msg, f0.name)
-        fill_message(child2, value)
-        return
-
     if isinstance(value, list) is True:
         _fill_message_by_position(msg, value)
         return
@@ -372,11 +261,13 @@ def fill_message(msg: Any, value: Any) -> None:
         _fill_message_by_position(msg, list(value))
         return
 
+    fields: List[Any] = list(msg.DESCRIPTOR.fields)
     if len(fields) != 1:
         return
 
-    f0 = fields[0]
-    is_repeated = False
+    f0: Any = fields[0]
+
+    is_repeated: bool = False
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
@@ -386,7 +277,7 @@ def fill_message(msg: Any, value: Any) -> None:
             container.extend(value)
         return
 
-    is_msg = False
+    is_msg: bool = False
     if f0.message_type is not None:
         is_msg = True
 
@@ -402,13 +293,13 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
     desc: Any = msg.DESCRIPTOR
     oneofs: Any = getattr(desc, "oneofs", [])
 
-    # 明示的な oneof 構造 {oneof_name: {selected_field: val}} の処理
+    # oneof: {oneof_name: {selected_field: val}}
     for oneof in oneofs:
         if oneof.name not in value:
             continue
 
         oneof_payload: Any = value[oneof.name]
-        if not isinstance(oneof_payload, dict):
+        if isinstance(oneof_payload, dict) is False:
             continue
 
         if len(oneof_payload) != 1:
@@ -429,22 +320,21 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
 
         _set_field_by_value(msg, field_obj, selected_value)
 
-    # フラットなフィールド指定の処理 (oneof 内のフィールドも含む)
+    # normal fields
     for key, val in value.items():
         is_oneof_key: bool = False
         for oneof in oneofs:
             if key == oneof.name:
                 is_oneof_key = True
                 break
-        if is_oneof_key:
+        if is_oneof_key is True:
             continue
 
         field: Any = desc.fields_by_name.get(key)
         if field is None:
             continue
-
-        # if field.containing_oneof is not None:
-        #     continue
+        if field.containing_oneof is not None:
+            continue
 
         _set_field_by_value(msg, field, val)
 
@@ -517,6 +407,43 @@ def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any
 # ============================================================
 # ctrl return -> response fill
 # ============================================================
+
+
+def fill_response_message(resp: Any, value: Any) -> Any:
+    if value is None:
+        return resp
+
+    if isinstance(value, dict) is True:
+        fill_message(resp, value)
+        return resp
+
+    fields: List[Any] = list(resp.DESCRIPTOR.fields)
+    if len(fields) != 1:
+        return resp
+
+    f0: Any = fields[0]
+
+    is_repeated: bool = False
+    if f0.label == f0.LABEL_REPEATED:
+        is_repeated = True
+
+    if is_repeated is True:
+        container = getattr(resp, f0.name)
+        if isinstance(value, list) is True:
+            container.extend(value)
+        return resp
+
+    is_msg: bool = False
+    if f0.message_type is not None:
+        is_msg = True
+
+    if is_msg is False:
+        setattr(resp, f0.name, value)
+        return resp
+
+    child = getattr(resp, f0.name)
+    fill_message(child, value)
+    return resp
 
 
 def unwrap_response(resp: Any) -> Any:

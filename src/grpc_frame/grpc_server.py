@@ -36,9 +36,18 @@ def build_dynamic_servicer_class(
             response_cls_local: Any,
         ):
             def handler(self: Any, request: Any, context: Any) -> Any:
+
+                self._logger.info(
+                    f"[GrpcServer][DEBUG] rpc={rpc_name_local}, request={request}"
+                )
+
                 try:
                     fn: Any = getattr(self._ctrl, ctrl_name_local)
                     plan = core.build_call_plan(fn, request)
+
+                    self._logger.info(
+                        f"[GrpcServer][DEBUG] call plan: args={plan.args}, kwargs={plan.kwargs}"
+                    )
 
                     if len(plan.kwargs) == 0:
                         ret = fn(*plan.args)
