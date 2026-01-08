@@ -251,26 +251,26 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     kwargs: Dict[str, Any] = request_to_kwargs(request)
     positional: List[Any] = request_to_positional(request)
 
-    required_param_names: List[str] = []
-    for p in params:
-        if p.default is inspect._empty:
-            if p.kind in (
-                inspect.Parameter.POSITIONAL_ONLY,
-                inspect.Parameter.POSITIONAL_OR_KEYWORD,
-            ):
-                required_param_names.append(p.name)
+    # required_param_names: List[str] = []
+    # for p in params:
+    #     if p.default is inspect._empty:
+    #         if p.kind in (
+    #             inspect.Parameter.POSITIONAL_ONLY,
+    #             inspect.Parameter.POSITIONAL_OR_KEYWORD,
+    #         ):
+    #             required_param_names.append(p.name)
 
-    promoted_args: List[Any] = []
-    for name in required_param_names:
-        if name in kwargs:
-            promoted_args.append(kwargs.pop(name))
+    # promoted_args: List[Any] = []
+    # for name in required_param_names:
+    #     if name in kwargs:
+    #         promoted_args.append(kwargs.pop(name))
 
-    # 必須位置引数が1つでもあれば、ここで確定
-    if len(promoted_args) > 0:
-        return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
+    # # 必須位置引数が1つでもあれば、ここで確定
+    # if len(promoted_args) > 0:
+    #     return CtrlCallPlan(args=tuple(promoted_args), kwargs=kwargs)
 
     has_varkw: bool = _has_varkw(sig)
-    if has_varkw:
+    if has_varkw is True:
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if len(params) == 0:
