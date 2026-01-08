@@ -1,19 +1,34 @@
-"""
-K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
-"""
+# grpc_frame/core.py
 from __future__ import annotations
 
-from dataclasses import dataclass
 import inspect
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
+from x_logger import XLogger
+
+logger = XLogger(log_level="debug")
 
 # ============================================================
 # name mapping
 # ============================================================
 
 
-def camel_to_snake(name: str) -> str:
+def camel_to_snake(
+    name: str,
+) -> str:
+    """
+    CamelCase / mixedCase の識別子を snake_case に変換する。
+
+    - 大文字の直前に '_' を挿入し、小文字化する
+    - 先頭が '_' になる場合は除去する
+    - protobuf / RPC 名称の正規化用途を想定
+
+    Args:
+        name (str): 変換対象の識別子
+
+    Returns:
+        str: snake_case に変換された文字列
+    """
     out: List[str] = []
     for ch in name:
         if ch.isupper():
@@ -28,7 +43,22 @@ def camel_to_snake(name: str) -> str:
     return s
 
 
-def snake_to_camel(name: str) -> str:
+def snake_to_camel(
+    name: str,
+) -> str:
+    """
+    snake_case の識別子を CamelCase に変換する。
+
+    - '_' 区切りで分割し、各要素の先頭を大文字化
+    - 空要素は無視する
+    - RPC / protobuf 名称生成用途を想定
+
+    Args:
+        name (str): snake_case の識別子
+
+    Returns:
+        str: CamelCase に変換された文字列
+    """
     parts: List[str] = name.split("_")
     out: List[str] = []
     for p in parts:
@@ -40,7 +70,22 @@ def snake_to_camel(name: str) -> str:
     return "".join(out)
 
 
-def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
+def ctrl_method_to_rpc_name(
+    ctrl_method: str,
+) -> str:
+    """
+    ctrl 側のメソッド名から RPC 名 (CamelCase) を生成する。
+
+    - snake_case の場合は snake_to_camel を適用
+    - underscore を含まない場合は先頭のみ大文字化
+    - ctrl <-> protobuf RPC の自動バインド用
+
+    Args:
+        ctrl_method (str): ctrl クラス側のメソッド名
+
+    Returns:
+        str: RPC 名として使用する CamelCase 名
+    """
     if ctrl_method == "":
         raise ValueError("empty ctrl_method")
 
@@ -48,7 +93,7 @@ def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
     if "_" in ctrl_method:
         has_underscore = True
 
-    if has_underscore is True:
+    if has_underscore:
         return snake_to_camel(ctrl_method)
 
     head: str = ctrl_method[:1].upper()
@@ -61,16 +106,41 @@ def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
 # ============================================================
 
 
-def is_protobuf_message(obj: Any) -> bool:
+def is_protobuf_message(
+    obj: Any,
+) -> bool:
+    """
+    対象オブジェクトが protobuf Message インスタンスかどうかを判定する。
+
+    判定条件:
+    - DESCRIPTOR 属性を持つ
+    - DESCRIPTOR.fields を持つ
+
+    Args:
+        obj (Any): 判定対象オブジェクト
+
+    Returns:
+        bool: protobuf Message であれば True
+    """
+    logger.debug(f"[DEBUG] is_protobuf_message")
+    logger.debug(f"  obj={obj}")
+
     desc: Any = getattr(obj, "DESCRIPTOR", None)
     if desc is None:
         return False
 
     has_fields: bool = hasattr(desc, "fields")
-    if has_fields is False:
+    if not has_fields:
         return False
 
     return True
+
+
+# ============================================================
+# python -> protobuf message filling (descriptor-driven)
+#   oneof input:
+#     { oneof_name: { selected_field_name: value } }
+# ============================================================
 
 
 # ============================================================
@@ -79,8 +149,29 @@ def is_protobuf_message(obj: Any) -> bool:
 # ============================================================
 
 
-def protobuf_to_python(obj: Any) -> Any:
-    if is_protobuf_message(obj) is False:
+def protobuf_to_python(
+    obj: Any,
+) -> Any:
+    """
+    protobuf Message を Python の基本データ構造へ再帰的に変換する。
+
+    変換規則:
+    - scalar field -> 値
+    - repeated field -> list
+    - message field -> dict
+    - oneof:
+        { oneof_name: { selected_field_name: value } }
+
+    Args:
+        obj (Any): protobuf Message または任意の値
+
+    Returns:
+        Any: dict / list / scalar に変換された Python オブジェクト
+    """
+    logger.debug(f"[DEBUG] protobuf_to_python")
+    logger.debug(f"  obj={obj}")
+
+    if not is_protobuf_message(obj):
         return obj
 
     desc: Any = obj.DESCRIPTOR
@@ -104,7 +195,7 @@ def protobuf_to_python(obj: Any) -> Any:
         if field.label == field.LABEL_REPEATED:
             is_repeated = True
 
-        if is_repeated is True:
+        if is_repeated:
             tmp: List[Any] = []
             for x in raw:
                 tmp.append(protobuf_to_python(x))
@@ -115,7 +206,7 @@ def protobuf_to_python(obj: Any) -> Any:
         if field.message_type is not None:
             is_message = True
 
-        if is_message is True:
+        if is_message:
             out[field.name] = protobuf_to_python(raw)
             continue
 
@@ -124,130 +215,45 @@ def protobuf_to_python(obj: Any) -> Any:
     return out
 
 
-def request_to_kwargs(req: Any) -> Dict[str, Any]:
-    desc: Any = req.DESCRIPTOR
-    kwargs: Dict[str, Any] = {}
+def fill_message(
+    msg: Any,
+    value: Any,
+) -> None:
+    """
+    Python オブジェクトから protobuf Message を埋めるための総合ディスパッチ関数。
 
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = req.WhichOneof(oneof.name)
-        if selected is None:
-            continue
-        kwargs[oneof.name] = {selected: protobuf_to_python(getattr(req, selected))}
+    value の型に応じて以下を行う:
+    - dict  : フィールド名指定による代入
+    - list  : フィールド番号順による positional 代入
+    - tuple : list と同様に positional 代入
+    - scalar: 単一フィールド Message の場合のみ代入
 
-    for field in desc.fields:
-        if field.containing_oneof is not None:
-            continue
-        kwargs[field.name] = protobuf_to_python(getattr(req, field.name))
+    Args:
+        msg (Any): protobuf Message インスタンス
+        value (Any): 埋め込み元の Python オブジェクト
 
-    return kwargs
+    Returns:
+        None
+    """
+    logger.debug(f"[DEBUG] _fill_message_by_dict")
+    logger.debug(f"  msg =", msg)
+    logger.debug(f"  value", value)
 
-
-def request_to_positional(req: Any) -> List[Any]:
-    fields: List[Any] = list(req.DESCRIPTOR.fields)
-    fields.sort(key=lambda f: int(f.number))
-
-    values: List[Any] = []
-    for f in fields:
-        if f.containing_oneof is not None:
-            continue
-
-        raw: Any = getattr(req, f.name)
-
-        is_repeated: bool = False
-        if f.label == f.LABEL_REPEATED:
-            is_repeated = True
-
-        if is_repeated is True:
-            tmp: List[Any] = []
-            for x in raw:
-                tmp.append(protobuf_to_python(x))
-            values.append(tmp)
-            continue
-
-        values.append(protobuf_to_python(raw))
-
-    return values
-
-
-# ============================================================
-# ctrl call planning
-#   proto + signature から自動決定（従来ルール踏襲）
-# ============================================================
-
-
-@dataclass(frozen=True)
-class CtrlCallPlan:
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
-
-
-def _has_varkw(sig: inspect.Signature) -> bool:
-    for p in sig.parameters.values():
-        if p.kind == p.VAR_KEYWORD:
-            return True
-    return False
-
-
-def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
-    sig: inspect.Signature = inspect.signature(ctrl_fn)
-
-    params: List[inspect.Parameter] = []
-    for p in sig.parameters.values():
-        if p.name == "self":
-            continue
-        params.append(p)
-
-    kwargs: Dict[str, Any] = request_to_kwargs(request)
-    positional: List[Any] = request_to_positional(request)
-
-    has_varkw: bool = _has_varkw(sig)
-    if has_varkw is True:
-        return CtrlCallPlan(args=(), kwargs=kwargs)
-
-    if len(params) == 0:
-        return CtrlCallPlan(args=(), kwargs={})
-
-    if len(params) == len(positional):
-        return CtrlCallPlan(args=tuple(positional), kwargs={})
-
-    if len(params) == 1:
-        if len(positional) == 0:
-            if len(kwargs) == 0:
-                return CtrlCallPlan(args=(), kwargs={})
-            if len(kwargs) == 1:
-                only_val: Any = next(iter(kwargs.values()))
-                return CtrlCallPlan(args=(only_val,), kwargs={})
-            return CtrlCallPlan(args=(), kwargs=kwargs)
-
-        if len(positional) == 1:
-            return CtrlCallPlan(args=(positional[0],), kwargs={})
-
-        return CtrlCallPlan(args=(positional,), kwargs={})
-
-    return CtrlCallPlan(args=(), kwargs=kwargs)
-
-
-# ============================================================
-# python -> protobuf message filling (descriptor-driven)
-#   oneof input:
-#     { oneof_name: { selected_field_name: value } }
-# ============================================================
-
-
-def fill_message(msg: Any, value: Any) -> None:
-    if is_protobuf_message(msg) is False:
+    if not is_protobuf_message(msg):
         return
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
+        logger.debug("[fill_message] (dict):", value)
         _fill_message_by_dict(msg, value)
         return
 
-    if isinstance(value, list) is True:
+    if isinstance(value, list):
+        logger.debug("[fill_message] (list):", value)
         _fill_message_by_position(msg, value)
         return
 
-    if isinstance(value, tuple) is True:
+    if isinstance(value, tuple):
+        logger.debug("[fill_message] (tuple):", value)
         _fill_message_by_position(msg, list(value))
         return
 
@@ -261,9 +267,9 @@ def fill_message(msg: Any, value: Any) -> None:
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
+    if is_repeated:
         container = getattr(msg, f0.name)
-        if isinstance(value, list) is True:
+        if isinstance(value, list):
             container.extend(value)
         return
 
@@ -271,7 +277,7 @@ def fill_message(msg: Any, value: Any) -> None:
     if f0.message_type is not None:
         is_msg = True
 
-    if is_msg is False:
+    if not is_msg:
         setattr(msg, f0.name, value)
         return
 
@@ -279,7 +285,31 @@ def fill_message(msg: Any, value: Any) -> None:
     fill_message(child, value)
 
 
-def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
+def _fill_message_by_dict(
+    msg: Any,
+    value: Dict[str, Any],
+) -> None:
+    """
+    dict に基づいて protobuf Message の各フィールドを設定する。
+
+    対応内容:
+    - oneof:
+        - {oneof_name: {selected_field: value}}
+        - oneof field 名を直接 key とする指定
+    - 通常フィールド:
+        - field.name -> value
+
+    Args:
+        msg (Any): protobuf Message
+        value (Dict[str, Any]): フィールド名ベースの値
+
+    Returns:
+        None
+    """
+    logger.debug(f"[DEBUG] _fill_message_by_dict")
+    logger.debug(f"  msg =", msg)
+    logger.debug(f"  value", value)
+
     desc: Any = msg.DESCRIPTOR
     oneofs: Any = getattr(desc, "oneofs", [])
 
@@ -289,7 +319,7 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
             continue
 
         oneof_payload: Any = value[oneof.name]
-        if isinstance(oneof_payload, dict) is False:
+        if not isinstance(oneof_payload, dict):
             continue
 
         if len(oneof_payload) != 1:
@@ -310,6 +340,26 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
 
         _set_field_by_value(msg, field_obj, selected_value)
 
+    # --- oneof field name 直接指定への対応 ---
+    for field in desc.fields:
+        if field.containing_oneof is None:
+            continue
+
+        if field.name not in value:
+            continue
+
+        oneof = field.containing_oneof
+        selected = msg.WhichOneof(oneof.name)
+
+        # すでに別フィールドが選択されていたら触らない
+        if selected is not None and selected != field.name:
+            continue
+
+        logger.debug(
+            f"[fill_message][oneof-direct] set {oneof.name}.{field.name} = {value[field.name]}"
+        )
+        _set_field_by_value(msg, field, value[field.name])
+
     # normal fields
     for key, val in value.items():
         is_oneof_key: bool = False
@@ -317,25 +367,54 @@ def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
             if key == oneof.name:
                 is_oneof_key = True
                 break
-        if is_oneof_key is True:
+        if is_oneof_key:
             continue
 
         field: Any = desc.fields_by_name.get(key)
         if field is None:
             continue
+
+        # oneof field はここでは触らない（既に処理済み）
         if field.containing_oneof is not None:
             continue
 
         _set_field_by_value(msg, field, val)
+        logger.debug(
+            f"[DEBUG] _fill_message_by_dict: _set_field_by_value msg={msg}, field={field}, val={val}"
+        )
 
 
-def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
+def _set_field_by_value(
+    msg: Any,
+    field: Any,
+    val: Any,
+) -> None:
+    """
+    単一 protobuf フィールドに対して Python 値を設定する低レベル関数。
+
+    対応:
+    - repeated scalar / message
+    - message field の再帰埋め込み
+    - tuple は message field の positional shorthand として展開
+
+    Args:
+        msg (Any): protobuf Message
+        field (Any): FieldDescriptor
+        val (Any): 設定する値
+
+    Returns:
+        None
+    """
+    logger.debug(f"[DEBUG] _set_field_by_value")
+    logger.debug(f"  field =", msg)
+    logger.debug(f"  val", val)
+
     is_repeated: bool = False
     if field.label == field.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
-        if isinstance(val, list) is False:
+    if is_repeated:
+        if not isinstance(val, list):
             return
 
         container = getattr(msg, field.name)
@@ -344,12 +423,19 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
         if field.message_type is not None:
             is_msg = True
 
-        if is_msg is False:
+        if not is_msg:
             container.extend(val)
             return
 
         for item in val:
             child = container.add()
+
+            if isinstance(item, tuple):
+                # フィールド順で dict 化
+                fields = list(child.DESCRIPTOR.fields)
+                fields.sort(key=lambda f: int(f.number))
+                item = {f.name: v for f, v in zip(fields, item)}
+
             fill_message(child, item)
         return
 
@@ -357,15 +443,38 @@ def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
     if field.message_type is not None:
         is_msg2 = True
 
-    if is_msg2 is False:
+    if not is_msg2:
         setattr(msg, field.name, val)
         return
 
     child2 = getattr(msg, field.name)
+    logger.debug(
+        f"[DEBUG] _set_field_by_value: fill_message, child2 ={msg}, field={field.name}, val={val}"
+    )
     fill_message(child2, val)
 
 
-def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
+def _fill_message_by_position(
+    msg: Any,
+    values: List[Any],
+) -> None:
+    """
+    protobuf Message をフィールド番号順で positional に埋める。
+
+    - oneof フィールドはスキップ
+    - values は field.number 昇順で順次対応付け
+
+    Args:
+        msg (Any): protobuf Message
+        values (List[Any]): positional 値リスト
+
+    Returns:
+        None
+    """
+    logger.debug(f"[DEBUG] _fill_message_by_position")
+    logger.debug(f"  msg = {msg}")
+    logger.debug(f"  values= {values}")
+
     fields: List[Any] = list(msg.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
 
@@ -380,18 +489,18 @@ def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
         v: Any = values[index]
         index += 1
 
+        logger.debug(
+            "[fill_message] set field",
+            "field=",
+            field.name,
+            "value=",
+            v,
+        )
+
+        logger.debug(
+            f"[DEBUG] _fill_message_by_position, _set_field_by_value, msg={msg}, field={field}, v={v}"
+        )
         _set_field_by_value(msg, field, v)
-
-
-def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any:
-    try:
-        return request_cls(**kwargs)
-    except Exception:
-        pass
-
-    req: Any = request_cls()
-    fill_message(req, kwargs)
-    return req
 
 
 # ============================================================
@@ -399,11 +508,34 @@ def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any
 # ============================================================
 
 
-def fill_response_message(resp: Any, value: Any) -> Any:
+def fill_response_message(
+    resp: Any,
+    value: Any,
+) -> Any:
+    """
+    ctrl 戻り値を protobuf Response Message に反映する。
+
+    規則:
+    - dict      -> fill_message に委譲
+    - scalar    -> 単一フィールド response に代入
+    - list      -> repeated フィールドに展開
+    - None      -> response をそのまま返す
+
+    Args:
+        resp (Any): Response protobuf Message
+        value (Any): ctrl 側の戻り値
+
+    Returns:
+        Any: 設定済み response
+    """
+    logger.debug(f"[DEBUG] fill_response_message")
+    logger.debug(f"  resp={resp}")
+    logger.debug(f"  value={value}")
+
     if value is None:
         return resp
 
-    if isinstance(value, dict) is True:
+    if isinstance(value, dict):
         fill_message(resp, value)
         return resp
 
@@ -417,9 +549,9 @@ def fill_response_message(resp: Any, value: Any) -> Any:
     if f0.label == f0.LABEL_REPEATED:
         is_repeated = True
 
-    if is_repeated is True:
+    if is_repeated:
         container = getattr(resp, f0.name)
-        if isinstance(value, list) is True:
+        if isinstance(value, list):
             container.extend(value)
         return resp
 
@@ -427,7 +559,7 @@ def fill_response_message(resp: Any, value: Any) -> Any:
     if f0.message_type is not None:
         is_msg = True
 
-    if is_msg is False:
+    if not is_msg:
         setattr(resp, f0.name, value)
         return resp
 
@@ -436,12 +568,27 @@ def fill_response_message(resp: Any, value: Any) -> Any:
     return resp
 
 
-def unwrap_response(resp: Any) -> Any:
-    if is_protobuf_message(resp) is False:
+def unwrap_response(
+    resp: Any,
+) -> Any:
+    """
+    protobuf Response Message を Python 値へ展開する。
+
+    規則:
+    - ok フィールドを持つ場合は bool を返す
+    - それ以外は protobuf_to_python により dict 化
+
+    Args:
+        resp (Any): protobuf Response Message または任意の値
+
+    Returns:
+        Any: bool / dict / scalar
+    """
+    if not is_protobuf_message(resp):
         return resp
 
     has_ok: bool = hasattr(resp, "ok")
-    if has_ok is True:
+    if has_ok:
         ok_val: Any = getattr(resp, "ok")
         return bool(ok_val)
 

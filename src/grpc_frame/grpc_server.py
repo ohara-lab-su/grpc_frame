@@ -1,211 +1,103 @@
-"""
-K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
-"""
-# grpc_frame/dispatch_core.py
+# grpc_frame/grpc_server.py
 from __future__ import annotations
 
-from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 import inspect
-from typing import Any, Dict, List, Optional, Tuple, Type
+import traceback
+from dataclasses import dataclass
+
+import grpc
 
 
-# ============================================================
-# name mapping
-# ============================================================
+import grpc_frame.dispatch_core as core
+from x_logger import XLogger
+
+_logger = XLogger(log_level="debug")
 
 
-def camel_to_snake(name: str) -> str:
-    out: List[str] = []
-    for ch in name:
-        if ch.isupper():
-            out.append("_")
-            out.append(ch.lower())
-        else:
-            out.append(ch)
+@dataclass(frozen=True)
+class CtrlCallPlan:
+    """
+    ctrl メソッド呼び出しのための実行計画を表すデータクラス。
 
-    s: str = "".join(out)
-    if s.startswith("_"):
-        return s[1:]
-    return s
+    - args: 位置引数として渡す値のタプル
+    - kwargs: キーワード引数として渡す辞書
 
+    dispatcher 層で決定された呼び出し形式を、
+    handler 側でそのまま実行するための中間表現。
+    """
 
-def snake_to_camel(name: str) -> str:
-    parts: List[str] = name.split("_")
-    out: List[str] = []
-    for p in parts:
-        if p == "":
-            continue
-        head: str = p[:1].upper()
-        tail: str = p[1:]
-        out.append(head + tail)
-    return "".join(out)
+    args: Tuple[Any, ...]
+    kwargs: Dict[str, Any]
 
 
-def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
-    if ctrl_method == "":
-        raise ValueError("empty ctrl_method")
+def request_to_positional(
+    req: Any,
+) -> List[Any]:
+    """
+    protobuf Request Message から位置引数リストを生成する。
 
-    has_underscore: bool = False
-    if "_" in ctrl_method:
-        has_underscore = True
+    - フィールド番号順に値を抽出する
+    - oneof フィールドは選択されているもののみを対象とする
+    - repeated / message フィールドは Python オブジェクトに変換する
 
-    if has_underscore is True:
-        return snake_to_camel(ctrl_method)
+    Args:
+        req: protobuf Request Message
 
-    head: str = ctrl_method[:1].upper()
-    tail: str = ctrl_method[1:]
-    return head + tail
+    Returns:
+        List[Any]: ctrl メソッドに渡す位置引数候補のリスト
+    """
+    _logger.debug("[request_to_positional] req =", req)
 
-
-# ============================================================
-# protobuf detection
-# ============================================================
-
-
-def is_protobuf_message(obj: Any) -> bool:
-    desc: Any = getattr(obj, "DESCRIPTOR", None)
-    if desc is None:
-        return False
-
-    has_fields: bool = hasattr(desc, "fields")
-    if has_fields is False:
-        return False
-
-    return True
-
-
-# ============================================================
-# small helpers
-# ============================================================
-
-
-def _is_number(obj: Any) -> bool:
-    if isinstance(obj, bool) is True:
-        return False
-    if isinstance(obj, int) is True:
-        return True
-    if isinstance(obj, float) is True:
-        return True
-    return False
-
-
-def _is_scalar(obj: Any) -> bool:
-    if _is_number(obj) is True:
-        return True
-    if isinstance(obj, str) is True:
-        return True
-    if isinstance(obj, bytes) is True:
-        return True
-    if isinstance(obj, bool) is True:
-        return True
-    return False
-
-
-def _field_names_of_message_cls(message_cls: Type[Any]) -> List[str]:
-    try:
-        desc: Any = getattr(message_cls, "DESCRIPTOR", None)
-        if desc is None:
-            return []
-        fields: List[Any] = list(desc.fields)
-        out: List[str] = []
-        for f in fields:
-            out.append(f.name)
-        return out
-    except Exception:
-        return []
-
-
-def _message_cls_of_field(field: Any) -> Optional[Type[Any]]:
-    try:
-        msg_type: Any = getattr(field, "message_type", None)
-        if msg_type is None:
-            return None
-        cls: Any = getattr(msg_type, "_concrete_class", None)
-        if cls is None:
-            return None
-        return cls
-    except Exception:
-        return None
-
-
-# ============================================================
-# protobuf -> python
-#   oneof は「選択値そのもの」に潰す用途が多いので
-#   request_to_kwargs では oneof を潰して返す
-# ============================================================
-
-
-def protobuf_to_python(obj: Any) -> Any:
-    if is_protobuf_message(obj) is False:
-        return obj
-
-    desc: Any = obj.DESCRIPTOR
-    out: Dict[str, Any] = {}
-
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = obj.WhichOneof(oneof.name)
-        if selected is None:
-            continue
-        selected_val: Any = getattr(obj, selected)
-        out[oneof.name] = protobuf_to_python(selected_val)
-
-    for field in desc.fields:
-        if field.containing_oneof is not None:
-            continue
-
-        raw: Any = getattr(obj, field.name)
-
-        is_repeated: bool = False
-        if field.label == field.LABEL_REPEATED:
-            is_repeated = True
-
-        if is_repeated is True:
-            tmp: List[Any] = []
-            for x in raw:
-                tmp.append(protobuf_to_python(x))
-            out[field.name] = tmp
-            continue
-
-        is_message: bool = False
-        if field.message_type is not None:
-            is_message = True
-
-        if is_message is True:
-            out[field.name] = protobuf_to_python(raw)
-            continue
-
-        out[field.name] = raw
-
-    return out
-
-
-def request_to_kwargs(req: Any) -> Dict[str, Any]:
-    desc: Any = req.DESCRIPTOR
-    kwargs: Dict[str, Any] = {}
-
-    oneofs: Any = getattr(desc, "oneofs", [])
-    for oneof in oneofs:
-        selected: Optional[str] = req.WhichOneof(oneof.name)
-        if selected is None:
-            continue
-        kwargs[oneof.name] = protobuf_to_python(getattr(req, selected))
-
-    for field in desc.fields:
-        if field.containing_oneof is not None:
-            continue
-        kwargs[field.name] = protobuf_to_python(getattr(req, field.name))
-
-    return kwargs
-
-
-def request_to_positional(req: Any) -> List[Any]:
     fields: List[Any] = list(req.DESCRIPTOR.fields)
     fields.sort(key=lambda f: int(f.number))
 
     values: List[Any] = []
     for f in fields:
+        _logger.debug(
+            "[request_to_positional] field:",
+            f.name,
+            "number=",
+            f.number,
+            "oneof=",
+            f.containing_oneof.name if f.containing_oneof else None,
+            "label=",
+            f.label,
+        )
+        # if f.containing_oneof is not None:
+        #     continue
         if f.containing_oneof is not None:
+            oneof_name: str = f.containing_oneof.name
+
+            selected: Optional[str] = req.WhichOneof(oneof_name)
+            if selected is None:
+                continue
+            if selected != f.name:
+                continue
+
+            raw_sel: Any = getattr(req, f.name)
+
+            _logger.debug(
+                "[request_to_positional][oneof]",
+                "oneof=",
+                oneof_name,
+                "selected=",
+                f.name,
+                "raw=",
+                raw_sel,
+            )
+
+            if f.label == f.LABEL_REPEATED:
+                tmp_sel: List[Any] = []
+                for x in raw_sel:
+                    tmp_sel.append(core.protobuf_to_python(x))
+
+                _logger.debug("[request_to_positional] append value =", tmp_sel)
+                values.append(tmp_sel)
+            else:
+                _logger.debug("[request_to_positional] append value =", raw_sel)
+                values.append(core.protobuf_to_python(raw_sel))
+
             continue
 
         raw: Any = getattr(req, f.name)
@@ -214,16 +106,130 @@ def request_to_positional(req: Any) -> List[Any]:
         if f.label == f.LABEL_REPEATED:
             is_repeated = True
 
-        if is_repeated is True:
+        if is_repeated:
             tmp: List[Any] = []
             for x in raw:
-                tmp.append(protobuf_to_python(x))
+                tmp.append(core.protobuf_to_python(x))
             values.append(tmp)
             continue
 
-        values.append(protobuf_to_python(raw))
+        values.append(core.protobuf_to_python(raw))
 
+    _logger.debug("[request_to_positional] result values =", values)
     return values
+
+
+def request_to_kwargs(
+    req: Any,
+) -> Dict[str, Any]:
+    """
+    protobuf Request Message からキーワード引数 dict を生成する。
+
+    - フィールド名をキーとする
+    - oneof フィールドは選択されているもののみを含める
+    - repeated message は tuple に正規化する
+    - message / scalar は protobuf_to_python で変換する
+
+    Args:
+        req: protobuf Request Message
+
+    Returns:
+        Dict[str, Any]: ctrl メソッドに渡すキーワード引数
+    """
+    _logger.debug(f"[DEBUG][request_to_kwargs] BEGIN")
+
+    kwargs: Dict[str, Any] = {}
+
+    for f in req.DESCRIPTOR.fields:
+        # --- oneof 対応 ---
+        if f.containing_oneof is not None:
+            oneof_name: str = f.containing_oneof.name
+            selected: Optional[str] = req.WhichOneof(oneof_name)
+
+            if selected != f.name:
+                continue
+
+            raw_sel: Any = getattr(req, f.name)
+
+            if f.label == f.LABEL_REPEATED:
+                # kwargs[f.name] = [core.protobuf_to_python(x) for x in raw_sel]
+                kwargs[f.name] = [_pbmsg_to_tuple(x) for x in raw_sel]
+            else:
+                kwargs[f.name] = core.protobuf_to_python(raw_sel)
+
+            continue
+
+        # --- 通常フィールド ---
+        raw: Any = getattr(req, f.name)
+
+        if f.label == f.LABEL_REPEATED:
+            # kwargs[f.name] = [core.protobuf_to_python(x) for x in raw]
+            kwargs[f.name] = [_pbmsg_to_tuple(x) for x in raw]
+        else:
+            kwargs[f.name] = core.protobuf_to_python(raw)
+
+    return kwargs
+
+
+def _has_varkw(
+    sig: inspect.Signature,
+) -> bool:
+    """
+    関数シグネチャが可変キーワード引数 (**kwargs) を持つか判定する。
+
+    Args:
+        sig (inspect.Signature): 判定対象のシグネチャ
+
+    Returns:
+        bool: **kwargs を含む場合 True
+    """
+    # _logger.debug(f"[DEBUG][_has_varkw]")
+
+    for p in sig.parameters.values():
+        if p.kind == p.VAR_KEYWORD:
+            return True
+    return False
+
+
+def _pbmsg_to_tuple(
+    obj: Any,
+) -> Any:
+    """
+    protobuf Message をタプル形式に正規化する。
+
+    用途:
+    - repeated message を ctrl 側で tuple/list として扱うための変換
+    - ネストした message / repeated を含む場合は dict 形式にフォールバック
+
+    Args:
+        obj: protobuf Message または任意オブジェクト
+
+    Returns:
+        Any:
+            - scalar / 非 message: そのまま返す
+            - 単純な message: フィールド番号順の tuple
+            - 複雑な message: dict (protobuf_to_python 結果)
+    """
+    if not core.is_protobuf_message(obj):
+        return obj
+
+    fields: List[Any] = list(obj.DESCRIPTOR.fields)
+    fields.sort(key=lambda f: int(f.number))
+
+    out: List[Any] = []
+    for f in fields:
+        if f.containing_oneof is not None:
+            continue
+        if f.label == f.LABEL_REPEATED:
+            # ネストrepeatedはここでは展開しない（従来どおり）
+            return core.protobuf_to_python(obj)
+        if f.message_type is not None:
+            # ネストmessageもここではdictのまま（従来どおり）
+            return core.protobuf_to_python(obj)
+
+        out.append(getattr(obj, f.name))
+
+    return tuple(out)
 
 
 # ============================================================
@@ -232,20 +238,28 @@ def request_to_positional(req: Any) -> List[Any]:
 # ============================================================
 
 
-@dataclass(frozen=True)
-class CtrlCallPlan:
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
+def build_call_plan(
+    ctrl_fn: Any,
+    request: Any,
+) -> CtrlCallPlan:
+    """
+    ctrl メソッドと Request Message から呼び出し計画を構築する。
 
+    設計方針:
+    - kwargs が存在する場合は positional 化しない
+    - keyword-only 引数を壊さない
+    - **kwargs を受け取る関数では常に kwargs 呼びにする
+    - 既存の挙動（drive 等）を壊さないことを最優先する
 
-def _has_varkw(sig: inspect.Signature) -> bool:
-    for p in sig.parameters.values():
-        if p.kind == p.VAR_KEYWORD:
-            return True
-    return False
+    Args:
+        ctrl_fn: 呼び出し対象の ctrl メソッド
+        request: protobuf Request Message
 
+    Returns:
+        CtrlCallPlan: 実行すべき args / kwargs の組
+    """
+    _logger.debug(f"[DEBUG][build_call_plan]")
 
-def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
     sig: inspect.Signature = inspect.signature(ctrl_fn)
 
     params: List[inspect.Parameter] = []
@@ -255,440 +269,188 @@ def build_call_plan(ctrl_fn: Any, request: Any) -> CtrlCallPlan:
         params.append(p)
 
     kwargs: Dict[str, Any] = request_to_kwargs(request)
-    positional: List[Any] = request_to_positional(request)
+    # positional: List[Any] = request_to_positional(request)
+
+    # 追加ログ
+    _logger.debug("[DEBUG][CallPlan]")
+    _logger.debug("  ctrl_fn =", ctrl_fn)
+    _logger.debug("  signature =", sig)
+    _logger.debug("  params =", [p.name for p in params])
+    # _logger.debug("  positional =", positional)
+    _logger.debug("  kwargs =", kwargs)
 
     has_varkw: bool = _has_varkw(sig)
-    if has_varkw is True:
+    _logger.debug("  has_varkw =", has_varkw)
+    _logger.debug("  len(params) =", len(params))
+    # _logger.debug("  len(positional) =", len(positional))
+
+    # --- 重要 ---
+    # drive(pairs, *, relative=...) のような「必須引数 + keyword-only」を壊さないため、
+    # kwargs が来た場合は positional 化せず、そのまま kwargs 呼びに固定する。
+    if kwargs:
+        return CtrlCallPlan(args=(), kwargs=kwargs)
+
+    if has_varkw:
         return CtrlCallPlan(args=(), kwargs=kwargs)
 
     if len(params) == 0:
         return CtrlCallPlan(args=(), kwargs={})
 
     if len(params) == len(positional):
+        _logger.debug("[build_call_plan] USE positional ONLY:", positional)
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     if len(params) == 1:
-        if len(positional) == 0:
-            if len(kwargs) == 0:
-                return CtrlCallPlan(args=(), kwargs={})
-            if len(kwargs) == 1:
-                only_val: Any = next(iter(kwargs.values()))
-                return CtrlCallPlan(args=(only_val,), kwargs={})
-            return CtrlCallPlan(args=(), kwargs=kwargs)
+        _logger.debug("[build_call_plan] USE positional + oneof:", positional)
+        p0: inspect.Parameter = params[0]
 
+        # positional が1つある場合は、それをそのまま使う
         if len(positional) == 1:
+            _logger.debug("[build_call_plan] USE positional == 1", positional)
             return CtrlCallPlan(args=(positional[0],), kwargs={})
 
-        return CtrlCallPlan(args=(positional,), kwargs={})
+        # positional が複数ある場合はまとめて1引数にする
+        if len(positional) > 1:
+            _logger.debug("[build_call_plan] USE positional > 1", positional)
+            return CtrlCallPlan(args=(positional,), kwargs={})
+
+        # positional が無い場合は kwargs をそのまま渡す
+        return CtrlCallPlan(args=(), kwargs=kwargs)
+
+    # positional が存在しても、kwargs に oneof（pairs 等）が含まれる場合は
+    # positional を使ってはいけない
+    # if len(positional) > 0:
+    #     _logger.debug(
+    #         "[build_call_plan] positional EXISTS but fallback to kwargs",
+    #         "positional=",
+    #         positional,
+    #         "kwargs=",
+    #         kwargs,
+    #     )
+    #     # return CtrlCallPlan(args=tuple(positional), kwargs=kwargs)
+    #     # return CtrlCallPlan(args=(), kwargs=kwargs)
+    #     return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     return CtrlCallPlan(args=(), kwargs=kwargs)
 
 
-# ============================================================
-# python -> protobuf message filling (descriptor-driven)
-#   oneof input (accepted forms):
-#     A) { oneof_name: { selected_field_name: value } }  (legacy)
-#     B) { oneof_name: payload }                         (new, infer)
-#     C) { selected_field_name: value }                  (direct oneof field)
-# ============================================================
+# ----------------------
+# サーバーの自動ディスパッチの心臓部分
+# ----------------------
 
 
-def fill_message(msg: Any, value: Any) -> None:
-    if is_protobuf_message(msg) is False:
-        return
-
-    if isinstance(value, dict) is True:
-        _fill_message_by_dict(msg, value)
-        return
-
-    if isinstance(value, list) is True:
-        _fill_message_by_position(msg, value)
-        return
-
-    if isinstance(value, tuple) is True:
-        _fill_message_by_position(msg, list(value))
-        return
-
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
-    if len(fields) != 1:
-        return
-
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
-    if f0.label == f0.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        container = getattr(msg, f0.name)
-        if isinstance(value, list) is True:
-            container.extend(value)
-        return
-
-    is_msg: bool = False
-    if f0.message_type is not None:
-        is_msg = True
-
-    if is_msg is False:
-        setattr(msg, f0.name, value)
-        return
-
-    child = getattr(msg, f0.name)
-    fill_message(child, value)
-
-
-def _infer_oneof_selected_field(
+def build_dynamic_servicer_class(
     *,
-    desc: Any,
-    oneof: Any,
-    payload: Any,
-) -> Optional[Any]:
-    candidates: List[Any] = []
-    for f in desc.fields:
-        if f.containing_oneof is None:
-            continue
-        if f.containing_oneof.name != oneof.name:
-            continue
-        candidates.append(f)
+    pb2: Any,
+    pb2_grpc: Any,
+    service_name: str,
+) -> Type[Any]:
+    """
+    protobuf 定義と ctrl オブジェクトから動的 gRPC Servicer クラスを生成する。
 
-    if len(candidates) == 0:
-        return None
+    責務:
+    - service 定義を走査して RPC ごとの handler を生成
+    - RPC 名から ctrl メソッド名を自動対応付け
+    - Request → ctrl 呼び出し → Response の流れを統一的に処理
 
-    # 1) payload が protobuf message のときは型一致優先
-    if is_protobuf_message(payload) is True:
-        payload_desc: Any = getattr(payload, "DESCRIPTOR", None)
-        if payload_desc is None:
-            return None
+    Args:
+        pb2: *_pb2 モジュール
+        pb2_grpc: *_pb2_grpc モジュール
+        service_name (str): 対象サービス名
 
-        for f in candidates:
-            cls = _message_cls_of_field(f)
-            if cls is None:
-                continue
-            cls_desc: Any = getattr(cls, "DESCRIPTOR", None)
-            if cls_desc is None:
-                continue
-            if cls_desc.full_name == payload_desc.full_name:
-                return f
+    Returns:
+        Type[Any]: grpc サーバーに登録可能な Servicer クラス
+    """
+    service_desc: Any = pb2.DESCRIPTOR.services_by_name[service_name]
+    base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 
-    # 2) payload が dict のときはフィールド名一致度で選ぶ
-    if isinstance(payload, dict) is True:
-        best_field: Optional[Any] = None
-        best_score: int = -1
+    class Servicer(base_cls):
+        def __init__(self, *, ctrl: Any, logger: XLogger) -> None:
+            """
+            動的に生成される Servicer の初期化処理。
 
-        for f in candidates:
-            cls = _message_cls_of_field(f)
-            if cls is None:
-                continue
+            Args:
+                ctrl: 実際の制御ロジックを持つオブジェクト
+                logger (XLogger): ログ出力用ロガー
+            """
+            self._ctrl: Any = ctrl
+            self._logger: XLogger = logger
 
-            field_names: List[str] = _field_names_of_message_cls(cls)
-            if len(field_names) == 0:
-                continue
+    for m in service_desc.methods:
+        rpc_name: str = m.name
+        ctrl_name: str = core.camel_to_snake(rpc_name)
+        response_cls: Any = getattr(pb2, m.output_type.name)
 
-            ok_keys: bool = True
-            score: int = 0
-            for k in payload.keys():
-                if k in field_names:
-                    score += 1
-                    continue
-                ok_keys = False
-                break
+        def make_handler(
+            rpc_name_local: str,
+            ctrl_name_local: str,
+            response_cls_local: Any,
+        ):
+            def handler(
+                self: Any,
+                request: Any,
+                context: Any,
+            ) -> Any:
+                """
+                単一 RPC に対応する gRPC ハンドラ。
 
-            if ok_keys is False:
-                continue
+                処理手順:
+                1. ctrl メソッドを取得
+                2. Request Message から呼び出し計画を構築
+                3. ctrl メソッドを args / kwargs で実行
+                4. 戻り値を Response Message に変換
 
-            if score > best_score:
-                best_score = score
-                best_field = f
+                例外時:
+                - ctrl メソッド未実装: UNIMPLEMENTED
+                - 実行時例外: INTERNAL
 
-        if best_field is not None:
-            return best_field
+                Args:
+                    request: protobuf Request Message
+                    context: gRPC context
 
-    # 3) payload が list/tuple のとき
-    if isinstance(payload, list) is True:
-        # a) oneof の候補が message で「単一 repeated フィールド」を持つなら、list をそこへ流す
-        best_field2: Optional[Any] = None
-        best_score2: int = -1
+                Returns:
+                    protobuf Response Message
+                """
 
-        for f in candidates:
-            cls2 = _message_cls_of_field(f)
-            if cls2 is None:
-                continue
+                self._logger.info(
+                    f"[GrpcServer][DEBUG] rpc={rpc_name_local}, request={request}"
+                )
 
-            cls2_desc: Any = getattr(cls2, "DESCRIPTOR", None)
-            if cls2_desc is None:
-                continue
+                try:
+                    fn: Any = getattr(self._ctrl, ctrl_name_local)
+                    plan = build_call_plan(fn, request)
 
-            fields2: List[Any] = list(cls2_desc.fields)
-            if len(fields2) != 1:
-                continue
+                    self._logger.info(
+                        f"[GrpcServer][DEBUG] call plan: args={plan.args}, kwargs={plan.kwargs}"
+                    )
 
-            only: Any = fields2[0]
-            if only.label != only.LABEL_REPEATED:
-                continue
+                    if len(plan.kwargs) == 0:
+                        ret = fn(*plan.args)
+                    else:
+                        ret = fn(*plan.args, **plan.kwargs)
 
-            best_field2 = f
-            best_score2 = 100
+                except AttributeError:
+                    context.abort(
+                        grpc.StatusCode.UNIMPLEMENTED,
+                        f"ctrl has no method '{ctrl_name_local}'",
+                    )
 
-        if best_score2 >= 0:
-            return best_field2
+                except Exception as e:
+                    self._logger.error(traceback.format_exc())
+                    context.abort(
+                        grpc.StatusCode.INTERNAL,
+                        f"{rpc_name_local} failed: {e}",
+                    )
 
-        # b) message が N 個のフィールドを持つとき、payload 長が N と一致すれば採用
-        for f in candidates:
-            cls3 = _message_cls_of_field(f)
-            if cls3 is None:
-                continue
-            cls3_desc: Any = getattr(cls3, "DESCRIPTOR", None)
-            if cls3_desc is None:
-                continue
-            fields3: List[Any] = list(cls3_desc.fields)
-            if len(fields3) == 0:
-                continue
-            if len(payload) != len(fields3):
-                continue
-            return f
+                resp: Any = response_cls_local()
+                return core.fill_response_message(resp, ret)
 
-    if isinstance(payload, tuple) is True:
-        payload_list: List[Any] = list(payload)
-        return _infer_oneof_selected_field(desc=desc, oneof=oneof, payload=payload_list)
+            return handler
 
-    # 4) scalar のときは scalar フィールドへ
-    if _is_scalar(payload) is True:
-        for f in candidates:
-            if f.message_type is not None:
-                continue
-            return f
-
-    return None
-
-
-def _set_oneof_field_by_payload(
-    *,
-    msg: Any,
-    oneof: Any,
-    payload: Any,
-) -> None:
-    desc: Any = msg.DESCRIPTOR
-
-    selected_field: Optional[Any] = _infer_oneof_selected_field(
-        desc=desc,
-        oneof=oneof,
-        payload=payload,
-    )
-    if selected_field is None:
-        return
-
-    # message の場合、payload が list で「単一 repeated フィールド」ならラップして流す
-    if selected_field.message_type is not None:
-        if isinstance(payload, list) is True:
-            cls = _message_cls_of_field(selected_field)
-            if cls is not None:
-                cls_desc: Any = getattr(cls, "DESCRIPTOR", None)
-                if cls_desc is not None:
-                    fields2: List[Any] = list(cls_desc.fields)
-                    if len(fields2) == 1:
-                        only: Any = fields2[0]
-                        if only.label == only.LABEL_REPEATED:
-                            wrapped: Dict[str, Any] = {}
-                            wrapped[only.name] = payload
-                            _set_field_by_value(msg, selected_field, wrapped)
-                            return
-
-    _set_field_by_value(msg, selected_field, payload)
-
-
-def _fill_message_by_dict(msg: Any, value: Dict[str, Any]) -> None:
-    desc: Any = msg.DESCRIPTOR
-    oneofs: Any = getattr(desc, "oneofs", [])
-
-    # ---------------------------------------------------------
-    # 1) oneof を「oneof名」で受ける
-    #    A) { oneof_name: {selected_field: val} }  (legacy)
-    #    B) { oneof_name: payload }                (infer)
-    # ---------------------------------------------------------
-    for oneof in oneofs:
-        if oneof.name not in value:
-            continue
-
-        oneof_payload: Any = value[oneof.name]
-
-        # A) legacy
-        if isinstance(oneof_payload, dict) is True:
-            if len(oneof_payload) == 1:
-                selected_field_name: str = next(iter(oneof_payload.keys()))
-                selected_value: Any = oneof_payload[selected_field_name]
-
-                field_obj: Any = desc.fields_by_name.get(selected_field_name)
-                if field_obj is not None:
-                    if field_obj.containing_oneof is not None:
-                        if field_obj.containing_oneof.name == oneof.name:
-                            _set_field_by_value(msg, field_obj, selected_value)
-                            continue
-
-        # B) infer
-        _set_oneof_field_by_payload(
-            msg=msg,
-            oneof=oneof,
-            payload=oneof_payload,
+        setattr(
+            Servicer,
+            rpc_name,
+            make_handler(rpc_name, ctrl_name, response_cls),
         )
 
-    # ---------------------------------------------------------
-    # 2) oneof を「内側フィールド名」で直接受ける
-    #    C) { selected_field_name: value }
-    # ---------------------------------------------------------
-    direct_oneof_field_count: int = 0
-    direct_oneof_field_obj: Optional[Any] = None
-    direct_oneof_value: Any = None
-
-    for key, val in value.items():
-        field2: Any = desc.fields_by_name.get(key)
-        if field2 is None:
-            continue
-        if field2.containing_oneof is None:
-            continue
-
-        direct_oneof_field_count += 1
-        direct_oneof_field_obj = field2
-        direct_oneof_value = val
-
-    if direct_oneof_field_count == 1:
-        if direct_oneof_field_obj is not None:
-            _set_field_by_value(msg, direct_oneof_field_obj, direct_oneof_value)
-
-    # ---------------------------------------------------------
-    # 3) normal fields
-    # ---------------------------------------------------------
-    for key, val in value.items():
-        is_oneof_key: bool = False
-        for oneof in oneofs:
-            if key == oneof.name:
-                is_oneof_key = True
-                break
-        if is_oneof_key is True:
-            continue
-
-        field: Any = desc.fields_by_name.get(key)
-        if field is None:
-            continue
-        if field.containing_oneof is not None:
-            continue
-
-        _set_field_by_value(msg, field, val)
-
-
-def _set_field_by_value(msg: Any, field: Any, val: Any) -> None:
-    is_repeated: bool = False
-    if field.label == field.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        if isinstance(val, list) is False:
-            return
-
-        container = getattr(msg, field.name)
-
-        is_msg: bool = False
-        if field.message_type is not None:
-            is_msg = True
-
-        if is_msg is False:
-            container.extend(val)
-            return
-
-        for item in val:
-            child = container.add()
-            fill_message(child, item)
-        return
-
-    is_msg2: bool = False
-    if field.message_type is not None:
-        is_msg2 = True
-
-    if is_msg2 is False:
-        setattr(msg, field.name, val)
-        return
-
-    child2 = getattr(msg, field.name)
-    fill_message(child2, val)
-
-
-def _fill_message_by_position(msg: Any, values: List[Any]) -> None:
-    fields: List[Any] = list(msg.DESCRIPTOR.fields)
-    fields.sort(key=lambda f: int(f.number))
-
-    index: int = 0
-    for field in fields:
-        if field.containing_oneof is not None:
-            continue
-
-        if index >= len(values):
-            break
-
-        v: Any = values[index]
-        index += 1
-
-        _set_field_by_value(msg, field, v)
-
-
-def build_request_message(request_cls: Type[Any], kwargs: Dict[str, Any]) -> Any:
-    try:
-        return request_cls(**kwargs)
-    except Exception:
-        pass
-
-    req: Any = request_cls()
-    fill_message(req, kwargs)
-    return req
-
-
-# ============================================================
-# ctrl return -> response fill
-# ============================================================
-
-
-def fill_response_message(resp: Any, value: Any) -> Any:
-    if value is None:
-        return resp
-
-    if isinstance(value, dict) is True:
-        fill_message(resp, value)
-        return resp
-
-    fields: List[Any] = list(resp.DESCRIPTOR.fields)
-    if len(fields) != 1:
-        return resp
-
-    f0: Any = fields[0]
-
-    is_repeated: bool = False
-    if f0.label == f0.LABEL_REPEATED:
-        is_repeated = True
-
-    if is_repeated is True:
-        container = getattr(resp, f0.name)
-        if isinstance(value, list) is True:
-            container.extend(value)
-        return resp
-
-    is_msg: bool = False
-    if f0.message_type is not None:
-        is_msg = True
-
-    if is_msg is False:
-        setattr(resp, f0.name, value)
-        return resp
-
-    child = getattr(resp, f0.name)
-    fill_message(child, value)
-    return resp
-
-
-def unwrap_response(resp: Any) -> Any:
-    if is_protobuf_message(resp) is False:
-        return resp
-
-    has_ok: bool = hasattr(resp, "ok")
-    if has_ok is True:
-        ok_val: Any = getattr(resp, "ok")
-        return bool(ok_val)
-
-    return protobuf_to_python(resp)
+    return Servicer
