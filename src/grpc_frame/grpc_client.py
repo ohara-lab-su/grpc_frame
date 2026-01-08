@@ -255,7 +255,7 @@ class GrpcClient:
                 f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}"
             )
 
-            if has_rpc is False:
+            if not has_rpc:
                 continue
 
             rpc: Any = getattr(self._stub, rpc_name)
@@ -315,7 +315,7 @@ class GrpcClient:
 
                 self._logger.info(f"[GrpcClient] req_kwargs={req_kwargs}")
 
-                request = core.build_request_message(request_cls, req_kwargs)
+                request = build_request_message(request_cls, req_kwargs)
 
                 self._logger.info(f"[GrpcClient][DEBUG] request content = {request}")
 

@@ -221,7 +221,7 @@ def build_dynamic_servicer_class(
 
                 try:
                     fn: Any = getattr(self._ctrl, ctrl_name_local)
-                    plan = core.build_call_plan(fn, request)
+                    plan = build_call_plan(fn, request)
 
                     self._logger.info(
                         f"[GrpcServer][DEBUG] call plan: args={plan.args}, kwargs={plan.kwargs}"
