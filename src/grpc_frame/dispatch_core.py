@@ -339,7 +339,6 @@ def _fill_message_by_dict(
         logger.debug(
             f"[DEBUG] _fill_message_by_dict: _set_field_by_value msg={msg}, field={field}, val={val}"
         )
-        _set_field_by_value(msg, field, val)
 
 
 def _set_field_by_value(
