@@ -75,13 +75,13 @@ def request_to_positional(
             if f.label == f.LABEL_REPEATED:
                 tmp_sel: List[Any] = []
                 for x in raw_sel:
-                    tmp_sel.append(protobuf_to_python(x))
+                    tmp_sel.append(core.protobuf_to_python(x))
 
                 logger.debug("[request_to_positional] append value =", tmp_sel)
                 values.append(tmp_sel)
             else:
                 logger.debug("[request_to_positional] append value =", raw_sel)
-                values.append(protobuf_to_python(raw_sel))
+                values.append(core.protobuf_to_python(raw_sel))
 
             continue
 
@@ -94,11 +94,11 @@ def request_to_positional(
         if is_repeated:
             tmp: List[Any] = []
             for x in raw:
-                tmp.append(protobuf_to_python(x))
+                tmp.append(core.protobuf_to_python(x))
             values.append(tmp)
             continue
 
-        values.append(protobuf_to_python(raw))
+        values.append(core.protobuf_to_python(raw))
 
     _logger.debug("[request_to_positional] result values =", values)
     return values
@@ -131,9 +131,9 @@ def request_to_kwargs(
             raw_sel: Any = getattr(req, f.name)
 
             if f.label == f.LABEL_REPEATED:
-                kwargs[f.name] = [protobuf_to_python(x) for x in raw_sel]
+                kwargs[f.name] = [core.protobuf_to_python(x) for x in raw_sel]
             else:
-                kwargs[f.name] = protobuf_to_python(raw_sel)
+                kwargs[f.name] = core.protobuf_to_python(raw_sel)
 
             continue
 
@@ -141,9 +141,9 @@ def request_to_kwargs(
         raw: Any = getattr(req, f.name)
 
         if f.label == f.LABEL_REPEATED:
-            kwargs[f.name] = [protobuf_to_python(x) for x in raw]
+            kwargs[f.name] = [core.protobuf_to_python(x) for x in raw]
         else:
-            kwargs[f.name] = protobuf_to_python(raw)
+            kwargs[f.name] = core.protobuf_to_python(raw)
 
     return kwargs
 
