@@ -377,14 +377,17 @@ def build_call_plan(
         return CtrlCallPlan(args=tuple(positional), kwargs={})
 
     if len(params) == 1:
+        logger.debug("[build_call_plan] USE positional + oneof:", positional)
         p0: inspect.Parameter = params[0]
 
         # positional が1つある場合は、それをそのまま使う
         if len(positional) == 1:
+            logger.debug("[build_call_plan] USE positional == 1", positional)
             return CtrlCallPlan(args=(positional[0],), kwargs={})
 
         # positional が複数ある場合はまとめて1引数にする
         if len(positional) > 1:
+            logger.debug("[build_call_plan] USE positional > 1", positional)
             return CtrlCallPlan(args=(positional,), kwargs={})
 
         # positional が無い場合は kwargs をそのまま渡す
