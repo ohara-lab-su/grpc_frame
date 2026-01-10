@@ -448,6 +448,9 @@ class GrpcClient:
                 # resp = rpc(request)
                 # self._logger.debug("[GrpcClient] rpc call done")
 
+                ordered_args: List[Any] = []
+                ordered_kwargs: Dict[str, Any] = {}
+
                 for name, value in bound.arguments.items():
                     if name == "self":
                         continue
