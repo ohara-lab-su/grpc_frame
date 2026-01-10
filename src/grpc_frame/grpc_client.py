@@ -12,7 +12,7 @@ from google.protobuf import empty_pb2
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
-_logger = XLogger(log_level="info", logger_name="grpc_client")
+_logger = XLogger(log_level="debug", logger_name="grpc_client",)
 
 
 def _normalize_method_path(

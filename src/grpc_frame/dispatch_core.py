@@ -6,7 +6,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from x_logger import XLogger
 
-logger = XLogger(log_level="info", logger_name="dispatch_core")
+logger = XLogger(
+    log_level="debug",
+    logger_name="dispatch_core",
+)
 
 # ============================================================
 # name mapping
