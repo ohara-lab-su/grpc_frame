@@ -1,4 +1,7 @@
-# grpc_frame/core.py
+#!/usr/bin/env python
+"""
+K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
+"""
 from __future__ import annotations
 
 import inspect
@@ -7,7 +10,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 from x_logger import XLogger
 
 logger = XLogger(
-    log_level="debug",
+    # log_level="debug",
+    log_level="info",
     logger_name="dispatch_core",
 )
 

@@ -1,4 +1,7 @@
-# grpc_frame/grpc_client.py
+#!/usr/bin/env python
+"""
+K.NAKADA, kengo.nakada@gmail.com, kengo.nakada@mat.shimane-u.ac.jp
+"""
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
@@ -8,12 +11,12 @@ import inspect
 import grpc
 from google.protobuf import empty_pb2
 
-
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
 _logger = XLogger(
-    log_level="debug",
+    # log_level="debug",
+    log_level="info",
     logger_name="grpc_client",
 )
 
