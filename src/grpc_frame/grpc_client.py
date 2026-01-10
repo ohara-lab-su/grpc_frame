@@ -12,7 +12,10 @@ from google.protobuf import empty_pb2
 import grpc_frame.dispatch_core as core
 from x_logger import XLogger
 
-_logger = XLogger(log_level="debug", logger_name="grpc_client",)
+_logger = XLogger(
+    log_level="debug",
+    logger_name="grpc_client",
+)
 
 
 def _normalize_method_path(
@@ -422,8 +425,9 @@ class GrpcClient:
         )
 
         def _method(*args: Any, **kwargs: Any) -> Any:
-            self._logger.info(f"[GrpcClient] CALL {method_name}() begin")
-            self._logger.info(f"[GrpcClient] args={args}, kwargs={kwargs}")
+            self._logger.info(
+                f"[GrpcClient] CALL {method_name}(args={args}, kwargs={kwargs} begin"
+            )
 
             try:
                 bound = sig.bind_partial(None, *args, **kwargs)
@@ -460,7 +464,7 @@ class GrpcClient:
                         ordered_args.append(value)
 
                 # request 構築は proto descriptor のみで決定
-                self._logger.debug("[GrpcClient] rpc call start")
+                # self._logger.debug("[GrpcClient] rpc call start")
                 request = request_cls()
                 core.fill_message(request, ordered_args + list(ordered_kwargs.values()))
 
