@@ -429,24 +429,39 @@ class GrpcClient:
                 bound = sig.bind_partial(None, *args, **kwargs)
                 bound.apply_defaults()
 
-                req_kwargs: Dict[str, Any] = {}
-                for k, v in bound.arguments.items():
-                    if k == "self":
+                # req_kwargs: Dict[str, Any] = {}
+                # for k, v in bound.arguments.items():
+                #     if k == "self":
+                #         continue
+                #     req_kwargs[k] = v
+
+                # self._logger.debug(f"[GrpcClient] req_kwargs={req_kwargs}")
+
+                # request = build_request_message(request_cls, req_kwargs)
+
+                # self._logger.debug(f"[GrpcClient][DEBUG] request content = {request}")
+                # self._logger.debug(
+                #     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
+                # )
+
+                # self._logger.debug("[GrpcClient] rpc call start")
+                # resp = rpc(request)
+                # self._logger.debug("[GrpcClient] rpc call done")
+
+                for name, value in bound.arguments.items():
+                    if name == "self":
                         continue
-                    req_kwargs[k] = v
+                    if name in kwargs:
+                        ordered_kwargs[name] = value
+                    else:
+                        ordered_args.append(value)
 
-                self._logger.debug(f"[GrpcClient] req_kwargs={req_kwargs}")
-
-                request = build_request_message(request_cls, req_kwargs)
-
-                self._logger.debug(f"[GrpcClient][DEBUG] request content = {request}")
-                self._logger.debug(
-                    f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
-                )
-
+                # request 構築は proto descriptor のみで決定
                 self._logger.debug("[GrpcClient] rpc call start")
+                request = request_cls()
+                core.fill_message(request, ordered_args + list(ordered_kwargs.values()))
+
                 resp = rpc(request)
-                self._logger.debug("[GrpcClient] rpc call done")
 
                 return core.unwrap_response(resp)
 
