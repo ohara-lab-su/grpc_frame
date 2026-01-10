@@ -6,7 +6,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from x_logger import XLogger
 
-logger = XLogger(log_level="info", logger_name="dispatch_core")
+logger = XLogger(
+    log_level="debug",
+    logger_name="dispatch_core",
+)
 
 # ============================================================
 # name mapping
@@ -568,28 +571,83 @@ def fill_response_message(
     return resp
 
 
+# def unwrap_response(
+#     resp: Any,
+# ) -> Any:
+#     """
+#     protobuf Response Message を Python 値へ展開する。
+#
+#     規則:
+#     - ok フィールドを持つ場合は bool を返す
+#     - それ以外は protobuf_to_python により dict 化
+#
+#     Args:
+#         resp (Any): protobuf Response Message または任意の値
+#
+#     Returns:
+#         Any: bool / dict / scalar
+#     """
+#     if not is_protobuf_message(resp):
+#         return resp
+#
+#     has_ok: bool = hasattr(resp, "ok")
+#     if has_ok:
+#         ok_val: Any = getattr(resp, "ok")
+#         return bool(ok_val)
+#
+#     return protobuf_to_python(resp)
+
+
 def unwrap_response(
     resp: Any,
 ) -> Any:
     """
     protobuf Response Message を Python 値へ展開する。
 
-    規則:
-    - ok フィールドを持つ場合は bool を返す
-    - それ以外は protobuf_to_python により dict 化
-
-    Args:
-        resp (Any): protobuf Response Message または任意の値
-
-    Returns:
-        Any: bool / dict / scalar
+    返り値の形は **proto 定義のみ**に従う。
+    - repeated field -> list
+    - scalar field   -> scalar
+    - message field  -> message を再帰展開（dict化しない）
+    - map を proto に定義していない限り dict は返さない
     """
     if not is_protobuf_message(resp):
         return resp
 
-    has_ok: bool = hasattr(resp, "ok")
-    if has_ok:
-        ok_val: Any = getattr(resp, "ok")
-        return bool(ok_val)
+    # ok は例外（bool として扱う）
+    if hasattr(resp, "ok"):
+        return bool(getattr(resp, "ok"))
 
-    return protobuf_to_python(resp)
+    fields: List[Any] = list(resp.DESCRIPTOR.fields)
+    fields.sort(key=lambda f: int(f.number))
+
+    # 単一フィールド
+    if len(fields) == 1:
+        f0 = fields[0]
+        raw = getattr(resp, f0.name)
+
+        # repeated -> list
+        if f0.label == f0.LABEL_REPEATED:
+            return [unwrap_response(x) if is_protobuf_message(x) else x for x in raw]
+
+        # message -> 再帰（dict化しない）
+        if f0.message_type is not None:
+            return unwrap_response(raw)
+
+        # scalar
+        return raw
+
+    # 複数フィールド → proto 上は tuple 的構造として list で返す
+    out: List[Any] = []
+    for f in fields:
+        raw = getattr(resp, f.name)
+
+        if f.label == f.LABEL_REPEATED:
+            out.append(
+                [unwrap_response(x) if is_protobuf_message(x) else x for x in raw]
+            )
+        elif f.message_type is not None:
+            out.append(unwrap_response(raw))
+        else:
+            out.append(raw)
+
+    return out
