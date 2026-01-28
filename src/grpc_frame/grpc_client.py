@@ -23,6 +23,7 @@ class GrpcClient:
         service_stub_class: Type[Any],
         ctrl_class: Type[Any],
         timeout_sec: Optional[float] = None,
+        logger: Optional[Any] = None,
     ) -> None:
         self._pb2: Any = pb2
         self._pb2_grpc: Any = pb2_grpc
