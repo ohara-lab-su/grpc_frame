@@ -1,26 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Optional, Type
+from typing import Any, Callable, Dict, Optional, Type
 
 import grpc
 
 import adapter
+import dispatch_core
 
 
 class GrpcClient:
-    """
-    ctrl_class の public メソッド一覧を走査し、同名 RPC が proto に存在するものを
-    client 側に動的に生やす。
-
-    - 呼び出しは client.method(*args, **kwargs) のまま
-    - 送るのは JSON bytes (args/kwargs)
-    - 返り値は JSON bytes を Python 値へ戻す（型は問わない）
-    """
-
     def __init__(
         self,
         *,
@@ -28,44 +20,44 @@ class GrpcClient:
         server_port: int,
         pb2: Any,
         pb2_grpc: Any,
-        service_name: str,
+        service_stub_class: Type[Any],
         ctrl_class: Type[Any],
         timeout_sec: Optional[float] = None,
     ) -> None:
-        self._server_ip: str = server_ip
-        self._server_port: int = server_port
         self._pb2: Any = pb2
         self._pb2_grpc: Any = pb2_grpc
-        self._service_name: str = service_name
+        self._stub_class: Type[Any] = service_stub_class
         self._ctrl_class: Type[Any] = ctrl_class
-        self._timeout_sec: Optional[float] = timeout_sec
 
         addr: str = f"{server_ip}:{server_port}"
         self._channel: grpc.Channel = grpc.insecure_channel(addr)
-        self._stub: Any = getattr(pb2_grpc, f"{service_name}Stub")(self._channel)
+        self._stub: Any = self._stub_class(self._channel)
 
-        self._bind_methods()
+        self._timeout_sec: Optional[float] = timeout_sec
 
-    def _bind_methods(self) -> None:
-        service_desc: Any = self._pb2.DESCRIPTOR.services_by_name[self._service_name]
-        rpc_names: set[str] = set()
-        for m in service_desc.methods:
-            rpc_names.add(m.name)
+        self._bind_ctrl_methods()
 
+    def _bind_ctrl_methods(self) -> None:
         for name, method in inspect.getmembers(self._ctrl_class, inspect.isfunction):
             if name.startswith("_"):
                 continue
-            if name not in rpc_names:
+
+            rpc_name: str = dispatch_core.ctrl_method_to_rpc_name(name)
+
+            has_rpc: bool = False
+            if hasattr(self._stub, rpc_name):
+                has_rpc = True
+
+            if not has_rpc:
                 continue
 
-            rpc_callable: Any = getattr(self._stub, name)
+            rpc: Any = getattr(self._stub, rpc_name)
             sig: inspect.Signature = inspect.signature(method)
 
             dispatcher = self._make_dispatcher(
-                *,
                 method_name=name,
                 sig=sig,
-                rpc_callable=rpc_callable,
+                rpc=rpc,
             )
             setattr(self, name, dispatcher)
 
@@ -74,39 +66,43 @@ class GrpcClient:
         *,
         method_name: str,
         sig: inspect.Signature,
-        rpc_callable: Any,
+        rpc: Any,
     ) -> Callable[..., Any]:
         pb2 = self._pb2
-        timeout = self._timeout_sec
+
+        # RPC オブジェクトから input message クラスを取得する
+        request_cls = rpc._method._input_class
 
         def _method(*args: Any, **kwargs: Any) -> Any:
-            # 文法レベル（keyword-only 等）の整合チェック
-            try:
-                bound = sig.bind(None, *args, **kwargs)
-                _ = bound
-            except TypeError as e:
-                return False
+            bound = sig.bind_partial(None, *args, **kwargs)
 
-            args_b: bytes
-            kwargs_b: bytes
-            args_b, kwargs_b = adapter.pack_args_kwargs(*args, **kwargs)
+            args_json: bytes = adapter.pack_args(tuple(args))
+            kwargs_json: bytes = adapter.pack_kwargs(kwargs)
 
-            req: Any = pb2.DispatchRequest()
-            req.args = args_b
-            req.kwargs = kwargs_b
+            req: Any = request_cls()
+            req.args_json = args_json
+            req.kwargs_json = kwargs_json
 
             resp: Any
-            if timeout is None:
-                resp = rpc_callable(req)
+            if self._timeout_sec is None:
+                resp = rpc(req)
             else:
-                resp = rpc_callable(req, timeout=timeout)
+                resp = rpc(req, timeout=self._timeout_sec)
 
-            ok: bool = bool(getattr(resp, "ok", False))
+            ok: bool = False
+            if hasattr(resp, "ok"):
+                ok = bool(getattr(resp, "ok"))
+
             if ok:
-                result_b: bytes = getattr(resp, "result", b"")
-                return adapter.loads_json_bytes(result_b)
+                result_json: bytes = b""
+                if hasattr(resp, "result_json"):
+                    result_json = getattr(resp, "result_json")
+                return adapter.unpack_result(result_json)
 
-            return False
+            err: str = ""
+            if hasattr(resp, "error"):
+                err = str(getattr(resp, "error"))
+            raise RuntimeError(err)
 
         _method.__name__ = method_name
         _method.__signature__ = sig
