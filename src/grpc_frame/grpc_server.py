@@ -23,8 +23,14 @@ def build_dynamic_servicer_class(
     base_cls: Any = getattr(pb2_grpc, f"{service_name}Servicer")
 
     class Servicer(base_cls):
-        def __init__(self, *, ctrl: Any) -> None:
-            self._ctrl: Any = ctrl
+        def __init__(
+            self,
+            *,
+            ctrl: Any,
+            logger: Optional[Any] = None,
+        ) -> None:
+            self._ctrl = ctrl
+            self._logger = logger
 
     for m in service_desc.methods:
         rpc_name: str = m.name
