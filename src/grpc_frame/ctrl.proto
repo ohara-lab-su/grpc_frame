@@ -13,7 +13,7 @@ message DispatchResponse {
   string error = 3;
 }
 
-service JoyPadCtrl {
+service JoyPadControl {
   rpc joypad_start(DispatchRequest) returns (DispatchResponse);
   rpc joypad_stop(DispatchRequest) returns (DispatchResponse);
   rpc joypad_set_scale(DispatchRequest) returns (DispatchResponse);
