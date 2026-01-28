@@ -1,5 +1,45 @@
 # README
 
+## v0.3.0, nakada
+
+gRPC の役割を大きく変える。
+コードを全て入れ替える。
+
+```
+[ Python client ]
+    ↓  (*args, **kwargs)
+[ client adapter ]
+    ↓  (JSON)
+[ gRPC / proto ]
+    ↓  (JSON)
+[ server adapter ]
+    ↓  (*args, **kwargs)
+[ ctrl (pure Python) ]
+```
+
+今までは gRPC proto に構造を(転送するdataに構造を)
+定義して持たせていたが。これを完全に無くして
+byte 列をやりとりする
+
+```aiignore
+message CallRequest {
+  string method = 1;
+  bytes args_json = 2;
+  bytes kwargs_json = 3;
+}
+```
+
+proto 側は、引数名も型もいみもしらない。
+メソッド名だけの定義
+
+gRPCクライアント/サーバ
+
+- python clinet は完全な一般の (*args, **kwargs)
+- pure python xx(pos, force=force)などの形は pyi で定義する
+
+ctrl側では一旦、server adapter 側で jON を (*args, **kwargs)にして、
+ctrl 側の pure python で xx(pos, force=force)などにする。
+
 
 ## v0.2.1, nakada
 
