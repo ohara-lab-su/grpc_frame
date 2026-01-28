@@ -8,8 +8,8 @@ from typing import Any, Callable, Dict, Optional, Type
 
 import grpc
 
-import adapter
-import dispatch_core
+from grpc_frame.adapter import *
+from grpc_frame.dispatch_core import *
 
 
 class GrpcClient:

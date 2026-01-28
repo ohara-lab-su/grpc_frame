@@ -9,8 +9,9 @@ from typing import Any, Callable, Type
 
 import grpc
 
-import grpc_frame.adapter
-import grpc_frame.dispatch_core
+from grpc_frame.dispatch_core import *
+from grpc_frame.adapter import *
+from grpc_frame.dispatch_core import *
 
 
 def build_dynamic_servicer_class(
@@ -34,7 +35,7 @@ def build_dynamic_servicer_class(
 
     for m in service_desc.methods:
         rpc_name: str = m.name
-        ctrl_name: str = dispatch_core.camel_to_snake(rpc_name)
+        ctrl_name: str = camel_to_snake(rpc_name)
         request_cls: Any = getattr(pb2, m.input_type.name)
         response_cls: Any = getattr(pb2, m.output_type.name)
 
