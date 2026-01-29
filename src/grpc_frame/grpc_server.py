@@ -8,10 +8,10 @@ from typing import Any, Optional
 
 import grpc
 
-from grpc_frame import adapter
-from grpc_frame import ctrl_pb2
-from grpc_frame import ctrl_pb2_grpc
-from grpc_frame import dispatch_core
+from grpc_frame.adapter import adapter
+from grpc_frame.ctrl_pb2 import ctrl_pb2
+from grpc_frame.ctrl_pb2_grpc import ctrl_pb2_grpc
+from grpc_frame.dispatch_core import dispatch_core
 
 
 class _ControlServicer(ctrl_pb2_grpc.ControlServicer):

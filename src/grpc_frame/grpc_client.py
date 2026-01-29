@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Optional
 
 import grpc
 
-from grpc_frame import adapter
-from grpc_frame import ctrl_pb2
+from grpc_frame.adapter import adapter
+from grpc_frame.ctrl_pb2 import ctrl_pb2
 
 
 class GrpcClient:
