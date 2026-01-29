@@ -48,36 +48,3 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
         except Exception as e:
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
-
-
-class GrpcServer:
-    def __init__(
-        self,
-        ctrl_obj: Any,
-        bind_ip: str,
-        bind_port: int,
-        logger: Optional[Any] = None,
-        max_workers: int = 10,
-    ) -> None:
-        self._ctrl_obj: Any = ctrl_obj
-        self._bind_ip: str = bind_ip
-        self._bind_port: int = bind_port
-        self._logger: Optional[Any] = logger
-
-        self._grpc_server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
-        ctrl_pb2_grpc.add_ControlServicer_to_server(
-            _ControlServicer(ctrl_obj=self._ctrl_obj, logger=self._logger),
-            self._grpc_server,
-        )
-
-        self._addr: str = f"{self._bind_ip}:{self._bind_port}"
-        self._grpc_server.add_insecure_port(self._addr)
-
-    def start(self) -> None:
-        self._grpc_server.start()
-
-    def wait(self) -> None:
-        self._grpc_server.wait_for_termination()
-
-    def stop(self, grace_sec: float = 0.0) -> None:
-        self._grpc_server.stop(grace_sec)
