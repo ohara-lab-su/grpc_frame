@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Optional
 
 import grpc
 
-from grpc_frame.adapter import *
+import grpc_frame.adapter as adapter
 import grpc_frame.ctrl_pb2 as ctrl_pb2
 
 
