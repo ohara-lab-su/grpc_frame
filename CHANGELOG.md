@@ -1,6 +1,6 @@
 # README
 
-## v0.3.0, nakada
+## v0.3.0bata, nakada
 
 python側の ctrl を動的に clinet/server にするときに、
 method の引数処理の特にデフォルト値の扱いがいい加減だったものを修正
