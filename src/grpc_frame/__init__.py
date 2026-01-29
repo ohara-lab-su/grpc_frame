@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import sys
 
-# --- proto stub alias (重要) ---
+# -- gRPC スタブ
 from grpc_frame import ctrl_pb2 as _ctrl_pb2
 
+# ctrl_pb2 を トップレベル名として解決できるように
 sys.modules["ctrl_pb2"] = _ctrl_pb2
 
 # --- public API ---
