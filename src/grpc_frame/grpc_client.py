@@ -1,479 +1,239 @@
-# grpc_frame/grpc_client.py
-from __future__ import annotations
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
-import importlib
-import inspect
+from __future__ import annotations
+from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 
 import grpc
-from google.protobuf import empty_pb2
 
-
-import grpc_frame.dispatch_core as core
-from x_logger import XLogger
-
-_logger = XLogger(log_level="debug", logger_name="grpc_client",)
-
-
-def _normalize_method_path(
-    method_path: Any,
-) -> str:
-    """
-    gRPC の method path を文字列として正規化する。
-
-    - bytes の場合は decode を試みる
-    - str の場合はそのまま返す
-    - それ以外は str() による文字列化を行う
-
-    Args:
-        method_path: gRPC 内部で保持される method path
-
-    Returns:
-        str: 正規化された method path
-    """
-    _logger.debug(f"[DEBUG] _normalize_method_path: {method_path}")
-
-    if isinstance(method_path, bytes):
-        try:
-            return method_path.decode("utf-8")
-        except Exception:
-            return method_path.decode("latin-1", errors="replace")
-
-    if isinstance(method_path, str):
-        return method_path
-
-    return str(method_path)
-
-
-def _parse_rpc_name_from_method_path(
-    method_path: Any,
-) -> str:
-    """
-    gRPC method path から RPC 名を抽出する。
-
-    想定形式:
-        /<package>.<Service>/<RpcName>
-
-    最後の '/' 以降を RPC 名として取り出す。
-
-    Args:
-        method_path: gRPC method path (bytes / str)
-
-    Returns:
-        str: RPC 名
-
-    Raises:
-        ValueError: path 形式が不正、または RPC 名が空の場合
-    """
-    _logger.debug(f"[DEBUG] _parse_rpc_name_from_method_path: {method_path}")
-
-    path: str = _normalize_method_path(method_path)
-    parts: list[str] = path.split("/")
-    if len(parts) < 2:
-        raise ValueError(f"unexpected rpc method path: {path}")
-
-    rpc_name: str = parts[-1]
-    if rpc_name == "":
-        raise ValueError(f"empty rpc name: {path}")
-
-    return rpc_name
-
-
-def _stub_module_to_pb2_module(
-    stub_module_name: str,
-) -> str:
-    """
-    stub モジュール名 (*_pb2_grpc) から pb2 モジュール名を導出する。
-
-    例:
-        xxx_pb2_grpc -> xxx_pb2
-
-    Args:
-        stub_module_name (str): stub クラスの __module__ 名
-
-    Returns:
-        str: 対応する pb2 モジュール名
-
-    Raises:
-        RuntimeError: モジュール名が想定形式でない場合
-    """
-    _logger.debug(f"[DEBUG] _stub_module_to_pb2_module: {stub_module_name}")
-
-    if not stub_module_name.endswith("_pb2_grpc"):
-        raise RuntimeError(
-            f"stub module does not look like *_pb2_grpc: {stub_module_name}"
-        )
-
-    prefix: str = stub_module_name[: -len("_grpc")]
-    return prefix
-
-
-def _get_owner_from_serializer(
-    serializer: Any,
-) -> Optional[type]:
-    """
-    serializer / deserializer 関数から所有クラスを取得する。
-
-    grpc が内部に保持する serializer が
-    クラスメソッド由来の場合、その所有クラスを返す。
-
-    Args:
-        serializer: rpc が保持する serializer / deserializer
-
-    Returns:
-        Optional[type]: Message クラス、取得できない場合は None
-    """
-    _logger.debug(f"[DEBUG] _get_owner_from_serializer: {serializer}")
-
-    owner: Any = getattr(serializer, "__self__", None)
-    if owner is None:
-        return None
-
-    is_class: bool = inspect.isclass(owner)
-    if not is_class:
-        return None
-
-    return owner
-
-
-def _is_protobuf_base_message_class(
-    cls: Type[Any],
-) -> bool:
-    """
-    protobuf の基底 Message クラスそのものかどうかを判定する。
-
-    google._upb._message.Message を基底クラスとする
-    「抽象的な Message クラス」を除外する目的で用いる。
-
-    Args:
-        cls (Type[Any]): 判定対象クラス
-
-    Returns:
-        bool: protobuf の基底 Message クラスであれば True
-    """
-    _logger.debug(f"[DEBUG] _is_protobuf_base_message_class: {cls}")
-
-    module_name: str = getattr(cls, "__module__", "")
-    class_name: str = getattr(cls, "__name__", "")
-    if module_name != "google._upb._message":
-        return False
-    if class_name != "Message":
-        return False
-    return True
-
-
-# ----------------------------
-# 以下クラス中で呼ばれる
-# ----------------------------
-
-
-def _resolve_request_class_from_rpc(
-    rpc: Any,
-    *,
-    stub_class: Type[Any],
-    logger: XLogger,
-) -> Type[Any]:
-    """
-    rpc オブジェクトから Request Message クラスを解決する。
-
-    解決順序:
-    1. rpc._request_deserializer の owner
-    2. rpc._request_serializer の owner
-    3. rpc._method から RPC 名を解析し <RpcName>Request を探索
-    4. 見つからない場合は Empty を使用
-
-    Args:
-        rpc: stub が保持する rpc callable
-        stub_class: 使用中の stub クラス
-        logger: ロガー
-
-    Returns:
-        Type[Any]: Request Message クラス
-    """
-    logger.debug(f"[DEBUG] _resolve_request_class_from_rpc: {rpc}")
-
-    request_deserializer: Any = getattr(rpc, "_request_deserializer", None)
-    if request_deserializer is not None:
-        owner = _get_owner_from_serializer(request_deserializer)
-        if owner is not None:
-            is_base: bool = _is_protobuf_base_message_class(owner)
-            if not is_base:
-                return owner
-
-    request_serializer: Any = getattr(rpc, "_request_serializer", None)
-    if request_serializer is not None:
-        owner2 = _get_owner_from_serializer(request_serializer)
-        if owner2 is not None:
-            is_base2: bool = _is_protobuf_base_message_class(owner2)
-            if not is_base2:
-                return owner2
-
-    method_path: Any = getattr(rpc, "_method", None)
-    if method_path is None:
-        logger.debug("[GrpcClient] rpc has no _method; fallback Empty")
-        return empty_pb2.Empty
-
-    rpc_name: str = _parse_rpc_name_from_method_path(method_path)
-    request_name: str = f"{rpc_name}Request"
-
-    stub_module_name: str = getattr(stub_class, "__module__", "")
-    if stub_module_name == "":
-        raise RuntimeError("stub_class has no __module__")
-
-    pb2_module_name: str = _stub_module_to_pb2_module(stub_module_name)
-
-    logger.debug(
-        f"[GrpcClient] resolve request: rpc_name={rpc_name}, pb2_module={pb2_module_name}"
-    )
-
-    pb2_module = importlib.import_module(pb2_module_name)
-
-    has_req: bool = hasattr(pb2_module, request_name)
-    if has_req:
-        return getattr(pb2_module, request_name)
-
-    logger.debug(
-        f"[GrpcClient] request message not found: {pb2_module_name}.{request_name} -> fallback Empty"
-    )
-    return empty_pb2.Empty
-
-
-def build_request_message(
-    request_cls: Type[Any],
-    kwargs: Dict[str, Any],
-) -> Any:
-    """
-    Request Message インスタンスを生成し、kwargs から内容を埋める。
-
-    - constructor は使用しない
-    - 常に descriptor-driven な fill_message を用いる
-    - kwargs は ctrl メソッド引数から生成される dict を想定
-
-    Args:
-        request_cls (Type[Any]): Request Message クラス
-        kwargs (Dict[str, Any]): フィールド名 -> 値
-
-    Returns:
-        Any: 構築済み Request Message
-    """
-    _logger.debug(f"[DEBUG][build_request_message] BEGIN")
-    _logger.debug(f"  request_cls =", request_cls)
-    _logger.debug(f"  input kwargs =", kwargs)
-
-    # # --- 重要: まず constructor 経由を試し、成功しても「何がセットされたか」を必ず記録 ---
-    # try:
-    #     _logger.debug("[DEBUG][build_request_message] try: calling constructor")
-    #     return request_cls(**kwargs)
-    # except Exception as e:
-    #     _logger.debug("[DEBUG][build_request_message] constructor FAILED:", e)
-
-    # req: Any = request_cls()
-    # _logger.debug(
-    #     "[DEBUG][build_request_message] fallback: empty request created =", req
-    # )
-
-    # core.fill_message(req, kwargs)
-
-    # constructor 経由は使わず、常に descriptor-driven で埋める
-    req: Any = request_cls()
-    _logger.debug("[DEBUG][build_request_message] empty request created =", req)
-
-    core.fill_message(req, kwargs)
-
-    _logger.debug("[DEBUG][build_request_message] after fill_message =", req)
-    _logger.debug("[DEBUG][build_request_message] END")
-    return req
+import grpc_frame.adapter as adapter
+import grpc_frame.ctrl_pb2 as ctrl_pb2
 
 
 class GrpcClient:
     """
-    ctrl クラスと gRPC stub を動的にバインドする汎用 gRPC クライアント基底クラス。
+    gRPC Control サービスに対する汎用クライアントクラス。
 
-    責務:
-    - ctrl クラスの public メソッドを走査
-    - 対応する RPC が存在する場合に dispatcher を動的生成
-    - Python 呼び出しを gRPC Request/Response に変換
+    このクラスは ctrl.Control サービスに接続し、
+    サーバー側で公開されている制御メソッドを Describe RPC により取得し、
+    各メソッドを Python メソッドとして動的にバインドする。
 
-    派生クラスは以下を定義する:
-    - _ctrl_class
-    - _stub_class
-    - _client_log_title
+    設計上の特徴:
+    - gRPC の low-level API（unary_unary）を直接使用する
+    - protobuf の Stub クラスには依存しない
+    - サーバー側のメソッド追加・削除に対してクライアント側のコード変更を不要とする
+    - adapter を用いて引数・戻り値の表現形式を統一する
+
+    Attributes:
+        _channel:
+            gRPC サーバーとの通信に使用する Channel
+        _rpc_describe:
+            ctrl.Control/Describe RPC 呼び出し関数
+        _rpc_call:
+            ctrl.Control/Call RPC 呼び出し関数
+        _method_table:
+            サーバー側メソッド名とシグネチャの対応表
+        _logger:
+            クライアント動作記録用ロガー
+        _timeout_sec:
+            RPC 呼び出し時のタイムアウト秒数
     """
-
-    _ctrl_class: type
-    _stub_class: type
-    _client_log_title: str
 
     def __init__(
         self,
         server_ip: str,
         server_port: int,
-        logger: Optional[XLogger] = None,
+        logger: Optional[Any] = None,
+        log_level: str = "INFO",
+        timeout_sec: Optional[float] = None,
     ) -> None:
         """
-        gRPC チャンネルと stub を生成し、ctrl メソッドをバインドする。
+        GrpcClient を初期化する。
+
+        指定されたサーバーアドレスに対して gRPC Channel を生成し、
+        Describe RPC を用いてサーバー側の公開メソッド一覧を取得する。
+        取得した各メソッドは動的に Python メソッドとして self にバインドされる。
 
         Args:
-            server_ip (str): gRPC サーバの IP アドレス
-            server_port (int): gRPC サーバのポート番号
-            logger (Optional[XLogger]): 使用するロガー
+            server_ip:
+                gRPC サーバーの IP アドレス
+            server_port:
+                gRPC サーバーのポート番号
+            logger:
+                ログ出力用オブジェクト。
+                None の場合は標準 logging を使用する。
+            log_level:
+                logger 未指定時に使用するログレベル
+            timeout_sec:
+                RPC 呼び出し時のタイムアウト秒数。
+                None の場合は gRPC のデフォルト挙動に従う。
         """
-        self._logger: XLogger = logger or XLogger()
+        if logger is None:
+            import logging
+
+            logging.basicConfig(level=log_level.upper())
+            logger = logging.getLogger(__name__)
+
+        self._logger: Optional[Any] = logger
+        self._timeout_sec: Optional[float] = timeout_sec
 
         addr: str = f"{server_ip}:{server_port}"
+
+        self._logger.info(f"[GrpcClient] connect to {addr}")
+
+        # 非 TLS の gRPC チャネルを生成
         self._channel: grpc.Channel = grpc.insecure_channel(addr)
-        self._stub: Any = self._stub_class(self._channel)
 
-        self._logger.info(f"== Create {self._client_log_title}")
-        self._logger.info(f" gRPC server = {server_ip}:{server_port}")
+        # Describe RPC（メソッド一覧取得）を low-level API で定義
+        self._rpc_describe = self._channel.unary_unary(
+            "/ctrl.Control/Describe",
+            request_serializer=ctrl_pb2.Empty.SerializeToString,
+            response_deserializer=ctrl_pb2.MethodTable.FromString,
+        )
 
-        self._logger.info("bind_ctrl_method")
-        self._bind_ctrl_methods()
+        # Call RPC（汎用メソッド呼び出し）を low-level API で定義
+        self._rpc_call = self._channel.unary_unary(
+            "/ctrl.Control/Call",
+            request_serializer=ctrl_pb2.DispatchRequest.SerializeToString,
+            response_deserializer=ctrl_pb2.DispatchResponse.FromString,
+        )
 
-    def is_connected(
-        self,
-        timeout: float = 0.5,
-    ) -> bool:
+        # サーバー側メソッド名とシグネチャの対応表
+        self._method_table: Dict[str, str] = {}
+
+        # サーバーからメソッド一覧を取得し、動的にバインド
+        self._bind_remote_methods()
+
+    def is_connected(self) -> bool:
         """
-        gRPC チャンネルが接続可能状態かどうかを確認する。
+        gRPC サーバーとの接続可否を確認する。
 
-        Args:
-            timeout (float): 接続待ちタイムアウト秒
+        Describe RPC を実行できるかどうかをもって、
+        サーバーが到達可能かつ応答可能であるかを判定する。
 
         Returns:
-            bool: 接続可能であれば True
+            bool:
+                Describe RPC が成功した場合 True、
+                例外が発生した場合 False
         """
         try:
-            grpc.channel_ready_future(self._channel).result(timeout=timeout)
+            self._logger.info("[GrpcClient] check connection")
+
+            # Describe RPC が成功するかで接続可否を判定
+            _ = self._rpc_describe(
+                ctrl_pb2.Empty(),
+                timeout=self._timeout_sec,
+            )
             return True
+
         except Exception:
             return False
 
-    def _bind_ctrl_methods(self) -> None:
+    def _bind_remote_methods(self) -> None:
         """
-        ctrl クラスのメソッドを走査し、RPC が存在するものをバインドする。
+        サーバー側の公開メソッドを取得し、動的にバインドする。
 
-        - ctrl_method -> RpcName の名前変換を行う
-        - stub に該当 RPC が存在しない場合は無視する
+        Describe RPC を用いてサーバー側の MethodTable を取得し、
+        各メソッドについて dispatcher 関数を生成して self に属性として追加する。
 
-        Returns:
-            None
+        この処理により、
+        クライアント側からは通常の Python メソッド呼び出しとして
+        RPC を透過的に利用できるようになる。
         """
-        for name, method in inspect.getmembers(self._ctrl_class, inspect.isfunction):
-            if name.startswith("_"):
-                continue
+        self._logger.info("[GrpcClient] Describe request")
 
-            rpc_name: str = core.ctrl_method_to_rpc_name(name)
-            has_rpc: bool = hasattr(self._stub, rpc_name)
+        # サーバーから公開メソッド一覧を取得
+        table = self._rpc_describe(
+            ctrl_pb2.Empty(),
+            timeout=self._timeout_sec,
+        )
 
-            self._logger.info(
-                f"[GrpcClient] scan ctrl method: {name} -> {rpc_name}, has_rpc={has_rpc}"
-            )
+        # 各メソッドについて dispatcher を生成し self に動的追加
+        for m in table.methods:
+            name: str = str(m.name)
+            sig: str = str(m.signature)
 
-            if not has_rpc:
-                continue
+            # メソッド名とシグネチャを内部表に保存
+            self._method_table[name] = sig
 
-            rpc: Any = getattr(self._stub, rpc_name)
-            sig: inspect.Signature = inspect.signature(method)
+            self._logger.info(f"[GrpcClient] bind method: {name} {sig}")
 
-            dispatcher = self._make_dispatcher(
-                method_name=name,
-                rpc_name=rpc_name,
-                sig=sig,
-                rpc=rpc,
-            )
+            # method_name 固定の dispatcher 関数を生成
+            dispatcher = self._make_dispatcher(method_name=name)
+
+            # self.<method_name> として動的に属性追加
             setattr(self, name, dispatcher)
+
+        self._logger.info("[GrpcClient] method binding completed")
 
     def _make_dispatcher(
         self,
         *,
         method_name: str,
-        rpc_name: str,
-        sig: inspect.Signature,
-        rpc: Any,
     ) -> Callable[..., Any]:
         """
-        ctrl メソッド呼び出しを gRPC RPC 呼び出しに変換する dispatcher を生成する。
+        指定されたメソッド名に対応する RPC 呼び出し関数を生成する。
 
-        dispatcher の責務:
-        - Python 引数を Signature に基づいて正規化
-        - Request Message を構築
-        - RPC を実行
-        - Response を unwrap して返す
+        生成される関数は以下の処理を行う:
+        - Python の *args / **kwargs を adapter によりシリアライズ
+        - ctrl.Control/Call RPC を実行
+        - 戻り値をデシリアライズして返却
+        - サーバー側エラー時は RuntimeError を送出
 
         Args:
-            method_name (str): ctrl 側メソッド名
-            rpc_name (str): RPC 名
-            sig (inspect.Signature): ctrl メソッドのシグネチャ
-            rpc: stub が保持する RPC callable
+            method_name:
+                サーバー側で公開されているメソッド名
 
         Returns:
-            Callable[..., Any]: dispatcher 関数
+            Callable[..., Any]:
+                RPC 呼び出しを行う関数
         """
-        request_cls = _resolve_request_class_from_rpc(
-            rpc,
-            stub_class=self._stub_class,
-            logger=self._logger,
-        )
+        # サーバー側 1 メソッドに対応するローカル関数を生成
+        def _method(
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            self._logger.info(
+                f"[GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
+            )
 
-        self._logger.info(
-            f"[GrpcClient] dispatcher created: {method_name} -> {rpc_name} "
-            f"(request_cls={request_cls}, module={getattr(request_cls, '__module__', '')})"
-        )
+            # Python 引数を RPC 用にシリアライズ
+            args_bin: bytes = adapter.pack_args(tuple(args))
+            kwargs_bin: bytes = adapter.pack_kwargs(kwargs)
 
-        def _method(*args: Any, **kwargs: Any) -> Any:
-            self._logger.info(f"[GrpcClient] CALL {method_name}() begin")
-            self._logger.info(f"[GrpcClient] args={args}, kwargs={kwargs}")
+            # DispatchRequest を構築
+            req = ctrl_pb2.DispatchRequest(
+                method=method_name,
+                args=args_bin,
+                kwargs=kwargs_bin,
+            )
 
-            try:
-                bound = sig.bind_partial(None, *args, **kwargs)
-                bound.apply_defaults()
+            # Call RPC を実行
+            resp = self._rpc_call(req, timeout=self._timeout_sec)
 
-                # req_kwargs: Dict[str, Any] = {}
-                # for k, v in bound.arguments.items():
-                #     if k == "self":
-                #         continue
-                #     req_kwargs[k] = v
+            ok: bool = bool(resp.ok)
+            if ok:
+                self._logger.info(f"[GrpcClient][{method_name}] completed")
+                # 戻り値をデシリアライズして返却
+                return adapter.unpack_result(resp.result)
 
-                # self._logger.debug(f"[GrpcClient] req_kwargs={req_kwargs}")
+            err: str = str(resp.error)
+            self._logger.info(f"[GrpcClient][{method_name}] failed: {err}")
+            raise RuntimeError(err)
 
-                # request = build_request_message(request_cls, req_kwargs)
-
-                # self._logger.debug(f"[GrpcClient][DEBUG] request content = {request}")
-                # self._logger.debug(
-                #     f"[GrpcClient] request built: type={type(request)}, module={type(request).__module__}"
-                # )
-
-                # self._logger.debug("[GrpcClient] rpc call start")
-                # resp = rpc(request)
-                # self._logger.debug("[GrpcClient] rpc call done")
-
-                ordered_args: List[Any] = []
-                ordered_kwargs: Dict[str, Any] = {}
-
-                for name, value in bound.arguments.items():
-                    if name == "self":
-                        continue
-                    if name in kwargs:
-                        ordered_kwargs[name] = value
-                    else:
-                        ordered_args.append(value)
-
-                # request 構築は proto descriptor のみで決定
-                self._logger.debug("[GrpcClient] rpc call start")
-                request = request_cls()
-                core.fill_message(request, ordered_args + list(ordered_kwargs.values()))
-
-                resp = rpc(request)
-
-                return core.unwrap_response(resp)
-
-            except Exception as e:
-                self._logger.error(
-                    f"[{self.__class__.__name__}] {method_name} failed: {e}"
-                )
-                return False
-
+        # 動的に生成した関数名を RPC メソッド名に合わせる
         _method.__name__ = method_name
-        _method.__signature__ = sig
         return _method
+
+    def close(self) -> None:
+        """
+        gRPC Channel をクローズする。
+
+        クライアント終了時に呼び出されることを想定しており、
+        通信リソースを明示的に解放する。
+        """
+        self._logger.info("[GrpcClient] close channel")
+        try:
+            self._channel.close()
+        except Exception:
+            pass
