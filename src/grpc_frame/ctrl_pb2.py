@@ -24,17 +24,23 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nctrl.proto\x12\x04\x63trl\"?\n\x0f\x44ispatchRequest\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x01(\x0c\x12\x0e\n\x06kwargs\x18\x03 \x01(\x0c\"=\n\x10\x44ispatchResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0e\n\x06result\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t2@\n\x07\x43ontrol\x12\x35\n\x04\x43\x61ll\x12\x15.ctrl.DispatchRequest\x1a\x16.ctrl.DispatchResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nctrl.proto\x12\x04\x63trl\"\x07\n\x05\x45mpty\"-\n\nMethodInfo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tsignature\x18\x02 \x01(\t\"0\n\x0bMethodTable\x12!\n\x07methods\x18\x01 \x03(\x0b\x32\x10.ctrl.MethodInfo\"?\n\x0f\x44ispatchRequest\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x0c\n\x04\x61rgs\x18\x02 \x01(\x0c\x12\x0e\n\x06kwargs\x18\x03 \x01(\x0c\"=\n\x10\x44ispatchResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0e\n\x06result\x18\x02 \x01(\x0c\x12\r\n\x05\x65rror\x18\x03 \x01(\t2l\n\x07\x43ontrol\x12*\n\x08\x44\x65scribe\x12\x0b.ctrl.Empty\x1a\x11.ctrl.MethodTable\x12\x35\n\x04\x43\x61ll\x12\x15.ctrl.DispatchRequest\x1a\x16.ctrl.DispatchResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ctrl_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_DISPATCHREQUEST']._serialized_start=20
-  _globals['_DISPATCHREQUEST']._serialized_end=83
-  _globals['_DISPATCHRESPONSE']._serialized_start=85
-  _globals['_DISPATCHRESPONSE']._serialized_end=146
-  _globals['_CONTROL']._serialized_start=148
-  _globals['_CONTROL']._serialized_end=212
+  _globals['_EMPTY']._serialized_start=20
+  _globals['_EMPTY']._serialized_end=27
+  _globals['_METHODINFO']._serialized_start=29
+  _globals['_METHODINFO']._serialized_end=74
+  _globals['_METHODTABLE']._serialized_start=76
+  _globals['_METHODTABLE']._serialized_end=124
+  _globals['_DISPATCHREQUEST']._serialized_start=126
+  _globals['_DISPATCHREQUEST']._serialized_end=189
+  _globals['_DISPATCHRESPONSE']._serialized_start=191
+  _globals['_DISPATCHRESPONSE']._serialized_end=252
+  _globals['_CONTROL']._serialized_start=254
+  _globals['_CONTROL']._serialized_end=362
 # @@protoc_insertion_point(module_scope)
