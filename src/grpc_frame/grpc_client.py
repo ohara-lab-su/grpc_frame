@@ -18,22 +18,15 @@ class GrpcClient:
         *,
         server_ip: str,
         server_port: int,
-        pb2: Any,
-        pb2_grpc: Any,
-        service_stub_class: Type[Any],
         ctrl_class: Type[Any],
         timeout_sec: Optional[float] = None,
         logger: Optional[Any] = None,
     ) -> None:
-        self._pb2: Any = pb2
-        self._pb2_grpc: Any = pb2_grpc
-        self._stub_class: Type[Any] = service_stub_class
+        """"""
         self._ctrl_class: Type[Any] = ctrl_class
 
         addr: str = f"{server_ip}:{server_port}"
         self._channel: grpc.Channel = grpc.insecure_channel(addr)
-        self._stub: Any = self._stub_class(self._channel)
-
         self._timeout_sec: Optional[float] = timeout_sec
 
         self._bind_ctrl_methods()
@@ -45,20 +38,11 @@ class GrpcClient:
 
             rpc_name: str = dispatch_core.ctrl_method_to_rpc_name(name)
 
-            has_rpc: bool = False
-            if hasattr(self._stub, rpc_name):
-                has_rpc = True
-
-            if not has_rpc:
-                continue
-
-            rpc: Any = getattr(self._stub, rpc_name)
             sig: inspect.Signature = inspect.signature(method)
 
             dispatcher = self._make_dispatcher(
                 method_name=name,
                 sig=sig,
-                rpc=rpc,
             )
             setattr(self, name, dispatcher)
 
@@ -67,12 +51,15 @@ class GrpcClient:
         *,
         method_name: str,
         sig: inspect.Signature,
-        rpc: Any,
     ) -> Callable[..., Any]:
-        pb2 = self._pb2
 
-        # RPC オブジェクトから input message クラスを取得する
-        request_cls = rpc._method._input_class
+        rpc_full_name: str = f"/ctrl.JoyPadCtrl/{method_name}"
+
+        rpc = self._channel.unary_unary(
+            rpc_full_name,
+            request_serializer=lambda x: x.SerializeToString(),
+            response_deserializer=lambda x: DispatchResponse.FromString(x),
+        )
 
         def _method(*args: Any, **kwargs: Any) -> Any:
             bound = sig.bind_partial(None, *args, **kwargs)
@@ -80,9 +67,10 @@ class GrpcClient:
             args_json: bytes = adapter.pack_args(tuple(args))
             kwargs_json: bytes = adapter.pack_kwargs(kwargs)
 
-            req: Any = request_cls()
-            req.args_json = args_json
-            req.kwargs_json = kwargs_json
+            req = DispatchRequest(
+                args=args_json,
+                kwargs=kwargs_json,
+            )
 
             resp: Any
             if self._timeout_sec is None:
