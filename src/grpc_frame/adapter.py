@@ -3,64 +3,96 @@
 
 from __future__ import annotations
 
+import base64
 import json
-from typing import Any, Dict, List, Tuple
+import pickle
+from typing import Any, Dict, Tuple
+
+
+_JSON_MAGIC: bytes = b"J"
+_PICKLE_MAGIC: bytes = b"P"
+
+
+class _BytesJsonEncoder(json.JSONEncoder):
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, (bytes, bytearray)):
+            b64: str = base64.b64encode(bytes(obj)).decode("ascii")
+            return {"__bytes__": b64}
+        return json.JSONEncoder.default(self, obj)
+
+
+def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
+    if "__bytes__" in d:
+        b64 = d["__bytes__"]
+        if isinstance(b64, str):
+            return base64.b64decode(b64.encode("ascii"))
+    return d
+
+
+def _try_json_dumps(obj: Any) -> bytes:
+    try:
+        s: str = json.dumps(
+            obj,
+            cls=_BytesJsonEncoder,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        return _JSON_MAGIC + s.encode("utf-8")
+    except Exception:
+        pass
+
+    payload: bytes = pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
+    return _PICKLE_MAGIC + payload
+
+
+def _loads(payload: bytes) -> Any:
+    if payload is None:
+        return None
+    if len(payload) == 0:
+        return None
+
+    magic: bytes = payload[:1]
+    body: bytes = payload[1:]
+
+    if magic == _JSON_MAGIC:
+        s: str = body.decode("utf-8")
+        return json.loads(s, object_hook=_bytes_json_object_hook)
+
+    if magic == _PICKLE_MAGIC:
+        return pickle.loads(body)
+
+    return pickle.loads(payload)
 
 
 def pack_args(args: Tuple[Any, ...]) -> bytes:
-    data: List[Any] = list(args)
-    text: str = json.dumps(data, ensure_ascii=False)
-    return text.encode("utf-8")
+    return _try_json_dumps(list(args))
 
 
 def pack_kwargs(kwargs: Dict[str, Any]) -> bytes:
-    text: str = json.dumps(kwargs, ensure_ascii=False)
-    return text.encode("utf-8")
+    return _try_json_dumps(kwargs)
 
 
-def unpack_args(data: bytes) -> Tuple[Any, ...]:
-    if data is None:
+def unpack_args(payload: bytes) -> Tuple[Any, ...]:
+    obj = _loads(payload)
+    if obj is None:
         return tuple()
-
-    if len(data) == 0:
-        return tuple()
-
-    text: str = data.decode("utf-8")
-    obj: Any = json.loads(text)
-
     if isinstance(obj, list):
         return tuple(obj)
+    raise TypeError("args は list として復元される必要があります。")
 
-    raise TypeError("args_json must decode to list")
 
-
-def unpack_kwargs(data: bytes) -> Dict[str, Any]:
-    if data is None:
+def unpack_kwargs(payload: bytes) -> Dict[str, Any]:
+    obj = _loads(payload)
+    if obj is None:
         return {}
-
-    if len(data) == 0:
-        return {}
-
-    text: str = data.decode("utf-8")
-    obj: Any = json.loads(text)
-
     if isinstance(obj, dict):
         return obj
-
-    raise TypeError("kwargs_json must decode to dict")
-
-
-def pack_result(obj: Any) -> bytes:
-    text: str = json.dumps(obj, ensure_ascii=False)
-    return text.encode("utf-8")
+    raise TypeError("kwargs は dict として復元される必要があります。")
 
 
-def unpack_result(data: bytes) -> Any:
-    if data is None:
-        return None
+def pack_result(result: Any) -> bytes:
+    return _try_json_dumps(result)
 
-    if len(data) == 0:
-        return None
 
-    text: str = data.decode("utf-8")
-    return json.loads(text)
+def unpack_result(payload: bytes) -> Any:
+    return _loads(payload)

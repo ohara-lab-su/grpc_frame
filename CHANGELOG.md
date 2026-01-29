@@ -2,8 +2,17 @@
 
 ## v0.3.0, nakada
 
-gRPC の役割を大きく変える。
-コードを全て入れ替える。
+python側の ctrl を動的に clinet/server にするときに、
+method の引数処理の特にデフォルト値の扱いがいい加減だったものを修正
+
+これが大修正につながる。
+基本方針を大きく変える
+
+- proto や ctrl に依存していた情報を
+  - 通信レイヤーを json 型にすることで情報を載せることで解決
+  - クライアント側で proto/ctrl 依存を消すことができる
+  - ctrl ごとに書き直していた proto を無修正の汎用 proto にまとめる
+    - 情報をjsonでまとめるだけの一つの proto
 
 ```
 [ Python client ]
@@ -18,6 +27,7 @@ gRPC の役割を大きく変える。
 ```
 
 ### proto
+
 今までは gRPC proto に構造を(転送するdataに構造を)
 定義して持たせていたが。これを完全に無くして
 byte 列をやりとりする
@@ -31,13 +41,18 @@ message CallRequest {
 ```
 
 - proto 側は、引数名も型もいみもしらない。
-- proto 側の定義は一つだ(メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる)
+- proto 側の定義は一つ
+  - (メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる)
 
 ### server
+
 gRPCクライアント/サーバ
 
 - python clinet は完全な一般の (*args, **kwargs)
+  - pyi から補完できるようにするので editor からみれば従来通り見える
 - pure python xx(pos, force=force)などの形は pyi で定義する
+- client 側は ctl も proto (スタブも) しらない
+  - メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる
 
 ctrl側では一旦、server adapter 側で jON を (*args, **kwargs)にして、
 ctrl 側の pure python で xx(pos, force=force)などにする。

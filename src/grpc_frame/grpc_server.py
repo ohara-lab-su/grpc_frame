@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 
 import grpc
@@ -14,80 +14,70 @@ from grpc_frame import ctrl_pb2_grpc
 from grpc_frame import dispatch_core
 
 
-class ControlServicer(ctrl_pb2_grpc.ControlServicer):
-    def __init__(
-        self,
-        *,
-        ctrl_obj: Any,
-    ) -> None:
+class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
+    def __init__(self, ctrl_obj: Any, logger: Optional[Any] = None) -> None:
         self._ctrl_obj: Any = ctrl_obj
+        self._logger: Optional[Any] = logger
+
+    def Describe(self, request: ctrl_pb2.Empty, context: Any) -> ctrl_pb2.MethodTable:
+        infos = dispatch_core.list_public_methods(self._ctrl_obj)
+
+        table = ctrl_pb2.MethodTable()
+        for info in infos:
+            mi = table.methods.add()
+            mi.name = info.name
+            mi.signature = info.signature
+        return table
 
     def Call(
-        self,
-        request: ctrl_pb2.DispatchRequest,
-        context: grpc.ServicerContext,
+        self, request: ctrl_pb2.DispatchRequest, context: Any
     ) -> ctrl_pb2.DispatchResponse:
-        resp: ctrl_pb2.DispatchResponse = ctrl_pb2.DispatchResponse()
+        method_name: str = str(request.method)
 
         try:
-            method_name: str = request.method
-            fn = dispatch_core.resolve_ctrl_method(self._ctrl_obj, method_name)
+            target = getattr(self._ctrl_obj, method_name)
+        except Exception as e:
+            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
+        try:
             args = adapter.unpack_args(request.args)
             kwargs = adapter.unpack_kwargs(request.kwargs)
 
-            result: Any = fn(*args, **kwargs)
-
-            resp.ok = True
-            resp.result = adapter.pack_result(result)
-            resp.error = ""
-            return resp
-
-        except Exception as ex:
-            resp.ok = False
-            resp.result = b""
-            resp.error = str(ex)
-            return resp
+            result = target(*args, **kwargs)
+            result_bin: bytes = adapter.pack_result(result)
+            return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
+        except Exception as e:
+            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
 
 class GrpcServer:
     def __init__(
         self,
-        *,
+        ctrl_obj: Any,
         bind_ip: str,
         bind_port: int,
-        ctrl_obj: Any,
+        logger: Optional[Any] = None,
         max_workers: int = 10,
     ) -> None:
+        self._ctrl_obj: Any = ctrl_obj
         self._bind_ip: str = bind_ip
         self._bind_port: int = bind_port
-        self._ctrl_obj: Any = ctrl_obj
-        self._max_workers: int = max_workers
+        self._logger: Optional[Any] = logger
 
-        self._server: Optional[grpc.Server] = None
+        self._grpc_server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
+        ctrl_pb2_grpc.add_ControlServicer_to_server(
+            _ControlServicer(ctrl_obj=self._ctrl_obj, logger=self._logger),
+            self._grpc_server,
+        )
+
+        self._addr: str = f"{self._bind_ip}:{self._bind_port}"
+        self._grpc_server.add_insecure_port(self._addr)
 
     def start(self) -> None:
-        executor = futures.ThreadPoolExecutor(max_workers=self._max_workers)
-        server: grpc.Server = grpc.server(executor)
+        self._grpc_server.start()
 
-        servicer = ControlServicer(ctrl_obj=self._ctrl_obj)
-        ctrl_pb2_grpc.add_ControlServicer_to_server(servicer, server)
+    def wait(self) -> None:
+        self._grpc_server.wait_for_termination()
 
-        addr: str = f"{self._bind_ip}:{self._bind_port}"
-        server.add_insecure_port(addr)
-
-        server.start()
-        self._server = server
-
-    def wait_forever(self) -> None:
-        if self._server is None:
-            raise RuntimeError("server is not started")
-
-        self._server.wait_for_termination()
-
-    def stop(self, grace: float = 0.0) -> None:
-        if self._server is None:
-            return
-
-        self._server.stop(grace)
-        self._server = None
+    def stop(self, grace_sec: float = 0.0) -> None:
+        self._grpc_server.stop(grace_sec)

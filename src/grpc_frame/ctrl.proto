@@ -2,18 +2,30 @@ syntax = "proto3";
 
 package ctrl;
 
+message Empty {}
+
+message MethodInfo {
+  string name = 1;
+  string signature = 2;
+}
+
+message MethodTable {
+  repeated MethodInfo methods = 1;
+}
+
 message DispatchRequest {
-  string method = 1;  // 呼び出したい ctrl メソッド名
-  bytes args = 2;     // JSON bytes: list
-  bytes kwargs = 3;   // JSON bytes: dict
+  string method = 1;
+  bytes args = 2;
+  bytes kwargs = 3;
 }
 
 message DispatchResponse {
   bool ok = 1;
-  bytes result = 2;   // JSON bytes: any
-  string error = 3;   // ok=false のときのエラー文字列
+  bytes result = 2;
+  string error = 3;
 }
 
 service Control {
+  rpc Describe(Empty) returns (MethodTable);
   rpc Call(DispatchRequest) returns (DispatchResponse);
 }

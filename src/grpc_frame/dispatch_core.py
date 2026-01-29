@@ -3,32 +3,35 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+import inspect
+from dataclasses import dataclass
+from typing import Any, List
 
 
-def validate_method_name(method_name: str) -> None:
-    if method_name is None:
-        raise ValueError("method_name is None")
-
-    if method_name == "":
-        raise ValueError("method_name is empty")
-
-    if method_name.startswith("_"):
-        raise ValueError("private method is not allowed")
+@dataclass(frozen=True)
+class MethodInfo:
+    name: str
+    signature: str
 
 
-def resolve_ctrl_method(ctrl_obj: Any, method_name: str) -> Callable[..., Any]:
-    validate_method_name(method_name)
+def list_public_methods(ctrl_obj: Any) -> List[MethodInfo]:
+    methods: List[MethodInfo] = []
 
-    if ctrl_obj is None:
-        raise ValueError("ctrl_obj is None")
+    for name, member in inspect.getmembers(ctrl_obj):
+        if name.startswith("_"):
+            continue
 
-    if not hasattr(ctrl_obj, method_name):
-        raise AttributeError(f"ctrl has no method: {method_name}")
+        is_callable: bool = callable(member)
+        if not is_callable:
+            continue
 
-    fn: Any = getattr(ctrl_obj, method_name)
+        sig: str = ""
+        try:
+            sig = str(inspect.signature(member))
+        except Exception:
+            sig = "()"
 
-    if not callable(fn):
-        raise TypeError(f"ctrl attribute is not callable: {method_name}")
+        methods.append(MethodInfo(name=name, signature=sig))
 
-    return fn
+    methods.sort(key=lambda m: m.name)
+    return methods
