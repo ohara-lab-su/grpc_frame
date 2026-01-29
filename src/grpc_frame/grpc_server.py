@@ -11,8 +11,8 @@ import grpc
 from grpc_frame.adapter import *
 from grpc_frame.dispatch_core import *
 
-from grpc_frame.ctrl_pb2 import *
-from grpc_frame.ctrl_pb2_grpc import *
+import grpc_frame.ctrl_pb2 as ctrl_pb2
+import grpc_frame.ctrl_pb2_grpc as ctrl_pb2_grpc
 
 
 class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
