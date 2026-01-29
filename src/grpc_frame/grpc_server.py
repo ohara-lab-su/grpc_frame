@@ -8,8 +8,8 @@ from typing import Any, Optional
 
 import grpc
 
-from grpc_frame.adapter import *
-from grpc_frame.dispatch_core import *
+import grpc_frame.adapter as adapter
+import grpc_frame.dispatch_core as dispatch_core
 
 import grpc_frame.ctrl_pb2 as ctrl_pb2
 import grpc_frame.ctrl_pb2_grpc as ctrl_pb2_grpc
