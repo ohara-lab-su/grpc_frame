@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Kengo NAKADA
+kengo.nakada@mat.shimane-u.ac.jp
+kengo.nakada@gmail.com
+"""
 
 from __future__ import annotations
 from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
@@ -188,6 +193,7 @@ class GrpcClient:
             Callable[..., Any]:
                 RPC 呼び出しを行う関数
         """
+
         # サーバー側 1 メソッドに対応するローカル関数を生成
         def _method(
             *args: Any,

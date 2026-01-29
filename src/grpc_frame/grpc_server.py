@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Kengo NAKADA
+kengo.nakada@mat.shimane-u.ac.jp
+kengo.nakada@gmail.com
+"""
+
 from __future__ import annotations
 from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
