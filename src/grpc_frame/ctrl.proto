@@ -3,49 +3,17 @@ syntax = "proto3";
 package ctrl;
 
 message DispatchRequest {
-  bytes args = 1;     // JSON bytes: list
-  bytes kwargs = 2;   // JSON bytes: dict
+  string method = 1;  // 呼び出したい ctrl メソッド名
+  bytes args = 2;     // JSON bytes: list
+  bytes kwargs = 3;   // JSON bytes: dict
 }
 
 message DispatchResponse {
   bool ok = 1;
   bytes result = 2;   // JSON bytes: any
-  string error = 3;
+  string error = 3;   // ok=false のときのエラー文字列
 }
 
-service JoyPadControl {
-  rpc joypad_start(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_stop(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_set_scale(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_set_dt(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_set_coord_mode(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_send_dpose(DispatchRequest) returns (DispatchResponse);
-  rpc joypad_halt(DispatchRequest) returns (DispatchResponse);
-
-  rpc halt(DispatchRequest) returns (DispatchResponse);
-  rpc reset_error(DispatchRequest) returns (DispatchResponse);
-  rpc get_error_count(DispatchRequest) returns (DispatchResponse);
-  rpc get_error_info(DispatchRequest) returns (DispatchResponse);
-  rpc get_current_error_info(DispatchRequest) returns (DispatchResponse);
-  rpc get_error_description(DispatchRequest) returns (DispatchResponse);
-
-  rpc motor_on(DispatchRequest) returns (DispatchResponse);
-  rpc motor_off(DispatchRequest) returns (DispatchResponse);
-  rpc take_arm(DispatchRequest) returns (DispatchResponse);
-  rpc give_arm(DispatchRequest) returns (DispatchResponse);
-
-  rpc get_current_position(DispatchRequest) returns (DispatchResponse);
-  rpc get_current_angle(DispatchRequest) returns (DispatchResponse);
-
-  rpc hand(DispatchRequest) returns (DispatchResponse);
-  rpc hand_move_H(DispatchRequest) returns (DispatchResponse);
-  rpc hand_move_A(DispatchRequest) returns (DispatchResponse);
-
-  rpc drive(DispatchRequest) returns (DispatchResponse);
-  rpc move_pose(DispatchRequest) returns (DispatchResponse);
-  rpc moveP(DispatchRequest) returns (DispatchResponse);
-  rpc move(DispatchRequest) returns (DispatchResponse);
-
-  rpc get_value(DispatchRequest) returns (DispatchResponse);
-  rpc put_value(DispatchRequest) returns (DispatchResponse);
+service Control {
+  rpc Call(DispatchRequest) returns (DispatchResponse);
 }

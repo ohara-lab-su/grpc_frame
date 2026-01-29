@@ -17,6 +17,7 @@ gRPC の役割を大きく変える。
 [ ctrl (pure Python) ]
 ```
 
+### proto
 今までは gRPC proto に構造を(転送するdataに構造を)
 定義して持たせていたが。これを完全に無くして
 byte 列をやりとりする
@@ -29,9 +30,10 @@ message CallRequest {
 }
 ```
 
-proto 側は、引数名も型もいみもしらない。
-メソッド名だけの定義
+- proto 側は、引数名も型もいみもしらない。
+- proto 側の定義は一つだ(メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる)
 
+### server
 gRPCクライアント/サーバ
 
 - python clinet は完全な一般の (*args, **kwargs)

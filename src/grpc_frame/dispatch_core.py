@@ -3,47 +3,32 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Callable
 
 
-def camel_to_snake(name: str) -> str:
-    out: List[str] = []
-    for ch in name:
-        if ch.isupper():
-            out.append("_")
-            out.append(ch.lower())
-        else:
-            out.append(ch)
+def validate_method_name(method_name: str) -> None:
+    if method_name is None:
+        raise ValueError("method_name is None")
 
-    s: str = "".join(out)
-    if s.startswith("_"):
-        return s[1:]
-    return s
+    if method_name == "":
+        raise ValueError("method_name is empty")
+
+    if method_name.startswith("_"):
+        raise ValueError("private method is not allowed")
 
 
-def snake_to_camel(name: str) -> str:
-    parts: List[str] = name.split("_")
-    out: List[str] = []
-    for p in parts:
-        if p == "":
-            continue
-        head: str = p[:1].upper()
-        tail: str = p[1:]
-        out.append(head + tail)
-    return "".join(out)
+def resolve_ctrl_method(ctrl_obj: Any, method_name: str) -> Callable[..., Any]:
+    validate_method_name(method_name)
 
+    if ctrl_obj is None:
+        raise ValueError("ctrl_obj is None")
 
-def ctrl_method_to_rpc_name(ctrl_method: str) -> str:
-    if ctrl_method == "":
-        raise ValueError("empty ctrl_method")
+    if not hasattr(ctrl_obj, method_name):
+        raise AttributeError(f"ctrl has no method: {method_name}")
 
-    has_underscore: bool = False
-    if "_" in ctrl_method:
-        has_underscore = True
+    fn: Any = getattr(ctrl_obj, method_name)
 
-    if has_underscore:
-        return snake_to_camel(ctrl_method)
+    if not callable(fn):
+        raise TypeError(f"ctrl attribute is not callable: {method_name}")
 
-    head: str = ctrl_method[:1].upper()
-    tail: str = ctrl_method[1:]
-    return head + tail
+    return fn
