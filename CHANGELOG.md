@@ -17,15 +17,20 @@ class JoyPadClient(GrpcClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 丸ごと差し替え
-        self.get_error_count = self._get_error_count_override
+        # ---- silent 指定（RPC dispatcher 側）----
+        self._raw_drive._frame_silent = True
 
-    def _get_error_count_override(self) -> int:
-        # RPC を呼ばない完全 override
-        # return self._local_cache
+    # ---- メソッド丸ごと置き換え ----
+    def drive(self, x: float, y: float, z: float) -> bool:
+        """
+        ユーザ側で完全に再定義された drive
+        """
 
-        # あるいは元実装を呼ぶ
-        return self._raw_get_error_count()
+        # ユーザ側処理（ログ・前処理・条件分岐など）
+        print("[JoyPadClient] drive override")
+
+        # 元の RPC dispatcher を明示的に呼ぶ
+        return self._raw_drive(x, y, z)
 ```
 
 

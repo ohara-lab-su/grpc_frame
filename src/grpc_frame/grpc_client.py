@@ -167,7 +167,6 @@ class GrpcClient:
             dispatcher = self._make_dispatcher(method_name=name)
 
             # 公開API
-            # self.<method_name> として動的に属性追加
             setattr(self, name, dispatcher)
 
             # 元の dispatcher を必ず退避
@@ -204,23 +203,13 @@ class GrpcClient:
             **kwargs: Any,
         ) -> Any:
             """"""
+            is_silent: bool = bool(getattr(_method, "_frame_silent", False))
+
             # 呼び出すfunction でこの表示の有無を変更する
-            if not getattr(_method, "_frame_silent", False):
+            if not is_silent:
                 self._logger.info(
                     f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
                 )
-            # 呼び出される method 側に
-            #
-            # class GrpcClient:
-            #     def get_error_count(self): ...
-            #         ...
-            #     get_error_count._frame_silent = True
-            #
-            # のように、get_error_count のさらにオブジェクトを生やす
-            # しかし、
-            # これはserver 側に置かれる　method ではなくて client 側をオーバーライドする
-            # そして、これの安定動作にはディスパッチャー側でraw(二重化が必要となる)
-            # 拙作cobotta RestAPI-frame でやった方法と同じ
 
             # Python 引数を RPC 用にシリアライズ
             args_bin: bytes = adapter.pack_args(tuple(args))
@@ -238,12 +227,14 @@ class GrpcClient:
 
             ok: bool = bool(resp.ok)
             if ok:
-                self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
+                if not is_silent:
+                    self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
                 # 戻り値をデシリアライズして返却
                 return adapter.unpack_result(resp.result)
 
             err: str = str(resp.error)
-            self._logger.info(f"[Frame:GrpcClient][{method_name}] failed: {err}")
+            if not is_silent:
+                self._logger.info(f"[Frame:GrpcClient][{method_name}] failed: {err}")
             raise RuntimeError(err)
 
         # 動的に生成した関数名を RPC メソッド名に合わせる
