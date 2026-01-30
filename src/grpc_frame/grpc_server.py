@@ -103,7 +103,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         log_method: str = "Describe"
 
         self._logger.info(
-            f"[ControlServicer][{log_method}] called",
+            f"[Frame:ControlServicer][{log_method}] called",
         )
 
         # ctrl_obj が持つ public メソッドを introspection により取得
@@ -116,7 +116,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             mi.name = info.name
             mi.signature = info.signature
 
-        self._logger.info(f"[ControlServicer][{log_method}] completed")
+        self._logger.info(f"[Frame:ControlServicer][{log_method}] completed")
 
         return table
 
@@ -159,13 +159,15 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         """
         method_name: str = str(request.method)
 
-        self._logger.info(f"[ControlServicer][{method_name}] called")
+        self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
 
         try:
             # ctrl_obj から対象メソッドを動的に取得
             target = getattr(self._ctrl_obj, method_name)
         except Exception as e:
-            self._logger.error(f"[ControlServicer][{method_name}] getattr failed: {e}")
+            self._logger.error(
+                f"[Frame:ControlServicer][{method_name}] getattr failed: {e}"
+            )
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
         try:
@@ -174,7 +176,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             kwargs = adapter.unpack_kwargs(request.kwargs)
 
             self._logger.info(
-                f"[ControlServicer][{method_name}] args={args} kwargs={kwargs}"
+                f"[Frame:ControlServicer][{method_name}] args={args} kwargs={kwargs}"
             )
 
             # 実メソッドを呼び出し
@@ -183,10 +185,10 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             # 戻り値を RPC 用にシリアライズ
             result_bin: bytes = adapter.pack_result(result)
 
-            self._logger.info(f"[ControlServicer][{method_name}] completed")
+            self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
 
             return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
 
         except Exception as e:
-            self._logger.error(f"[ControlServicer][{method_name}] failed: {e}")
+            self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
