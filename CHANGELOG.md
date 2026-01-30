@@ -17,9 +17,6 @@ class JoyPadClient(GrpcClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # ---- silent 指定（RPC dispatcher 側）----
-        self._raw_drive._frame_silent = True
-
     # ---- メソッド丸ごと置き換え ----
     def drive(self, x: float, y: float, z: float) -> bool:
         """
