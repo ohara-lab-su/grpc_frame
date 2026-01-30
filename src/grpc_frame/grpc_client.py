@@ -166,8 +166,11 @@ class GrpcClient:
             # method_name 固定の dispatcher 関数を生成
             dispatcher = self._make_dispatcher(method_name=name)
 
-            # self.<method_name> として動的に属性追加
+            # 公開API
             setattr(self, name, dispatcher)
+
+            # 元の dispatcher を必ず退避
+            setattr(self, f"_raw_{name}", dispatcher)
 
         self._logger.info("[Frame:GrpcClient] method binding completed")
 
@@ -199,9 +202,14 @@ class GrpcClient:
             *args: Any,
             **kwargs: Any,
         ) -> Any:
-            self._logger.info(
-                f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
-            )
+            """"""
+            is_silent: bool = bool(getattr(_method, "_frame_silent", False))
+
+            # 呼び出すfunction でこの表示の有無を変更する
+            if not is_silent:
+                self._logger.info(
+                    f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
+                )
 
             # Python 引数を RPC 用にシリアライズ
             args_bin: bytes = adapter.pack_args(tuple(args))
@@ -219,12 +227,14 @@ class GrpcClient:
 
             ok: bool = bool(resp.ok)
             if ok:
-                self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
+                if not is_silent:
+                    self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
                 # 戻り値をデシリアライズして返却
                 return adapter.unpack_result(resp.result)
 
             err: str = str(resp.error)
-            self._logger.info(f"[Frame:GrpcClient][{method_name}] failed: {err}")
+            if not is_silent:
+                self._logger.info(f"[Frame:GrpcClient][{method_name}] failed: {err}")
             raise RuntimeError(err)
 
         # 動的に生成した関数名を RPC メソッド名に合わせる
