@@ -1,5 +1,34 @@
 # README
 
+## v0.3.2, nakada
+
+```python
+# get_error_count だけ frame logging を抑止
+client.get_error_count._frame_silent = True
+```
+として、特定のメソッドだけログを表示しないようにすることができる
+
+また、似ている話で、 サーバー側で動的にディスパッチされるメソッドを
+クライアント側で安定的にオーバーライドさせるために、
+工夫が必要となる。(サーバー側の仕掛けを今回実装/cobotta-RestAPIで試した方法)
+
+```python
+class JoyPadClient(GrpcClient):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # 丸ごと差し替え
+        self.get_error_count = self._get_error_count_override
+
+    def _get_error_count_override(self) -> int:
+        # RPC を呼ばない完全 override
+        # return self._local_cache
+
+        # あるいは元実装を呼ぶ
+        return self._raw_get_error_count()
+```
+
+
 ## v0.3.1, nakada
 
 デバッグでもあまり使わないログを消去

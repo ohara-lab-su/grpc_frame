@@ -166,8 +166,12 @@ class GrpcClient:
             # method_name 固定の dispatcher 関数を生成
             dispatcher = self._make_dispatcher(method_name=name)
 
+            # 公開API
             # self.<method_name> として動的に属性追加
             setattr(self, name, dispatcher)
+
+            # 元の dispatcher を必ず退避
+            setattr(self, f"_raw_{name}", dispatcher)
 
         self._logger.info("[Frame:GrpcClient] method binding completed")
 
@@ -201,7 +205,7 @@ class GrpcClient:
         ) -> Any:
             """"""
             # 呼び出すfunction でこの表示の有無を変更する
-            if not getattr(func, "_frame_silent", False):
+            if not getattr(_method, "_frame_silent", False):
                 self._logger.info(
                     f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
                 )
@@ -213,6 +217,10 @@ class GrpcClient:
             #     get_error_count._frame_silent = True
             #
             # のように、get_error_count のさらにオブジェクトを生やす
+            # しかし、
+            # これはserver 側に置かれる　method ではなくて client 側をオーバーライドする
+            # そして、これの安定動作にはディスパッチャー側でraw(二重化が必要となる)
+            # 拙作cobotta RestAPI-frame でやった方法と同じ
 
             # Python 引数を RPC 用にシリアライズ
             args_bin: bytes = adapter.pack_args(tuple(args))
