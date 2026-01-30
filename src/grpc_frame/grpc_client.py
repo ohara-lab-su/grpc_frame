@@ -122,7 +122,7 @@ class GrpcClient:
                 例外が発生した場合 False
         """
         try:
-            self._logger.info("[GrpcClient] check connection")
+            # self._logger.debug("[GrpcClient] check connection")
 
             # Describe RPC が成功するかで接続可否を判定
             _ = self._rpc_describe(
