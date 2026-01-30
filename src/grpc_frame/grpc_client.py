@@ -84,7 +84,7 @@ class GrpcClient:
 
         addr: str = f"{server_ip}:{server_port}"
 
-        self._logger.info(f"[GrpcClient] connect to {addr}")
+        self._logger.info(f"[Frame:GrpcClient] connect to {addr}")
 
         # 非 TLS の gRPC チャネルを生成
         self._channel: grpc.Channel = grpc.insecure_channel(addr)
@@ -145,7 +145,7 @@ class GrpcClient:
         クライアント側からは通常の Python メソッド呼び出しとして
         RPC を透過的に利用できるようになる。
         """
-        self._logger.info("[GrpcClient] Describe request")
+        self._logger.info("[Frame:GrpcClient] Describe request")
 
         # サーバーから公開メソッド一覧を取得
         table = self._rpc_describe(
@@ -161,7 +161,7 @@ class GrpcClient:
             # メソッド名とシグネチャを内部表に保存
             self._method_table[name] = sig
 
-            self._logger.info(f"[GrpcClient] bind method: {name} {sig}")
+            self._logger.info(f"[Frame:GrpcClient] bind method: {name} {sig}")
 
             # method_name 固定の dispatcher 関数を生成
             dispatcher = self._make_dispatcher(method_name=name)
@@ -169,7 +169,7 @@ class GrpcClient:
             # self.<method_name> として動的に属性追加
             setattr(self, name, dispatcher)
 
-        self._logger.info("[GrpcClient] method binding completed")
+        self._logger.info("[Frame:GrpcClient] method binding completed")
 
     def _make_dispatcher(
         self,
@@ -200,7 +200,7 @@ class GrpcClient:
             **kwargs: Any,
         ) -> Any:
             self._logger.info(
-                f"[GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
+                f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
             )
 
             # Python 引数を RPC 用にシリアライズ
@@ -219,12 +219,12 @@ class GrpcClient:
 
             ok: bool = bool(resp.ok)
             if ok:
-                self._logger.info(f"[GrpcClient][{method_name}] completed")
+                self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
                 # 戻り値をデシリアライズして返却
                 return adapter.unpack_result(resp.result)
 
             err: str = str(resp.error)
-            self._logger.info(f"[GrpcClient][{method_name}] failed: {err}")
+            self._logger.info(f"[Frame:GrpcClient][{method_name}] failed: {err}")
             raise RuntimeError(err)
 
         # 動的に生成した関数名を RPC メソッド名に合わせる
@@ -238,7 +238,7 @@ class GrpcClient:
         クライアント終了時に呼び出されることを想定しており、
         通信リソースを明示的に解放する。
         """
-        self._logger.info("[GrpcClient] close channel")
+        self._logger.info("[Frame:GrpcClient] close channel")
         try:
             self._channel.close()
         except Exception:
