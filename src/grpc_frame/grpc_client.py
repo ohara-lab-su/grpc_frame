@@ -199,9 +199,20 @@ class GrpcClient:
             *args: Any,
             **kwargs: Any,
         ) -> Any:
-            self._logger.info(
-                f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
-            )
+            """"""
+            # 呼び出すfunction でこの表示の有無を変更する
+            if not getattr(func, "_frame_silent", False):
+                self._logger.info(
+                    f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
+                )
+            # 呼び出される method 側に
+            #
+            # class GrpcClient:
+            #     def get_error_count(self): ...
+            #         ...
+            #     get_error_count._frame_silent = True
+            #
+            # のように、get_error_count のさらにオブジェクトを生やす
 
             # Python 引数を RPC 用にシリアライズ
             args_bin: bytes = adapter.pack_args(tuple(args))
