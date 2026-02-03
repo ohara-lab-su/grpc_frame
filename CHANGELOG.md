@@ -1,5 +1,9 @@
 # README
 
+## v0.3.3, nakada
+
+bugfix
+
 ## v0.3.2, nakada
 
 ```python
