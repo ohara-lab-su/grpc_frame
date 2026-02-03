@@ -51,6 +51,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         self,
         ctrl_obj: Any,
         logger: Optional[Any] = None,
+        log_level: str = "INFO",
     ) -> None:
         """
         ControlServicer を初期化する。
