@@ -1,5 +1,13 @@
 # README
 
+## v0.3.4, nakada
+
+jopad動作テスト対応完了
+ 
+- grpc_frame: 0.3.4
+- fastapi_frame: 0.4.7
+- cobotta2: 0.9.23
+
 ## v0.3.3, nakada
 
 bugfix
