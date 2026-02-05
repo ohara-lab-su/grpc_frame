@@ -16,14 +16,8 @@ import grpc
 import grpc_frame.adapter as adapter
 import grpc_frame.dispatch_core as dispatch_core
 
-# ctrl
 import grpc_frame.ctrl_pb2 as ctrl_pb2
 import grpc_frame.ctrl_pb2_grpc as ctrl_pb2_grpc
-
-# events
-import grpc_frame.events_pb2 as events_pb2
-import grpc_frame.events_pb2_grpc as events_pb2_grpc
-import grpc_frame.event_bus as event_bus
 
 
 class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
@@ -204,48 +198,3 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         except Exception as e:
             self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
-
-
-class _EventsServicer(events_pb2_grpc.EventsServicer):
-    def __init__(self, bus: event_bus.EventBus) -> None:
-        self._bus = bus
-
-    def Subscribe(self, request, context):
-        cancel = threading.Event()
-        context.add_callback(cancel.set)
-
-        for item in self._bus.subscribe(
-            request.topic,
-            once=request.once,
-            cancel_event=cancel,
-        ):
-            yield events_pb2.Event(
-                topic=item.topic,
-                payload=adapter.pack_result(item.payload_obj),
-                ts_ns=item.ts_ns,
-                source=item.source,
-            )
-
-
-def create_grpc_server(
-    ctrl_obj: Any,
-    *,
-    max_workers: int = 16,
-    bus: Optional[event_bus.EventBus] = None,
-):
-    if bus is None:
-        bus = event_bus.EventBus()
-
-    server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
-
-    ctrl_pb2_grpc.add_ControlServicer_to_server(
-        _ControlServicer(ctrl_obj),
-        server,
-    )
-
-    events_pb2_grpc.add_EventsServicer_to_server(
-        _EventsServicer(bus),
-        server,
-    )
-
-    return server, bus
