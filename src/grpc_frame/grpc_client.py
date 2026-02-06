@@ -273,3 +273,10 @@ class GrpcClient:
             self._channel.close()
         except Exception:
             pass
+
+    def subscribe(self, *, topic: str) -> Any:
+        req = events_pb2.SubscribeRequest(topic=str(topic))
+        resp_iter = self._rpc_subscribe(req, timeout=None)
+
+        for ev in resp_iter:
+            yield adapter._try_json_loads(bytes(ev.payload))
