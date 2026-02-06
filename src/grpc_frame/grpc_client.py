@@ -113,6 +113,13 @@ class GrpcClient:
             response_deserializer=ctrl_pb2.DispatchResponse.FromString,
         )
 
+        # Event
+        self._rpc_subscribe = self._channel.unary_stream(
+            "/frame.Events/Subscribe",
+            request_serializer=events_pb2.SubscribeRequest.SerializeToString,
+            response_deserializer=events_pb2.Event.FromString,
+        )
+
         # サーバー側メソッド名とシグネチャの対応表
         self._method_table: Dict[str, str] = {}
 
