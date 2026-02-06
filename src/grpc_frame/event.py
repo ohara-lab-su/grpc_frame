@@ -5,57 +5,12 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 """
-from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
-import os
-import sys
-from grpc_tools import protoc
-
-
-def build_proto(
-    *,
-    proto_name: str,
-    proto_dir: Optional[str] = None,
-    out_dir: Optional[str] = None,
-) -> None:
-    """
-    proto_name: 例 "ctrl" / "joypad" / "events"
-    proto_dir : proto のあるディレクトリ（Noneならこのファイルの場所）
-    out_dir   : 出力先（Noneなら proto_dir）
-    """
-    here = os.path.dirname(os.path.abspath(__file__))
-
-    if proto_dir is None:
-        proto_dir = here
-    if out_dir is None:
-        out_dir = proto_dir
-
-    proto_file = os.path.join(proto_dir, f"{proto_name}.proto")
-    if not os.path.exists(proto_file):
-        raise FileNotFoundError(proto_file)
-
-    cmd = [
-        "grpc_tools.protoc",
-        f"-I{proto_dir}",
-        f"--python_out={out_dir}",
-        f"--grpc_python_out={out_dir}",
-        proto_file,
-    ]
-
-    print("Running protoc:")
-    print(" ".join(cmd))
-
-    result = protoc.main(cmd)
-    if result != 0:
-        raise RuntimeError(f"protoc failed with code {result}")
-
-    print("protoc build complete:")
-    print(f"  {proto_name}_pb2.py")
-    print(f"  {proto_name}_pb2_grpc.py")
+from build_proto import build_proto as build_proto
 
 
 if __name__ == "__main__":
     build_proto(
-        proto_name="ctrl",
+        proto_name="events",
     )
 
 
