@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 
+import threading
 import grpc
 
 import grpc_frame.adapter as adapter
@@ -85,6 +86,19 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             logger = logging.getLogger(__name__)
 
         self._logger: Optional[Any] = logger
+
+        # proto で定義したイベントを呼ぶ仕組みをサーバー側に入れる
+        try:
+            set_event_bus = getattr(ctrl, "_set_event_bus")
+        except AttributeError:
+            set_event_bus = None
+
+        if set_event_bus is not None and callable(set_event_bus):
+            try:
+                # set_event_bus が Callable であることを明示
+                cast(Callable, set_event_bus)(_event_bus)
+            except Exception:
+                pass
 
     def Describe(
         self,
