@@ -12,7 +12,10 @@ from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 import grpc
 
 import grpc_frame.adapter as adapter
+
+# proto 追加で追加する
 import grpc_frame.ctrl_pb2 as ctrl_pb2
+import grpc_frame.events_pb2 as events_pb2
 
 
 class GrpcClient:
