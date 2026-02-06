@@ -5,13 +5,6 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 """
-
-from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
-import os
-import sys
-from grpc_tools import protoc
-
-#!/usr/bin/env python3
 from typing import Optional
 import os
 from grpc_tools import protoc
