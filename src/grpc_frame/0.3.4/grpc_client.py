@@ -12,10 +12,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 import grpc
 
 import grpc_frame.adapter as adapter
-
-# proto 追加で追加する
 import grpc_frame.ctrl_pb2 as ctrl_pb2
-import grpc_frame.events_pb2 as events_pb2
 
 
 class GrpcClient:
@@ -114,13 +111,6 @@ class GrpcClient:
             "/ctrl.Control/Call",
             request_serializer=ctrl_pb2.DispatchRequest.SerializeToString,
             response_deserializer=ctrl_pb2.DispatchResponse.FromString,
-        )
-
-        # Event
-        self._rpc_subscribe = self._channel.unary_stream(
-            "/frame.Events/Subscribe",
-            request_serializer=events_pb2.SubscribeRequest.SerializeToString,
-            response_deserializer=events_pb2.Event.FromString,
         )
 
         # サーバー側メソッド名とシグネチャの対応表
