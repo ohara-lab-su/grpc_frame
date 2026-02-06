@@ -7,6 +7,8 @@ build_proto.py を
 関数化して、proto毎にそれを呼び出す
 python にする
 
+複数 proto 対応
+
 ## v0.4.0, nakada
 
 - gRPC Frame 拡張 (汎用的なevent待受機能)
