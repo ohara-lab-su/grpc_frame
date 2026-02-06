@@ -62,6 +62,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
     def __init__(
         self,
         ctrl_obj: Any,
+        bus: Optional[event_bus.EventBus] = None,
         logger: Optional[Any] = None,
         log_level: str = "INFO",
     ) -> None:
@@ -79,6 +80,9 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         # RPC 経由で操作される実体オブジェクトを保持
         self._ctrl_obj: Any = ctrl_obj
 
+        # Event bus
+        self._bus: Optional[event_bus.EventBus] = bus
+
         if logger is None:
             import logging
 
@@ -88,17 +92,12 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         self._logger: Optional[Any] = logger
 
         # proto で定義したイベントを呼ぶ仕組みをサーバー側に入れる
-        try:
-            set_event_bus = getattr(ctrl, "_set_event_bus")
-        except AttributeError:
-            set_event_bus = None
+        set_event_bus = getattr(ctrl, "_set_event_bus")
+        if set_event_bus is None:
+            return
 
-        if set_event_bus is not None and callable(set_event_bus):
-            try:
-                # set_event_bus が Callable であることを明示
-                cast(Callable, set_event_bus)(_event_bus)
-            except Exception:
-                pass
+        if callable(set_event_bus):
+            set_event_bus(_event_bus)
 
     def Describe(
         self,
@@ -247,13 +246,30 @@ def create_grpc_server(
     max_workers: int = 16,
     bus: Optional[event_bus.EventBus] = None,
 ):
+    """
+    event_bus の実体化
+    (event_bus.pyを用いる)
+
+    gRPC 固有ではない
+    測定スレッド
+    ctrl
+    gRPC EventsServicer を繋ぐだけのローカルオブジェクト(非通信層)
+
+    正しい流れ
+    create_grpc_server()
+    --> EventBus() により生成
+    --> _EventServicer ==> gRPC event stream
+    --> ctrl 側へ注入
+    """
     if bus is None:
+        # EventBus のインスタンス作成
+        # ---> create_grpc_server を呼ぶまで event_bus は存在しない形とする
         bus = event_bus.EventBus()
 
     server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
 
     ctrl_pb2_grpc.add_ControlServicer_to_server(
-        _ControlServicer(ctrl_obj),
+        _ControlServicer(ctrl_obj, bus=bus),
         server,
     )
 
