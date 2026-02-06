@@ -5,9 +5,15 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 """
+
 from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
 import os
 import sys
+from grpc_tools import protoc
+
+#!/usr/bin/env python3
+from typing import Optional
+import os
 from grpc_tools import protoc
 
 
@@ -16,11 +22,19 @@ def build_proto(
     proto_name: str,
     proto_dir: Optional[str] = None,
     out_dir: Optional[str] = None,
+    frame_package: str = "grpc_frame",
 ) -> None:
     """
-    proto_name: 例 "ctrl" / "joypad" / "events"
-    proto_dir : proto のあるディレクトリ（Noneならこのファイルの場所）
-    out_dir   : 出力先（Noneなら proto_dir）
+    フレーム内 proto を gRPC Python 用にビルドする
+
+    proto_name:
+        "ctrl", "events", "joypad" など（拡張子なし）
+    proto_dir:
+        proto のあるディレクトリ（Noneならこのファイルの場所）
+    out_dir:
+        出力先（Noneなら proto_dir）
+    frame_package:
+        生成物が属する Python パッケージ名（通常 "grpc_frame"）
     """
     here = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,16 +55,28 @@ def build_proto(
         proto_file,
     ]
 
-    print("Running protoc:")
-    print(" ".join(cmd))
-
     result = protoc.main(cmd)
     if result != 0:
-        raise RuntimeError(f"protoc failed with code {result}")
+        raise RuntimeError(f"protoc failed: {result}")
 
-    print("protoc build complete:")
-    print(f"  {proto_name}_pb2.py")
-    print(f"  {proto_name}_pb2_grpc.py")
+    # --- *_pb2_grpc.py の import をフル修飾に直す ---
+    grpc_py = os.path.join(out_dir, f"{proto_name}_pb2_grpc.py")
+    if not os.path.exists(grpc_py):
+        raise FileNotFoundError(grpc_py)
+
+    with open(grpc_py, "r", encoding="utf-8") as f:
+        text = f.read()
+
+    old = f"import {proto_name}_pb2 as {proto_name}__pb2"
+    new = f"from {frame_package} import {proto_name}_pb2 as {proto_name}__pb2"
+
+    if old not in text:
+        raise RuntimeError(f"unexpected import line in {grpc_py}")
+
+    text = text.replace(old, new)
+
+    with open(grpc_py, "w", encoding="utf-8") as f:
+        f.write(text)
 
 
 if __name__ == "__main__":
