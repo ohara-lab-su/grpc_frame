@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Kengo NAKADA
@@ -7,24 +7,19 @@ kengo.nakada@gmail.com
 """
 
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, Union, Tuple, Callable, Sequence
+
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 
-import threading
 import grpc
 
-import grpc_frame.adapter as adapter
-import grpc_frame.dispatch_core as dispatch_core
-
-# ctrl
-import grpc_frame.ctrl_pb2 as ctrl_pb2
-import grpc_frame.ctrl_pb2_grpc as ctrl_pb2_grpc
-
-# events
-import grpc_frame.events_pb2 as events_pb2
-import grpc_frame.events_pb2_grpc as events_pb2_grpc
-import grpc_frame.event_bus as event_bus
+from grpc_frame import adapter
+from grpc_frame import ctrl_pb2
+from grpc_frame import ctrl_pb2_grpc
+from grpc_frame import dispatch_core
+from grpc_frame import events_pb2
+from grpc_frame import events_pb2_grpc
+from grpc_frame.event_bus import EventBus
 
 
 class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
@@ -61,10 +56,9 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
 
     def __init__(
         self,
+        *,
         ctrl_obj: Any,
-        bus: Optional[event_bus.EventBus] = None,
-        logger: Optional[Any] = None,
-        log_level: str = "INFO",
+        event_bus: Optional[EventBus],
     ) -> None:
         """
         ControlServicer を初期化する。
@@ -77,32 +71,23 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
                 ログ出力用のオブジェクト。
                 None の場合でもクラスの動作自体には影響しない。
         """
-        # RPC 経由で操作される実体オブジェクトを保持
-        self._ctrl_obj: Any = ctrl_obj
+        self._ctrl_obj = ctrl_obj
+        self._event_bus = event_bus
 
-        # Event bus
-        self._bus: Optional[event_bus.EventBus] = bus
-
-        if logger is None:
-            import logging
-
-            logging.basicConfig(level=log_level.upper())
-            logger = logging.getLogger(__name__)
-
-        self._logger: Optional[Any] = logger
-
-        # proto で定義したイベントを呼ぶ仕組みをサーバー側に入れる
-        set_event_bus = getattr(ctrl, "_set_event_bus")
-        if set_event_bus is None:
-            return
-
-        if callable(set_event_bus):
-            set_event_bus(_event_bus)
+        # ctrl 側がイベントバスを受け取れる実装を持つ場合のみ注入します。
+        # ここは gRPC フレームの都合であり、ctrl の設計を強制しません。
+        setter = getattr(self._ctrl_obj, "_set_event_bus", None)
+        if setter is not None:
+            try:
+                setter(self._event_bus)
+            except Exception:
+                # ctrl 側の実装事情で注入できないケースはあり得るため、ここでは握りつぶします。
+                pass
 
     def Describe(
         self,
         request: ctrl_pb2.Empty,
-        context: Any,
+        context: grpc.ServicerContext,
     ) -> ctrl_pb2.MethodTable:
         """
         制御オブジェクトの public メソッド一覧を返す RPC。
@@ -135,147 +120,136 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         infos = dispatch_core.list_public_methods(self._ctrl_obj)
 
         # protobuf の MethodTable を構築
-        table = ctrl_pb2.MethodTable()
+        tbl = ctrl_pb2.MethodTable()
         for info in infos:
-            mi = table.methods.add()
-            mi.name = info.name
-            mi.signature = info.signature
+            row = tbl.rows.add()
+            row.name = info.name
+            row.signature = info.signature
 
-        self._logger.info(f"[Frame:ControlServicer][{log_method}] completed")
+        return tbl
 
-        return table
-
-    def Call(
+    def Execute(
         self,
-        request: ctrl_pb2.DispatchRequest,
-        context: Any,
-    ) -> ctrl_pb2.DispatchResponse:
+        request: ctrl_pb2.ExecuteRequest,
+        context: grpc.ServicerContext,
+    ) -> ctrl_pb2.ExecuteReply:
         """
-        指定されたメソッドを実行する RPC。
+        ctrl_obj の任意の public メソッドを実行する RPC。
 
-        request.method に含まれるメソッド名を ctrl_obj から getattr で取得し、
-        adapter を用いて引数を復元した上で実行する。
-
-        処理の流れ:
-        1. メソッド名を文字列として取得
-        2. ctrl_obj から対応する callable を取得
-        3. args / kwargs をデシリアライズ
-        4. メソッドを実行
-        5. 戻り値をシリアライズして返却
-
-        例外処理:
-        - メソッド取得失敗時は ok=False と error を返す
-        - 実行時例外も同様に ok=False として返却する
+        request.method で指定されたメソッド名を、request.args に入っている
+        bytes ペイロードから adapter によりデコードして呼び出し、
+        戻り値を bytes としてエンコードして返却する。
 
         Args:
             request:
-                ctrl_pb2.DispatchRequest
-                - method: 呼び出すメソッド名
-                - args: シリアライズされた位置引数
-                - kwargs: シリアライズされたキーワード引数
+                実行したいメソッド名と引数
             context:
-                gRPC のコンテキストオブジェクト
+                gRPC のコンテキスト
 
         Returns:
-            ctrl_pb2.DispatchResponse:
-                - ok: 実行成否
-                - result: シリアライズされた戻り値
-                - error: エラーメッセージ（失敗時）
+            ctrl_pb2.ExecuteReply:
+                実行結果（bytes）
         """
-        method_name: str = str(request.method)
+        log_method: str = "Execute"
 
-        self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
+        self._logger.info(
+            f"[Frame:ControlServicer][{log_method}] called method={request.method}",
+        )
 
-        try:
-            # ctrl_obj から対象メソッドを動的に取得
-            target = getattr(self._ctrl_obj, method_name)
-        except Exception as e:
-            self._logger.error(
-                f"[Frame:ControlServicer][{method_name}] getattr failed: {e}"
-            )
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
+        method_name: str = request.method
+        payload: bytes = request.args
 
-        try:
-            # シリアライズされた引数を Python オブジェクトに復元
-            args = adapter.unpack_args(request.args)
-            kwargs = adapter.unpack_kwargs(request.kwargs)
+        # args をデコード（dict を想定）
+        data = adapter.decode_bytes(payload)
+        if data is None:
+            data = {}
 
-            self._logger.info(
-                f"[Frame:ControlServicer][{method_name}] args={args} kwargs={kwargs}"
-            )
+        kwargs: dict[str, Any]
+        if isinstance(data, dict):
+            kwargs = data
+        else:
+            kwargs = {}
 
-            # 実メソッドを呼び出し
-            result = target(*args, **kwargs)
+        # 動的ディスパッチ
+        ret = dispatch_core.call_public_method(
+            self._ctrl_obj,
+            method_name,
+            kwargs,
+        )
 
-            # 戻り値を RPC 用にシリアライズ
-            result_bin: bytes = adapter.pack_result(result)
+        # 戻り値をエンコード
+        out_b = adapter.encode_bytes(ret)
 
-            self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
-
-            return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
-
-        except Exception as e:
-            self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
+        reply = ctrl_pb2.ExecuteReply()
+        reply.result = out_b
+        return reply
 
 
 class _EventsServicer(events_pb2_grpc.EventsServicer):
-    def __init__(self, bus: event_bus.EventBus) -> None:
-        self._bus = bus
+    """Events RPC service implementation."""
 
-    def Subscribe(self, request, context):
-        cancel = threading.Event()
-        context.add_callback(cancel.set)
+    def __init__(self, *, event_bus: EventBus) -> None:
+        self._bus = event_bus
 
-        for item in self._bus.subscribe(
-            request.topic,
-            once=request.once,
-            cancel_event=cancel,
-        ):
-            yield events_pb2.Event(
-                topic=item.topic,
-                payload=adapter.pack_result(item.payload_obj),
-                ts_ns=item.ts_ns,
-                source=item.source,
-            )
+    def Subscribe(
+        self,
+        request: events_pb2.SubscribeRequest,
+        context: grpc.ServicerContext,
+    ):
+        topic: str = request.topic
+
+        for payload in self._bus.subscribe(topic=topic):
+            event = events_pb2.Event()
+            event.topic = topic
+            event.payload = adapter.encode_bytes(payload)
+            yield event
 
 
 def create_grpc_server(
-    ctrl_obj: Any,
     *,
-    max_workers: int = 16,
-    bus: Optional[event_bus.EventBus] = None,
-):
+    ctrl_obj: Any,
+    logger: Any,
+    log_level: str,
+    max_workers: int = 10,
+    event_bus: Optional[EventBus] = None,
+) -> grpc.Server:
     """
-    event_bus の実体化
-    (event_bus.pyを用いる)
+    Control + Events の両サービスを載せた gRPC server を生成する。
 
-    gRPC 固有ではない
-    測定スレッド
-    ctrl
-    gRPC EventsServicer を繋ぐだけのローカルオブジェクト(非通信層)
-
-    正しい流れ
-    create_grpc_server()
-    --> EventBus() により生成
-    --> _EventServicer ==> gRPC event stream
-    --> ctrl 側へ注入
+    - ctrl_obj は Control サービスの動的ディスパッチ対象
+    - event_bus が None の場合はフレーム側で EventBus を生成
+    - ctrl_obj が _set_event_bus を持つ場合は注入される
     """
-    if bus is None:
-        # EventBus のインスタンス作成
-        # ---> create_grpc_server を呼ぶまで event_bus は存在しない形とする
-        bus = event_bus.EventBus()
+    bus: EventBus
+    if event_bus is None:
+        # Event がない時(default EventBus作成)
+        bus = EventBus()
+    else:
+        # Event を用意する時
+        bus = event_bus
 
-    server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
+    server = grpc.server(
+        ThreadPoolExecutor(
+            max_workers=max_workers,
+        ),
+    )
 
+    ctrl_servicer = _ControlServicer(
+        ctrl_obj=ctrl_obj,
+        event_bus=bus,
+    )
+    ctrl_servicer._logger = logger
     ctrl_pb2_grpc.add_ControlServicer_to_server(
-        _ControlServicer(ctrl_obj, bus=bus),
+        ctrl_servicer,
         server,
     )
 
+    events_servicer = _EventsServicer(
+        event_bus=bus,
+    )
     events_pb2_grpc.add_EventsServicer_to_server(
-        _EventsServicer(bus),
+        events_servicer,
         server,
     )
 
-    return server, bus
+    return server
