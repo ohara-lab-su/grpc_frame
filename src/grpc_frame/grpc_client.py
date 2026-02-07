@@ -62,7 +62,7 @@ class GrpcClient:
         server_ip: str,
         server_port: int,
         logger: Optional[Any] = None,
-        log_level: str = "INFO",
+        log_level: str = None,
         timeout_sec: Optional[float] = None,
     ) -> None:
         """
@@ -89,6 +89,7 @@ class GrpcClient:
         if logger is None:
             import logging
 
+            log_level = log_level or "INFO"
             logging.basicConfig(level=log_level.upper())
             logger = logging.getLogger(__name__)
 
@@ -274,9 +275,24 @@ class GrpcClient:
         except Exception:
             pass
 
-    def subscribe(self, *, topic: str) -> Any:
-        req = events_pb2.SubscribeRequest(topic=str(topic))
-        resp_iter = self._rpc_subscribe(req, timeout=None)
+    # def subscribe(self, *, topic: str) -> Any:
+    #     req = events_pb2.SubscribeRequest(topic=str(topic))
+    #     resp_iter = self._rpc_subscribe(req, timeout=None)
 
-        for ev in resp_iter:
-            yield adapter._try_json_loads(bytes(ev.payload))
+    #     for ev in resp_iter:
+    #         yield adapter._try_json_loads(bytes(ev.payload))
+
+    def _event_subscribe(self, *, topic: str):
+        with self._lock:
+            events_stub = self._events_stub
+
+        request = events_pb2.SubscribeRequest(topic=topic)
+
+        for event in events_stub.Subscribe(request):
+            payload_obj = adapter.decode_bytes(event.payload)
+
+            if isinstance(payload_obj, dict):
+                yield payload_obj
+                continue
+
+            yield {"payload": payload_obj}

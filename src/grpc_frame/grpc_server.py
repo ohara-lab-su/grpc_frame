@@ -59,6 +59,8 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         *,
         ctrl_obj: Any,
         event_bus: Optional[EventBus],
+        logger: Optional[Any] = None,
+        log_level: Optional[str] = None,
     ) -> None:
         """
         ControlServicer を初期化する。
@@ -71,17 +73,26 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
                 ログ出力用のオブジェクト。
                 None の場合でもクラスの動作自体には影響しない。
         """
+        if logger is None:
+            import logging
+
+            log_level = log_level or "INFO"
+            logging.basicConfig(level=log_level.upper())
+            logger = logging.getLogger(__name__)
+
+        self._logger: Optional[Any] = logger
+
         self._ctrl_obj = ctrl_obj
         self._event_bus = event_bus
 
         # ctrl 側がイベントバスを受け取れる実装を持つ場合のみ注入します。
-        # ここは gRPC フレームの都合であり、ctrl の設計を強制しません。
+        # ここは gRPC フレームの都合であり、ctrl の設計を強制しない
         setter = getattr(self._ctrl_obj, "_set_event_bus", None)
         if setter is not None:
             try:
                 setter(self._event_bus)
             except Exception:
-                # ctrl 側の実装事情で注入できないケースはあり得るため、ここでは握りつぶします。
+                # ctrl 側の実装事情で注入できないケースはあり得るため、ここでは握りつぶす
                 pass
 
     def Describe(
@@ -188,7 +199,22 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
 class _EventsServicer(events_pb2_grpc.EventsServicer):
     """Events RPC service implementation."""
 
-    def __init__(self, *, event_bus: EventBus) -> None:
+    def __init__(
+        self,
+        *,
+        event_bus: EventBus,
+        logger: Optional[Any] = None,
+        log_level: Optional[str] = None,
+    ) -> None:
+        """"""
+        if logger is None:
+            import logging
+
+            log_level = log_level or "INFO"
+            logging.basicConfig(level=log_level.upper())
+            logger = logging.getLogger(__name__)
+
+        self._logger: Optional[Any] = logger
         self._bus = event_bus
 
     def Subscribe(
@@ -208,10 +234,10 @@ class _EventsServicer(events_pb2_grpc.EventsServicer):
 def create_grpc_server(
     *,
     ctrl_obj: Any,
-    logger: Any,
-    log_level: str,
     max_workers: int = 10,
     event_bus: Optional[EventBus] = None,
+    logger: Optional[Any] = None,
+    log_level: Optional[str] = None,
 ) -> grpc.Server:
     """
     Control + Events の両サービスを載せた gRPC server を生成する。
@@ -220,13 +246,17 @@ def create_grpc_server(
     - event_bus が None の場合はフレーム側で EventBus を生成
     - ctrl_obj が _set_event_bus を持つ場合は注入される
     """
+    if logger is None:
+        import logging
+
+        log_level = log_level or "INFO"
+        logging.basicConfig(level=log_level.upper())
+        logger = logging.getLogger(__name__)
+
     bus: EventBus
     if event_bus is None:
         # Event がない時(default EventBus作成)
-        bus = EventBus()
-    else:
-        # Event を用意する時
-        bus = event_bus
+        event_bus = EventBus()
 
     server = grpc.server(
         ThreadPoolExecutor(
@@ -236,17 +266,22 @@ def create_grpc_server(
 
     ctrl_servicer = _ControlServicer(
         ctrl_obj=ctrl_obj,
-        event_bus=bus,
+        event_bus=event_bus,
+        logger=logger,
+        log_level=log_level,
     )
-    ctrl_servicer._logger = logger
+
     ctrl_pb2_grpc.add_ControlServicer_to_server(
         ctrl_servicer,
         server,
     )
 
     events_servicer = _EventsServicer(
-        event_bus=bus,
+        event_bus=event_bus,
+        logger=logger,
+        log_level=log_level,
     )
+
     events_pb2_grpc.add_EventsServicer_to_server(
         events_servicer,
         server,

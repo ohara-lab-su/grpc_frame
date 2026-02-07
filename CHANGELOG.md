@@ -1,5 +1,13 @@
 # README
 
+## v0.4.2, nakada
+
+割と大改修
+
+- event 関係の proto 周りを別途追加
+- gRPC での event 処理の仕組みを(client/serverフレーム側に導入)
+- 必要ならば、module 利用先で event を用いることができる
+
 ## v0.4.1, nakada
 
 build_proto.py を
