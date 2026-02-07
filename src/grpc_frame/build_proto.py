@@ -5,6 +5,7 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 """
+
 from typing import Optional
 import os
 from grpc_tools import protoc
@@ -75,6 +76,10 @@ def build_proto(
 if __name__ == "__main__":
     build_proto(
         proto_name="ctrl",
+    )
+
+    build_proto(
+        proto_name="events",
     )
 
 
