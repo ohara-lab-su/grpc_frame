@@ -61,9 +61,9 @@ class GrpcClient:
         self,
         server_ip: str,
         server_port: int,
+        timeout_sec: Optional[float] = None,
         logger: Optional[Any] = None,
         log_level: str = None,
-        timeout_sec: Optional[float] = None,
     ) -> None:
         """
         GrpcClient を初期化する。
