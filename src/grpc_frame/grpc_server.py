@@ -131,69 +131,50 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         infos = dispatch_core.list_public_methods(self._ctrl_obj)
 
         # protobuf の MethodTable を構築
-        tbl = ctrl_pb2.MethodTable()
+        table = ctrl_pb2.MethodTable()
         for info in infos:
-            row = tbl.rows.add()
-            row.name = info.name
-            row.signature = info.signature
+            mi = table.methods.add()
+            mi.name = info.name
+            mi.signature = info.signature
 
-        return tbl
+        self._logger.info(f"[Frame:ControlServicer][{log_method}] completed")
+        return table
 
-    def Execute(
+    def Call(
         self,
-        request: ctrl_pb2.ExecuteRequest,
+        request: ctrl_pb2.DispatchRequest,
         context: grpc.ServicerContext,
-    ) -> ctrl_pb2.ExecuteReply:
-        """
-        ctrl_obj の任意の public メソッドを実行する RPC。
+    ) -> ctrl_pb2.DispatchResponse:
+        method_name: str = str(request.method)
 
-        request.method で指定されたメソッド名を、request.args に入っている
-        bytes ペイロードから adapter によりデコードして呼び出し、
-        戻り値を bytes としてエンコードして返却する。
+        self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
 
-        Args:
-            request:
-                実行したいメソッド名と引数
-            context:
-                gRPC のコンテキスト
+        try:
+            target = getattr(self._ctrl_obj, method_name)
+        except Exception as e:
+            self._logger.error(
+                f"[Frame:ControlServicer][{method_name}] getattr failed: {e}"
+            )
+            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
-        Returns:
-            ctrl_pb2.ExecuteReply:
-                実行結果（bytes）
-        """
-        log_method: str = "Execute"
+        try:
+            args = adapter.unpack_args(request.args)
+            kwargs = adapter.unpack_kwargs(request.kwargs)
 
-        self._logger.info(
-            f"[Frame:ControlServicer][{log_method}] called method={request.method}",
-        )
+            self._logger.info(
+                f"[Frame:ControlServicer][{method_name}] args={args} kwargs={kwargs}"
+            )
 
-        method_name: str = request.method
-        payload: bytes = request.args
+            result = target(*args, **kwargs)
+            result_bin: bytes = adapter.pack_result(result)
 
-        # args をデコード（dict を想定）
-        data = adapter.decode_bytes(payload)
-        if data is None:
-            data = {}
+            self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
 
-        kwargs: dict[str, Any]
-        if isinstance(data, dict):
-            kwargs = data
-        else:
-            kwargs = {}
+            return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
 
-        # 動的ディスパッチ
-        ret = dispatch_core.call_public_method(
-            self._ctrl_obj,
-            method_name,
-            kwargs,
-        )
-
-        # 戻り値をエンコード
-        out_b = adapter.encode_bytes(ret)
-
-        reply = ctrl_pb2.ExecuteReply()
-        reply.result = out_b
-        return reply
+        except Exception as e:
+            self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
+            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
 
 class _EventsServicer(events_pb2_grpc.EventsServicer):
@@ -223,11 +204,15 @@ class _EventsServicer(events_pb2_grpc.EventsServicer):
         context: grpc.ServicerContext,
     ):
         topic: str = request.topic
+        once: bool = bool(request.once)
+        source: str = str(request.source)
 
-        for payload in self._bus.subscribe(topic=topic):
+        for item in self._bus.subscribe(topic=topic, once=once, source=source):
             event = events_pb2.Event()
-            event.topic = topic
-            event.payload = adapter.encode_bytes(payload)
+            event.topic = item.topic
+            event.payload = adapter.pack_result(item.payload_obj)
+            event.ts_ns = item.ts_ns
+            event.source = item.source
             yield event
 
 
