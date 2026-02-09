@@ -282,17 +282,22 @@ class GrpcClient:
     #     for ev in resp_iter:
     #         yield adapter._try_json_loads(bytes(ev.payload))
 
-    def _event_subscribe(self, *, topic: str):
-        with self._lock:
-            events_stub = self._events_stub
+    def subscribe(
+        self,
+        *,
+        topic: str,
+        once: bool = False,
+        source: str = "",
+    ):
+        req = events_pb2.SubscribeRequest(
+            topic=str(topic),
+            once=bool(once),
+            source=str(source),
+        )
+        resp_iter = self._rpc_subscribe(req, timeout=None)
 
-        request = events_pb2.SubscribeRequest(topic=topic)
-
-        for event in events_stub.Subscribe(request):
-            payload_obj = adapter.decode_bytes(event.payload)
-
-            if isinstance(payload_obj, dict):
-                yield payload_obj
-                continue
-
-            yield {"payload": payload_obj}
+        for ev in resp_iter:
+            payload = adapter.unpack_result(ev.payload)
+            yield payload
+            if once:
+                break
