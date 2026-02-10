@@ -4,6 +4,13 @@
 Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
+
+gRPC サーバー実装（動的ディスパッチ + Event ストリーミング）
+
+- _ControlServicer: ctrl_obj の public メソッドを動的に RPC 化
+- _EventsServicer: EventBus のイベントを gRPC でストリーム配信
+- create_grpc_server: 上記サービスを束ねた grpc.Server を生成
+
 """
 
 from __future__ import annotations
@@ -69,6 +76,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             ctrl_obj:
                 RPC 経由で操作対象となる制御オブジェクト。
                 public メソッドのみが RPC として公開される。
+            event_bus: イベントよう(Noneならばイベントを使わない)
             logger:
                 ログ出力用のオブジェクト。
                 None の場合でもクラスの動作自体には影響しない。
@@ -145,11 +153,14 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         request: ctrl_pb2.DispatchRequest,
         context: grpc.ServicerContext,
     ) -> ctrl_pb2.DispatchResponse:
+        """"""
+        # request.method は ctrl_obj の public メソッド名
         method_name: str = str(request.method)
 
         self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
 
         try:
+            # 動的に対象メソッドを解決する（存在しなければ例外）
             target = getattr(self._ctrl_obj, method_name)
         except Exception as e:
             self._logger.error(
@@ -158,6 +169,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
         try:
+            # protobuf から引数を復元
             args = adapter.unpack_args(request.args)
             kwargs = adapter.unpack_kwargs(request.kwargs)
 
@@ -165,7 +177,10 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
                 f"[Frame:ControlServicer][{method_name}] args={args} kwargs={kwargs}"
             )
 
+            # 実メソッドを実行
             result = target(*args, **kwargs)
+
+            # 戻り値を protobuf 用にシリアライズ
             result_bin: bytes = adapter.pack_result(result)
 
             self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
@@ -178,7 +193,12 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
 
 
 class _EventsServicer(events_pb2_grpc.EventsServicer):
-    """Events RPC service implementation."""
+    """
+    EventBus のイベントを gRPC ストリームで配信するサービス実装。
+
+    Subscribe は EventBus の generator をそのまま gRPC の
+    server-side streaming として返す。
+    """
 
     def __init__(
         self,
@@ -187,7 +207,13 @@ class _EventsServicer(events_pb2_grpc.EventsServicer):
         logger: Optional[Any] = None,
         log_level: Optional[str] = None,
     ) -> None:
-        """"""
+        """
+        Args:
+            event_bus: EventBus インスタンス（イベント配信元）
+            logger: ロガー（未指定でも動作に影響しない）
+            log_level: ログレベル
+        """
+
         if logger is None:
             import logging
 
@@ -203,6 +229,16 @@ class _EventsServicer(events_pb2_grpc.EventsServicer):
         request: events_pb2.SubscribeRequest,
         context: grpc.ServicerContext,
     ):
+        """
+        EventBus の publish を gRPC streaming として転送する。
+
+        Args:
+            request: topic / once / source を含む SubscribeRequest
+            context: gRPC コンテキスト
+
+        Yields:
+            events_pb2.Event: 受信イベント
+        """
         topic: str = request.topic
         once: bool = bool(request.once)
         source: str = str(request.source)
@@ -227,9 +263,15 @@ def create_grpc_server(
     """
     Control + Events の両サービスを載せた gRPC server を生成する。
 
-    - ctrl_obj は Control サービスの動的ディスパッチ対象
-    - event_bus が None の場合はフレーム側で EventBus を生成
-    - ctrl_obj が _set_event_bus を持つ場合は注入される
+    Args:
+        ctrl_obj: Control サービスのディスパッチ対象（public メソッドのみ公開）
+        max_workers: gRPC の ThreadPoolExecutor の worker 数
+        event_bus: EventBus（None の場合は内部生成）
+        logger: ロガー
+        log_level: ログレベル
+
+    Returns:
+        grpc.Server: gRPC サーバーインスタンス
     """
     if logger is None:
         import logging
@@ -238,11 +280,12 @@ def create_grpc_server(
         logging.basicConfig(level=log_level.upper())
         logger = logging.getLogger(__name__)
 
-    bus: EventBus
+    # EventBus が未指定なら内部で生成する
     if event_bus is None:
         # Event がない時(default EventBus作成)
         event_bus = EventBus()
 
+    # gRPC サーバー本体（ThreadPoolExecutor）
     server = grpc.server(
         ThreadPoolExecutor(
             max_workers=max_workers,
@@ -256,6 +299,7 @@ def create_grpc_server(
         log_level=log_level,
     )
 
+    # gRPC サーバー本体（ThreadPoolExecutor）
     ctrl_pb2_grpc.add_ControlServicer_to_server(
         ctrl_servicer,
         server,
@@ -267,6 +311,7 @@ def create_grpc_server(
         log_level=log_level,
     )
 
+    # Events サービスを登録
     events_pb2_grpc.add_EventsServicer_to_server(
         events_servicer,
         server,
