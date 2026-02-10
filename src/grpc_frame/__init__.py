@@ -28,3 +28,6 @@ from grpc_frame.grpc_client import GrpcClient
 from grpc_frame.grpc_server import _ControlServicer
 from grpc_frame.dispatch_core import *
 from grpc_frame.adapter import *
+
+# --- pyi generation ---
+from grpc_frame.make_pyi import generate_client_pyi
