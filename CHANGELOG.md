@@ -1,5 +1,9 @@
 # README
 
+## v0.4.5, nakada
+
+bugfix/コメント追加
+
 ## v0.4.4, nakada
 
 - ディパッチされる client 用の pyi 作成スクリプトを

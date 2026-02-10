@@ -4,6 +4,13 @@
 Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
+
+gRPC クライアント実装（動的メソッドバインド）
+
+- Describe RPC でサーバー側メソッド一覧を取得
+- 各メソッドを Python メソッドとして動的にバインド
+- Call RPC で実行し、adapter で引数/戻り値を変換
+- Events/Subscribe によりイベントをストリーム受信
 """
 
 from __future__ import annotations
@@ -232,11 +239,11 @@ class GrpcClient:
                     f"[Frame:GrpcClient][{method_name}] call args={args} kwargs={kwargs}"
                 )
 
-            # Python 引数を RPC 用にシリアライズ
+            # Python 引数を protobuf 送信用にシリアライズ
             args_bin: bytes = adapter.pack_args(tuple(args))
             kwargs_bin: bytes = adapter.pack_kwargs(kwargs)
 
-            # DispatchRequest を構築
+            # RPC リクエストを構築 (DispatchRequest を構築)
             req = ctrl_pb2.DispatchRequest(
                 method=method_name,
                 args=args_bin,
@@ -250,7 +257,7 @@ class GrpcClient:
             if ok:
                 if not is_silent:
                     self._logger.info(f"[Frame:GrpcClient][{method_name}] completed")
-                # 戻り値をデシリアライズして返却
+                # 戻り値をデシリアライズして返却 (pytonオブジェクトに復元)
                 return adapter.unpack_result(resp.result)
 
             err: str = str(resp.error)
@@ -289,14 +296,28 @@ class GrpcClient:
         once: bool = False,
         source: str = "",
     ):
+        """
+        Events/Subscribe RPC の薄いラッパー。
+
+        Args:
+            topic: 購読トピック名
+            once: 1件だけ受け取って終了するなら True
+            source: イベントの発生元フィルタ
+
+        Yields:
+            payload: adapter で復元されたイベント payload
+        """
+        # サブスクライブ要求を構築
         req = events_pb2.SubscribeRequest(
             topic=str(topic),
             once=bool(once),
             source=str(source),
         )
+        # server-side streaming を開始
         resp_iter = self._rpc_subscribe(req, timeout=None)
 
         for ev in resp_iter:
+            # payload を復元して返す
             payload = adapter.unpack_result(ev.payload)
             yield payload
             if once:
