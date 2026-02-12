@@ -3,6 +3,7 @@
 ## v0.4.6, nakada
 
 - gRPC client の擬似Async化 追加
+- gRPC client 側に gRPC srver との接続チェック
 
 ## v0.4.5, nakada
 
