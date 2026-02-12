@@ -1,5 +1,10 @@
 # README
 
+## v0.4.8, nakada
+
+- 細かい修正
+- docstring/comment
+
 ## v0.4.7, nakada
 
 dispatch 復元が一方通行だったので
