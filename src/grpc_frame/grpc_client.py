@@ -322,3 +322,81 @@ class GrpcClient:
             yield payload
             if once:
                 break
+
+
+class SyncGrpcClient(GrpcClient):
+    def __init__(
+        self,
+        server_ip: str,
+        server_port: int,
+        timeout_sec: Optional[float] = None,
+        logger: Optional[Any] = None,
+        log_level: str = None,
+    ) -> None:
+        super().__init__(
+            server_ip=server_ip,
+            server_port=server_port,
+            timeout_sec=timeout_sec,
+            logger=logger,
+            log_level=log_level,
+        )
+
+
+class AsyncGrpcClient(GrpcClient):
+    def __init__(
+        self,
+        server_ip: str,
+        server_port: int,
+        timeout_sec: Optional[float] = None,
+        logger: Optional[Any] = None,
+        log_level: str = None,
+    ) -> None:
+        super().__init__(
+            server_ip=server_ip,
+            server_port=server_port,
+            timeout_sec=timeout_sec,
+            logger=logger,
+            log_level=log_level,
+        )
+        self._wrap_async_methods()
+
+    def _wrap_async_methods(self) -> None:
+        # Describe で取得したメソッド群を async 化
+        for name in list(self._method_table.keys()):
+            raw = getattr(self, f"_raw_{name}", None) or getattr(self, name)
+            async_method = self._make_async_method(
+                name=name,
+                raw_method=raw,
+            )
+            setattr(self, name, async_method)
+
+    async def _run_in_thread(
+        self,
+        raw_method: Callable[..., Any],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> Any:
+        def _call():
+            return raw_method(*args, **kwargs)
+
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, _call)
+
+    def _make_async_method(
+        self,
+        *,
+        name: str,
+        raw_method: Callable[..., Any],
+    ):
+        async def _method(
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            return await self._run_in_thread(
+                raw_method,
+                args,
+                kwargs,
+            )
+
+        _method.__name__ = name
+        return _method

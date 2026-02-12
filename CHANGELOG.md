@@ -1,5 +1,9 @@
 # README
 
+## v0.4.6, nakada
+
+- gRPC client の擬似Async化 追加
+
 ## v0.4.5, nakada
 
 bugfix/コメント追加
