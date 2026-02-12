@@ -134,8 +134,19 @@ class GrpcClient:
         # サーバー側メソッド名とシグネチャの対応表
         self._method_table: Dict[str, str] = {}
 
+        # サーバ起動チェック（gRPC）
+        if not self.wait_for_ready(timeout_sec=2.0):
+            raise RuntimeError(f"**Error**: gRPC server not ready: {addr}")
+
         # サーバーからメソッド一覧を取得し、動的にバインド
         self._bind_remote_methods()
+
+    def wait_for_ready(self, timeout_sec: float = 2.0) -> bool:
+        try:
+            grpc.channel_ready_future(self._channel).result(timeout=timeout_sec)
+            return True
+        except Exception:
+            return False
 
     def is_connected(self) -> bool:
         """

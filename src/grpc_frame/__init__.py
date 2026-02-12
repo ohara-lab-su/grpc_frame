@@ -17,14 +17,12 @@ from grpc_frame import events_pb2_grpc as _events_pb2_grpc
 sys.modules["events_pb2"] = _events_pb2
 sys.modules["events_pb2_grpc"] = _events_pb2_grpc
 
-# --- public API ---
+# --- public API (client) ---
+from grpc_frame.grpc_client import AsyncGrpcClient
+from grpc_frame.grpc_client import SyncGrpcClient
 from grpc_frame.grpc_client import GrpcClient
-from grpc_frame.grpc_server import _ControlServicer
-from grpc_frame.dispatch_core import *
-from grpc_frame.adapter import *
 
-# --- public API ---
-from grpc_frame.grpc_client import GrpcClient
+# --- public API (server) ---
 from grpc_frame.grpc_server import _ControlServicer
 from grpc_frame.dispatch_core import *
 from grpc_frame.adapter import *

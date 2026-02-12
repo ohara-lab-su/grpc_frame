@@ -22,6 +22,7 @@ class _Method:
     name: str
     params: List[_Param]
     return_type: str
+    is_async: bool
 
 
 def _type_str(annotation: Optional[ast.AST]) -> str:
@@ -33,7 +34,16 @@ def _type_str(annotation: Optional[ast.AST]) -> str:
         return "Any"
 
 
-def _extract_method(func: ast.FunctionDef) -> _Method:
+def _extract_method(
+    func: ast.FunctionDef,
+) -> _Method:
+    """"""
+    if isinstance(func, ast.AsyncFunctionDef):
+        is_async = True
+    else:
+        is_async = False
+        assert isinstance(func, ast.FunctionDef)
+
     params: List[_Param] = []
 
     posonly = list(func.args.posonlyargs)
@@ -104,10 +114,15 @@ def _extract_method(func: ast.FunctionDef) -> _Method:
         name=func.name,
         params=params,
         return_type=return_type,
+        is_async=is_async,
     )
 
 
-def _parse_class(py_file: pathlib.Path, class_name: str) -> List[_Method]:
+def _parse_class(
+    py_file: pathlib.Path,
+    class_name: str,
+) -> List[_Method]:
+    """"""
     src = py_file.read_text(encoding="utf-8")
     tree = ast.parse(src)
 
@@ -115,7 +130,7 @@ def _parse_class(py_file: pathlib.Path, class_name: str) -> List[_Method]:
         if isinstance(node, ast.ClassDef) and node.name == class_name:
             methods: List[_Method] = []
             for item in node.body:
-                if isinstance(item, ast.FunctionDef):
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     methods.append(_extract_method(item))
             return methods
 
@@ -157,7 +172,9 @@ def _fmt_method(m: _Method) -> str:
         args.append(_fmt_param(kwarg, prefix="**"))
 
     sig = ", ".join(args)
-    return f"    def {m.name}({sig}) -> {m.return_type}: ..."
+    # async def / def
+    prefix = "async def" if m.is_async else "def"
+    return f"    {prefix} {m.name}({sig}) -> {m.return_type}: ..."
 
 
 def generate_pyi(
@@ -195,6 +212,7 @@ def generate_client_pyi(
     base_py: Optional[pathlib.Path] = None,
     base_class: str = "GrpcClient",
     out_path: pathlib.Path,
+    ctrl_async: bool = False,
 ) -> None:
     client_methods = _parse_class(client_py, client_class)
     ctrl_methods = _parse_class(ctrl_py, ctrl_class)
@@ -238,6 +256,14 @@ def generate_client_pyi(
         if m.name in seen:
             continue
         seen.add(m.name)
+        # if async?
+        if ctrl_async:
+            m = _Method(
+                name=m.name,
+                params=m.params,
+                return_type=m.return_type,
+                is_async=True,
+            )
         merged.append(m)
 
     pyi_text = generate_pyi(
