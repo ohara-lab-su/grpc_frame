@@ -51,18 +51,6 @@ class _BytesJsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-# def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
-#     # JSON decode 時に "__bytes__" キーを検出した場合の復元処理
-#     if "__bytes__" in d:
-#         b64 = d["__bytes__"]
-#         if isinstance(b64, str):
-#             # base64 文字列を bytes に戻
-#             return base64.b64decode(b64.encode("ascii"))
-#
-#     # 特殊形式でなければそのまま返す
-#     return d
-
-
 def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
     # JSON decode 時に "__bytes__" キーを検出した場合の復元処理
     if "__bytes__" in d:
@@ -100,18 +88,12 @@ def _try_json_dumps(obj: Any) -> bytes:
     try:
         # JSON によるシリアライズを最初に試みる
         s: str = json.dumps(
+            # obj,
             _prepare_json(obj),
             cls=_BytesJsonEncoder,  # bytes 対応エンコーダ
             ensure_ascii=False,  # Unicode をそのまま出力
             separators=(",", ":"),  # JSON を最小サイズにする
         )
-
-        # s: str = json.dumps(
-        #     obj,
-        #     cls=_BytesJsonEncoder,  # bytes 対応エンコーダ
-        #     ensure_ascii=False,  # Unicode をそのまま出力
-        #     separators=(",", ":"),  # JSON を最小サイズにする
-        # )
 
         # JSON で成功した場合は識別子を先頭に付与
         return _JSON_MAGIC + s.encode("utf-8")
