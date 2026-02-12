@@ -65,7 +65,7 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
         self,
         *,
         ctrl_obj: Any,
-        event_bus: Optional[EventBus],
+        event_bus: Optional[EventBus] = None,
         logger: Optional[Any] = None,
         log_level: Optional[str] = None,
     ) -> None:
