@@ -1,5 +1,16 @@
 # README
 
+## v0.4.7, nakada
+
+dispatch 復元が一方通行だったので
+- list -> tuple
+
+これを
+- list <-> list
+- tuple <-> tuple
+
+に修正
+
 ## v0.4.6, nakada
 
 - gRPC client の擬似Async化 追加

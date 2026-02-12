@@ -31,6 +31,9 @@ _JSON_MAGIC: bytes = b"J"
 # pickle でシリアライズされたことを示す識別子（先頭 1 byte）
 _PICKLE_MAGIC: bytes = b"P"
 
+# tuple を JSON 上で区別するための識別キー
+_TUPLE_MAGIC_KEY: str = "__frame_tuple__"
+
 
 class _BytesJsonEncoder(json.JSONEncoder):
     # JSONEncoder を拡張し、bytes / bytearray を base64 文字列として扱う
@@ -48,6 +51,18 @@ class _BytesJsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+# def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
+#     # JSON decode 時に "__bytes__" キーを検出した場合の復元処理
+#     if "__bytes__" in d:
+#         b64 = d["__bytes__"]
+#         if isinstance(b64, str):
+#             # base64 文字列を bytes に戻
+#             return base64.b64decode(b64.encode("ascii"))
+#
+#     # 特殊形式でなければそのまま返す
+#     return d
+
+
 def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
     # JSON decode 時に "__bytes__" キーを検出した場合の復元処理
     if "__bytes__" in d:
@@ -56,19 +71,48 @@ def _bytes_json_object_hook(d: Dict[str, Any]) -> Any:
             # base64 文字列を bytes に戻
             return base64.b64decode(b64.encode("ascii"))
 
+    # tuple 復元用の識別キー
+    if _TUPLE_MAGIC_KEY in d:
+        items = d[_TUPLE_MAGIC_KEY]
+        if isinstance(items, list):
+            return tuple(items)
+        if isinstance(items, tuple):
+            return tuple(items)
+
     # 特殊形式でなければそのまま返す
     return d
+
+
+def _prepare_json(obj: Any) -> Any:
+    # tuple を JSON で識別できる形式に変換（list はそのまま）
+    if isinstance(obj, tuple):
+        return {
+            _TUPLE_MAGIC_KEY: [_prepare_json(item) for item in obj],
+        }
+    if isinstance(obj, list):
+        return [_prepare_json(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: _prepare_json(v) for k, v in obj.items()}
+    return obj
 
 
 def _try_json_dumps(obj: Any) -> bytes:
     try:
         # JSON によるシリアライズを最初に試みる
         s: str = json.dumps(
-            obj,
+            _prepare_json(obj),
             cls=_BytesJsonEncoder,  # bytes 対応エンコーダ
             ensure_ascii=False,  # Unicode をそのまま出力
             separators=(",", ":"),  # JSON を最小サイズにする
         )
+
+        # s: str = json.dumps(
+        #     obj,
+        #     cls=_BytesJsonEncoder,  # bytes 対応エンコーダ
+        #     ensure_ascii=False,  # Unicode をそのまま出力
+        #     separators=(",", ":"),  # JSON を最小サイズにする
+        # )
+
         # JSON で成功した場合は識別子を先頭に付与
         return _JSON_MAGIC + s.encode("utf-8")
     except Exception:
