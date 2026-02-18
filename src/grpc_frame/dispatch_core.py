@@ -15,6 +15,13 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class MethodInfo:
+    """公開対象メソッドのメタ情報を保持するデータクラスである。
+
+    Attributes:
+        name: メソッド名である。
+        signature: 署名文字列である。取得できない場合は "()" とする。
+    """
+
     name: str
     signature: str
 
@@ -22,47 +29,85 @@ class MethodInfo:
 def list_public_methods(
     ctrl_obj: Any,
 ) -> List[MethodInfo]:
-    """
-    dispatch_core.list_public_methods() は
-    inspect.getmembers() で列挙し、
-    名前が _ で始まるものは除外
-    callable() でないものも除外
+    """制御オブジェクトの public callable を列挙して MethodInfo の配列を返す関数である。
 
-    「RPC として見せたい API」は ctrl 側で public メソッドにするのが唯一の入口
+    本関数は gRPC の Describe 用途を想定し、公開対象を「呼び出し可能な public メンバー」に限定する。
+    ここで property は列挙時に評価され得るため、静的取得で判定し、列挙対象から除外する。
 
     Args:
-        ctrl_obj:
+        ctrl_obj: 対象の制御オブジェクトである。
 
     Returns:
-
+        List[MethodInfo]:
+            public callable の (name, signature) 一覧である。name 昇順にソートして返す。
     """
     # 収集したメソッド情報を格納するリスト
     methods: List[MethodInfo] = []
 
-    # ctrl_obj が持つ全メンバー（属性・メソッド）を列挙
-    for name, member in inspect.getmembers(ctrl_obj):
-        # "_" で始まる名前は非公開扱いとして除外
+    # # BEFORE（旧版の要点：getmembers による列挙）
+    # for name, member in inspect.getmembers(ctrl_obj):
+    #     if name.startswith("_"):
+    #         continue
+
+    #     if not callable(member):
+    #         continue
+
+    #     signature = str(inspect.signature(member))
+    #     methods.append(MethodInfo(name=name, signature=signature))
+
+    # 新版
+    # inspect.getmembers(ctrl_obj) は property を評価し得るため使用しない
+    # dir() により名前一覧のみを取得し、値の評価を伴う走査を避ける
+    for name in dir(ctrl_obj):
+        # public 以外は除外する
         if name.startswith("_"):
             continue
 
-        # callable でないもの（属性・定数など）は除外
-        is_callable: bool = callable(member)
-        if not is_callable:
+        # getattr_static() で descriptor を評価せずに取得する
+        try:
+            static_member = inspect.getattr_static(ctrl_obj, name)
+        except Exception:
+            # 取得不能な名前は列挙対象から外す設計
             continue
 
-        # メソッドのシグネチャを取得
+        # property は評価時に副作用（COM 呼び出し等）を生む可能性があるため除外する
+        # staticmethod/classmethod/callable のみを候補として扱う
+        if isinstance(static_member, property):
+            continue
+
+        is_candidate: bool = False
+
+        if isinstance(static_member, staticmethod):
+            is_candidate = True
+        elif isinstance(static_member, classmethod):
+            is_candidate = True
+        else:
+            if callable(static_member):
+                is_candidate = True
+
+        if not is_candidate:
+            continue
+
+        # 実体を取得し、呼び出し可能であることを確認する
+        try:
+            member = getattr(ctrl_obj, name)
+        except Exception:
+            # 実体取得で例外が出るものは列挙対象から外す
+            continue
+
+        if not callable(member):
+            continue
+
+        # callable の引数の形を表す情報、署名
+        # 署名を文字列化する。取得不能なら "()" に丸める。
         sig: str = ""
         try:
-            # inspect.signature により引数情報を文字列化
             sig = str(inspect.signature(member))
         except Exception:
             sig = "()"
 
-        # メソッド名とシグネチャを MethodInfo として記録
         methods.append(MethodInfo(name=name, signature=sig))
 
-    # メソッド名でソートして順序を安定化
+    # name 昇順にそろえて返す
     methods.sort(key=lambda m: m.name)
-
-    # 公開メソッド一覧
     return methods

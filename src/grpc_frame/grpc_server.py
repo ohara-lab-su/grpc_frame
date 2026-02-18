@@ -28,8 +28,14 @@ from grpc_frame import events_pb2
 from grpc_frame import events_pb2_grpc
 from grpc_frame.event_bus import EventBus
 
+# COM 共存用
+import threading
+import queue
 
-class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
+
+class _ControlServicer(
+    ctrl_pb2_grpc.ControlServicer,
+):
     """
     gRPC Control サービスのサーバー側実装クラス。
 
@@ -192,7 +198,9 @@ class _ControlServicer(ctrl_pb2_grpc.ControlServicer):
             return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
 
-class _EventsServicer(events_pb2_grpc.EventsServicer):
+class _EventsServicer(
+    events_pb2_grpc.EventsServicer,
+):
     """
     EventBus のイベントを gRPC ストリームで配信するサービス実装。
 
@@ -318,3 +326,91 @@ def create_grpc_server(
     )
 
     return server
+
+
+class ComExecutionRunner:
+    """
+    追加: COM 専用実行ランナー
+
+    gRPCスレッド
+    ↓
+    _ControlServicer
+        ↓ getattr / call
+    ThreadSafeCtrlProxy
+        ↓
+    ComExecutionRunner
+        ↓
+    CobottaCtrl（COM専用スレッド）
+    """
+
+    def __init__(self, ctrl_factory):
+        self._queue = queue.Queue()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._ctrl_factory = ctrl_factory
+        self._ctrl = None
+        self._running = True
+        self._thread.start()
+
+    def _run(self):
+        # 必要ならここで pythoncom.CoInitialize()
+        self._ctrl = self._ctrl_factory()
+
+        while self._running:
+            item = self._queue.get()
+            if item is None:
+                break
+
+            method_name, args, kwargs, done_event, box = item
+
+            try:
+                target = getattr(self._ctrl, method_name)
+                box["ok"] = True
+                box["result"] = target(*args, **kwargs)
+            except Exception as e:
+                box["ok"] = False
+                box["error"] = str(e)
+
+            done_event.set()
+
+    def call(self, name, args, kwargs):
+        done_event = threading.Event()
+        box = {}
+        self._queue.put((name, args, kwargs, done_event, box))
+        done_event.wait()
+
+        if box.get("ok"):
+            return True, box.get("result"), ""
+        return False, None, box.get("error", "unknown error")
+
+    def stop(self):
+        self._running = False
+        self._queue.put(None)
+        self._thread.join()
+
+
+class ThreadSafeCtrlProxy:
+    """
+    既存 _ControlServicer と共存する Proxy
+
+    gRPCスレッド
+        ↓
+    _ControlServicer
+        ↓ getattr / call
+    ThreadSafeCtrlProxy
+        ↓
+    ComExecutionRunner
+        ↓
+    CobottaCtrl（COM専用スレッド）
+    """
+
+    def __init__(self, runner):
+        self._runner = runner
+
+    def __getattr__(self, name):
+        def _method(*args, **kwargs):
+            ok, result, error = self._runner.call(name, args, kwargs)
+            if ok:
+                return result
+            raise RuntimeError(error)
+
+        return _method
