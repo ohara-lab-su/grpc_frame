@@ -208,11 +208,23 @@ class ComExecutionRunner:
             if name.startswith("_"):
                 continue
             try:
-                attr = getattr(ctrl, name)
+                # property getter が動く
+                # attr = getattr(ctrl, name)
+
+                static_member = inspect.getattr_static(
+                    ctrl,
+                    name,
+                )  # <- getter を動かさない
             except Exception:
                 continue
-            if callable(attr):
+
+            if isinstance(static_member, property):
+                continue
+
+                # if callable(attr):
+            if callable(static_member):
                 names.append(name)
+
         names.sort()
         return tuple(names)
 
@@ -226,14 +238,34 @@ class ComExecutionRunner:
         sigs: Dict[str, inspect.Signature] = {}
         for name in names:
             try:
-                target = getattr(ctrl, name)
+                # target = getattr(ctrl, name)
+                static_member = inspect.getattr_static(ctrl, name)
             except Exception:
                 continue
-            if callable(target):
-                try:
-                    sigs[name] = inspect.signature(target)
-                except Exception:
-                    sigs[name] = inspect.Signature()
+
+            if isinstance(static_member, property):
+                continue
+
+            if not callable(static_member):
+                continue
+
+            try:
+                target = getattr(
+                    ctrl, name
+                )  # callable のみ実体化（propertyは除外済み）
+            except Exception:
+                continue
+
+            try:
+                sigs[name] = inspect.signature(target)
+            except Exception:
+                sigs[name] = inspect.Signature()
+
+            # if callable(target):
+            #     try:
+            #         sigs[name] = inspect.signature(target)
+            #     except Exception:
+            #         sigs[name] = inspect.Signature()
         return sigs
 
     def _execute_one(

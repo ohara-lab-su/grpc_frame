@@ -1,9 +1,12 @@
 # README
 
-## v0.5.0, (v0.4.10),k nakada
+## v0.5.0, (v0.4.10+fix),k nakada
 
-思ったより改変が大きいので
-
+0.4.10思ったより改変が大きいので別バージョン名
+- bugfix: gRPC で cobotta2 の本番を使った時のトラブル対応
+  - 修正: _collect_public_method_names
+  - 修正: _collect_signatures
+ 
 ## v0.4.10, nakada
 
 例外処理が出た時がうまくクライアント側に伝わってない問題が発覚
@@ -27,9 +30,9 @@ gRPCハンドラースレッドでCOMを初期化するようにする。
 ハンドラースレッド（COM初期化パート）を、いろいろなハンドラー呼び出しで
 使いまわせる用意、quque で命令をためて切り分ける
 
-もう少しまともに書くと、grpc.serverを使うと、
-RPC ハンドラ（_ControlServicer.Describe/Call）
-は ThreadPoolExecutor のワーカースレッドで実行される。
+つまり、grpc.serverを使うと、RPC ハンドラ
+（_ControlServicer.Describe/Call） は
+ThreadPoolExecutor のワーカースレッドで実行される。
 一方で、orin2_grpc_server.py の ctrl = ... という
 「制御インスタンス生成」はメインスレッド（server を起動しているスレッド）
 で行われます。したがって「通常版（素の ctrl を _ControlServicer に渡す）」
