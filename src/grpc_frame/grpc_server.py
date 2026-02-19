@@ -367,7 +367,7 @@ def create_com_grpc_server(
     event_bus: Optional[Any] = None,
     logger: Optional[Any] = None,
     log_level: Optional[str] = None,
-) -> Tuple[Any, ComExecutionRunner, ThreadSafeCtrlProxy]:
+):
     from grpc_frame.grpc_server import create_grpc_server
 
     runner = ComExecutionRunner(
