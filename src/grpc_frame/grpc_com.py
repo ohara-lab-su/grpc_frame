@@ -331,3 +331,44 @@ class ThreadSafeCtrlProxy:
         )
         if not ok:
             raise RuntimeError(error)
+
+
+def create_com_grpc_server(
+    *,
+    ctrl_factory: Callable[[], Any],
+    after_create: Optional[Callable[[Any], None]] = None,
+    ready_timeout: Optional[float] = 10.0,
+    max_workers: int = 10,
+    event_bus: Optional[Any] = None,
+    logger: Optional[Any] = None,
+    log_level: Optional[str] = None,
+):
+    from grpc_frame.grpc_server import create_grpc_server
+
+    runner = ComExecutionRunner(
+        ctrl_factory=ctrl_factory,
+        after_create=after_create,
+        logger=logger,
+        log_level=log_level,
+    )
+
+    if not runner.wait_ready(timeout=ready_timeout):
+        startup_error = runner.get_startup_error()
+        runner.stop()
+        if startup_error:
+            raise RuntimeError(startup_error)
+        raise TimeoutError("ComExecutionRunner initialization timed out")
+
+    proxy = ThreadSafeCtrlProxy(
+        runner=runner,
+        ready_timeout=ready_timeout,
+    )
+
+    server = create_grpc_server(
+        ctrl_obj=proxy,
+        max_workers=max_workers,
+        event_bus=event_bus,
+        logger=logger,
+        log_level=log_level,
+    )
+    return server, runner, proxy
