@@ -25,19 +25,13 @@ ComExecutionRunner
    ↓
 CobottaCtrl（COM専用スレッド）
 
-gRPC から COM オブジェクトを安全に呼び出すための補助である。
+gRPC の ThreadPoolExecutor スレッドから COM を直接触らないための補助である。
 
-目的は「COM を生成したスレッド以外から COM を触らない」を徹底し、
-gRPC 側（ThreadPoolExecutor の任意スレッド）からの呼び出しをすべて
-COM 専用スレッドへ直列化して委譲することである。
+ComExecutionRunner が COM 専用スレッドで ctrl を生成し、
+すべての呼び出しをキュー経由で直列化して同一スレッドで実行する。
 
-- ComExecutionRunner: COM 専用スレッドで ctrl を生成し、そのスレッドでのみ実行する
-- ThreadSafeCtrlProxy: ctrl の public API を動的に透過し、runner に委譲する
-
-注意:
-- ctrl 側が pythoncom.CoInitialize/CoUninitialize を管理している場合がある。
-  その場合 runner 側で pythoncom を触ると二重管理になり得るため、
-  com_initialize_mode="none" を既定とする（ctrl 側に管理を委ねる）。
+ThreadSafeCtrlProxy は ctrl の public API を「列挙できる形」で露出し、
+実行は runner に委譲する。
 """
 
 from __future__ import annotations
@@ -77,17 +71,7 @@ class ComExecutionRunner:
         *,
         logger: Optional[Any] = None,
         log_level: Optional[str] = None,
-        com_initialize_mode: str = "none",
     ) -> None:
-        """
-        Args:
-            ctrl_factory: COM スレッド上で実行される ctrl 生成関数である。
-            logger: ロガーである。
-            log_level: ログレベルである。
-            com_initialize_mode:
-                "none" の場合 runner は pythoncom を触らない。
-                "runner" の場合 runner が CoInitialize/CoUninitialize を行う。
-        """
         if logger is None:
             import logging
 
@@ -99,8 +83,6 @@ class ComExecutionRunner:
 
         self._logger: Any = logger
         self._ctrl_factory: Callable[[], Any] = ctrl_factory
-
-        self._com_initialize_mode: str = str(com_initialize_mode)
 
         self._queue: queue.Queue[Optional[_CallItem]] = queue.Queue()
         self._running: bool = True
@@ -118,27 +100,27 @@ class ComExecutionRunner:
         self._thread.start()
 
     def _run(self) -> None:
-        pythoncom = None
+        pythoncom: Optional[Any] = None
         co_initialized: bool = False
 
         try:
-            if self._com_initialize_mode == "runner":
-                try:
-                    import pythoncom as _pythoncom  # type: ignore
+            try:
+                import pythoncom as _pythoncom  # type: ignore
 
-                    pythoncom = _pythoncom
-                except Exception:
-                    pythoncom = None
+                pythoncom = _pythoncom
+            except Exception:
+                pythoncom = None
 
-                if pythoncom is not None:
-                    pythoncom.CoInitialize()
-                    co_initialized = True
+            if pythoncom is not None:
+                pythoncom.CoInitialize()
+                co_initialized = True
 
             self._ctrl = self._ctrl_factory()
 
             self._public_method_names = self._collect_public_method_names(self._ctrl)
             self._signatures = self._collect_signatures(
-                self._ctrl, self._public_method_names
+                self._ctrl,
+                self._public_method_names,
             )
 
             self._ready_event.set()
@@ -154,31 +136,26 @@ class ComExecutionRunner:
             self._ready_event.set()
 
         finally:
-            if self._com_initialize_mode == "runner":
-                if pythoncom is not None:
-                    if co_initialized:
-                        try:
-                            pythoncom.CoUninitialize()
-                        except Exception:
-                            pass
+            if pythoncom is not None:
+                if co_initialized:
+                    try:
+                        pythoncom.CoUninitialize()
+                    except Exception:
+                        pass
 
     def _collect_public_method_names(self, ctrl: Any) -> Tuple[str, ...]:
-        names: list[str] = []
-
+        names_list: list[str] = []
         for name in dir(ctrl):
             if name.startswith("_"):
                 continue
-
             try:
                 attr = getattr(ctrl, name)
             except Exception:
                 continue
-
             if callable(attr):
-                names.append(name)
-
-        names.sort()
-        return tuple(names)
+                names_list.append(name)
+        names_list.sort()
+        return tuple(names_list)
 
     def _collect_signatures(
         self,
@@ -186,19 +163,16 @@ class ComExecutionRunner:
         names: Sequence[str],
     ) -> Dict[str, inspect.Signature]:
         sigs: Dict[str, inspect.Signature] = {}
-
         for name in names:
             try:
                 target = getattr(ctrl, name)
             except Exception:
                 continue
-
             if callable(target):
                 try:
                     sigs[name] = inspect.signature(target)
                 except Exception:
                     sigs[name] = inspect.Signature()
-
         return sigs
 
     def _execute_one(self, item: _CallItem) -> None:
@@ -280,10 +254,8 @@ class ComExecutionRunner:
 class ThreadSafeCtrlProxy:
     """gRPC 側から見える ctrl 代理である。
 
-    この proxy は次を満たすことで、Describe（dispatch_core 側の introspection）を成立させる。
-    - dir() が runner の public メソッド名を返す
-    - getattr() が runner.call() に委譲する callable を返す
-    - callable には __signature__ を付与する
+    Describe が列挙型 introspection を用いても public メソッドが見えるように、
+    初期化時点で proxy 自身へ public メソッド実体を setattr で生やす。
     """
 
     def __init__(
@@ -294,16 +266,17 @@ class ThreadSafeCtrlProxy:
     ) -> None:
         self._runner: ComExecutionRunner = runner
         self._ready_timeout: Optional[float] = ready_timeout
+        self._install_public_methods()
 
-    def __dir__(self) -> Sequence[str]:
+    def _install_public_methods(self) -> None:
+        self._runner.wait_ready(timeout=self._ready_timeout)
+
         names = self._runner.list_public_methods(timeout=self._ready_timeout)
-        return list(names)
+        for name in names:
+            func = self._make_method(name)
+            setattr(self, name, func)
 
-    def __getattr__(self, name: str):
-        names = self._runner.list_public_methods(timeout=self._ready_timeout)
-        if name not in names:
-            raise AttributeError(name)
-
+    def _make_method(self, name: str) -> Callable[..., Any]:
         sig = self._runner.get_signature(name, timeout=self._ready_timeout)
 
         def _method(*args: Any, **kwargs: Any) -> Any:
@@ -320,3 +293,10 @@ class ThreadSafeCtrlProxy:
         _method.__name__ = name
         _method.__signature__ = sig  # type: ignore[attr-defined]
         return _method
+
+    def __dir__(self) -> Sequence[str]:
+        base = set(super().__dir__())
+        names = self._runner.list_public_methods(timeout=self._ready_timeout)
+        for name in names:
+            base.add(name)
+        return sorted(base)
