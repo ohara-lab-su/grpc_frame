@@ -2,6 +2,8 @@
 
 ## v0.5.0, (v0.4.10+fix),k nakada
 
+COM スレッド問題対応版 (ORIN2-gRPC/FastAPI対応版)
+
 0.4.10思ったより改変が大きいので別バージョン名
 - bugfix: gRPC で cobotta2 の本番を使った時のトラブル対応
   - 修正: _collect_public_method_names
