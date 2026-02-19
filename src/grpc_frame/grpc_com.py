@@ -129,6 +129,7 @@ class ComExecutionRunner:
             self._logger.info(
                 f"[ComExecutionRunner] ready: public_methods={len(self._public_method_names)}"
             )
+            self._ready_event.set()  # <- ここが重要（ready時点でセット）
 
             while True:
                 item = self._queue.get()
@@ -139,6 +140,7 @@ class ComExecutionRunner:
         except Exception as e:
             self._startup_error = _format_exception(e)
             self._logger.error(self._startup_error)
+            self._ready_event.set()
 
         finally:
             self._ready_event.set()

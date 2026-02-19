@@ -364,14 +364,10 @@ def create_com_grpc_server(
     after_create: Optional[Callable[[Any], None]] = None,
     ready_timeout: Optional[float] = 10.0,
     max_workers: int = 10,
-    event_bus: Optional["EventBus"] = None,
+    event_bus: Optional[Any] = None,
     logger: Optional[Any] = None,
     log_level: Optional[str] = None,
-) -> Tuple["grpc.Server", ComExecutionRunner, ThreadSafeCtrlProxy]:
-    """
-    COM 専用 ctrl を安全に扱う gRPC サーバーを生成する。
-    grpc_server は汎用のまま使い、ctrl_obj だけ Proxy に差し替える。
-    """
+) -> Tuple[Any, ComExecutionRunner, ThreadSafeCtrlProxy]:
     from grpc_frame.grpc_server import create_grpc_server
 
     runner = ComExecutionRunner(
@@ -400,5 +396,4 @@ def create_com_grpc_server(
         logger=logger,
         log_level=log_level,
     )
-
     return server, runner, proxy
