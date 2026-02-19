@@ -1,5 +1,14 @@
 # README
 
+## v0.5.0, (v0.4.10+fix),k nakada
+
+COM スレッド問題対応版 (ORIN2-gRPC/FastAPI対応版)
+
+0.4.10思ったより改変が大きいので別バージョン名
+- bugfix: gRPC で cobotta2 の本番を使った時のトラブル対応
+  - 修正: _collect_public_method_names
+  - 修正: _collect_signatures
+ 
 ## v0.4.10, nakada
 
 例外処理が出た時がうまくクライアント側に伝わってない問題が発覚
@@ -8,6 +17,49 @@
   - COM のインスタンスから呼びだれる各種メソッドを
   - gRPCでハンドラ単位でスレッドにしてしまっているのが
   - 実は大きな問題で、これが例外の主な原因になる。
+
+### COM スレッド問題
+
+windows の COM を同一のメモリである必要がある。
+つまり別スレッドだとだめ。COMの初期化をし直さないといけない。
+
+そのため gRPC などでは別スレッドでハンドラが動くしくみなのだが、
+通常は、スレッドなのでメモリはシェアなので考えなくてもいいのだが。
+
+COM だと、別スレッドで動いてしまうと、その状況を破壊する。
+その対策で制御側のコンストラクタで一回だけの初期化ではなくて
+gRPCハンドラースレッドでCOMを初期化するようにする。
+ハンドラースレッド（COM初期化パート）を、いろいろなハンドラー呼び出しで
+使いまわせる用意、quque で命令をためて切り分ける
+
+つまり、grpc.serverを使うと、RPC ハンドラ
+（_ControlServicer.Describe/Call） は
+ThreadPoolExecutor のワーカースレッドで実行される。
+一方で、orin2_grpc_server.py の ctrl = ... という
+「制御インスタンス生成」はメインスレッド（server を起動しているスレッド）
+で行われます。したがって「通常版（素の ctrl を _ControlServicer に渡す）」
+は、メインスレッドで作った COM オブジェクトを、別スレッド（ハンドラ）か
+ら触る構図になり、COM では破綻する
+
+- 通常はgRPC はワーカースレッドとメインスレッド(server起動スレッド)の二つとなるのがミソ
+
+gRPC Client
+- grpc_server._ControlServicer (gRPC worker thread)
+- ThreadSafeCtrlProxy
+- ComExecutionRunner (queueで直列化)
+- COM ctrl object (同一スレッドで生成/実行)
+
+要点
+- gRPC worker thread から COM を直接触らない
+- COM の生成/実行は ComExecutionRunner の専用スレッドに固定
+- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する
+- gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと
+  呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。
+
+設計
+- ComExecutionRunner が COM 専用スレッドを持ち、ctrl 生成とメソッド実行を一本化する。
+- ThreadSafeCtrlProxy は gRPC 側に見せる代理で、呼び出しを runner に委譲する。
+- create_com_grpc_server は既存 create_grpc_server と組み合わせるための薄い組み立て関数。
 
 ## v0.4.9, nakada
 
