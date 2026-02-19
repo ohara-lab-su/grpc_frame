@@ -15,6 +15,8 @@ gRPC サーバー実装（動的ディスパッチ + Event ストリーミング
 
 from __future__ import annotations
 
+import traceback
+
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 
@@ -28,9 +30,19 @@ from grpc_frame import events_pb2
 from grpc_frame import events_pb2_grpc
 from grpc_frame.event_bus import EventBus
 
-# COM 共存用
-import threading
-import queue
+
+def _format_exception(e: BaseException) -> str:
+    """例外を型名とスタックトレース込みの文字列に整形する。
+
+    Args:
+        e: 捕捉した例外である。
+
+    Returns:
+        型名・メッセージ・スタックトレースを連結した文字列である。
+    """
+    exc_type = type(e)
+    tb = e.__traceback__
+    return "".join(traceback.format_exception(exc_type, e, tb))
 
 
 class _ControlServicer(
@@ -165,6 +177,7 @@ class _ControlServicer(
 
         self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
 
+        # ディスパッチするべきメソッドを見つける
         try:
             # 動的に対象メソッドを解決する（存在しなければ例外）
             target = getattr(self._ctrl_obj, method_name)
@@ -172,8 +185,15 @@ class _ControlServicer(
             self._logger.error(
                 f"[Frame:ControlServicer][{method_name}] getattr failed: {e}"
             )
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
+            return ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                # error=str(e),
+                error=_format_exception(e),
+            )
+
+        # 実際にメソッドを実行する
         try:
             # protobuf から引数を復元
             args = adapter.unpack_args(request.args)
@@ -191,11 +211,21 @@ class _ControlServicer(
 
             self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
 
-            return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
+            return ctrl_pb2.DispatchResponse(
+                ok=True,
+                result=result_bin,
+                error="",
+            )
 
         except Exception as e:
             self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
+
+            return ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                # error=str(e),
+                error=_format_exception(e),
+            )
 
 
 class _EventsServicer(
@@ -326,91 +356,3 @@ def create_grpc_server(
     )
 
     return server
-
-
-class ComExecutionRunner:
-    """
-    追加: COM 専用実行ランナー
-
-    gRPCスレッド
-    ↓
-    _ControlServicer
-        ↓ getattr / call
-    ThreadSafeCtrlProxy
-        ↓
-    ComExecutionRunner
-        ↓
-    CobottaCtrl（COM専用スレッド）
-    """
-
-    def __init__(self, ctrl_factory):
-        self._queue = queue.Queue()
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._ctrl_factory = ctrl_factory
-        self._ctrl = None
-        self._running = True
-        self._thread.start()
-
-    def _run(self):
-        # 必要ならここで pythoncom.CoInitialize()
-        self._ctrl = self._ctrl_factory()
-
-        while self._running:
-            item = self._queue.get()
-            if item is None:
-                break
-
-            method_name, args, kwargs, done_event, box = item
-
-            try:
-                target = getattr(self._ctrl, method_name)
-                box["ok"] = True
-                box["result"] = target(*args, **kwargs)
-            except Exception as e:
-                box["ok"] = False
-                box["error"] = str(e)
-
-            done_event.set()
-
-    def call(self, name, args, kwargs):
-        done_event = threading.Event()
-        box = {}
-        self._queue.put((name, args, kwargs, done_event, box))
-        done_event.wait()
-
-        if box.get("ok"):
-            return True, box.get("result"), ""
-        return False, None, box.get("error", "unknown error")
-
-    def stop(self):
-        self._running = False
-        self._queue.put(None)
-        self._thread.join()
-
-
-class ThreadSafeCtrlProxy:
-    """
-    既存 _ControlServicer と共存する Proxy
-
-    gRPCスレッド
-        ↓
-    _ControlServicer
-        ↓ getattr / call
-    ThreadSafeCtrlProxy
-        ↓
-    ComExecutionRunner
-        ↓
-    CobottaCtrl（COM専用スレッド）
-    """
-
-    def __init__(self, runner):
-        self._runner = runner
-
-    def __getattr__(self, name):
-        def _method(*args, **kwargs):
-            ok, result, error = self._runner.call(name, args, kwargs)
-            if ok:
-                return result
-            raise RuntimeError(error)
-
-        return _method

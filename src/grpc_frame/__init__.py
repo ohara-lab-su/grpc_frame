@@ -22,6 +22,10 @@ from grpc_frame.grpc_client import AsyncGrpcClient
 from grpc_frame.grpc_client import SyncGrpcClient
 from grpc_frame.grpc_client import GrpcClient
 
+# --- public API for COM (server) ---
+from grpc_frame.grpc_com import ComExecutionRunner
+from grpc_frame.grpc_com import ThreadSafeCtrlProxy
+
 # --- public API (server) ---
 from grpc_frame.grpc_server import _ControlServicer
 from grpc_frame.dispatch_core import *
