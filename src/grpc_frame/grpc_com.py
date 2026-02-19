@@ -4,25 +4,33 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 
-windows の COM のインスタンスを
-別スレッドで回す（コンストラクタとメソッドを別スレッド）
-とおかしくなる。
+COM スレッド境界を守って gRPC から ctrl を安全に呼び出す補助モジュール。
 
-そのため gRPC などでは別スレッドでハンドラが動くので
-COM を破壊する。その対策で制御側で com 読み込みではなくて
-gRPCハンドラースレッドでCOMを初期化するようにする
+windows の COM のインスタンスを別スレッドで回す
+（コンストラクタとメソッドを別スレッド）とおかしくなる。
 
-そのためのサポート
-# 既存 _ControlServicer と共存する Proxy
+そのため gRPC などでは別スレッドでハンドラが動くのでCOM を破壊する。
+その対策で制御側で com 読み込みではなくて gRPCハンドラースレッドで
+COMを初期化するようにする
 
-gRPC から COM オブジェクトを安全に呼び出すための補助クラス群である。
+gRPC Client
+  --> grpc_server._ControlServicer (gRPC worker thread)
+  --> ThreadSafeCtrlProxy
+  --> ComExecutionRunner (queueで直列化)
+  --> COM ctrl object (同一スレッドで生成/実行)
 
-目的は「COM を生成したスレッド以外から COM を触らない」を徹底し、
-gRPC 側の ThreadPoolExecutor スレッドからの呼び出しをすべて
-COM 専用スレッドへ直列化して委譲することである。
+要点
+- gRPC worker thread から COM を直接触らない
+- COM の生成/実行は ComExecutionRunner の専用スレッドに固定
+- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する
+- gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと
+  呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。
 
-- ComExecutionRunner: COM 専用スレッドを立て、キューで呼び出しを処理する
-- ThreadSafeCtrlProxy: ctrl の public API を動的に透過し、runner に委譲する
+設計
+- COM 制約はこのモジュール内に閉じ込める。
+- ComExecutionRunner が COM 専用スレッドを持ち、ctrl 生成とメソッド実行を一本化する。
+- ThreadSafeCtrlProxy は gRPC 側に見せる代理で、呼び出しを runner に委譲する。
+- create_com_grpc_server は既存 create_grpc_server と組み合わせるための薄い組み立て関数。
 """
 
 from __future__ import annotations
@@ -35,7 +43,10 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 
-def _format_exception(e: BaseException) -> str:
+def _format_exception(
+    e: BaseException,
+) -> str:
+    """例外をスタックトレース付き文字列へ整形する。"""
     exc_type = type(e)
     tb = e.__traceback__
     return "".join(traceback.format_exception(exc_type, e, tb))
@@ -43,6 +54,8 @@ def _format_exception(e: BaseException) -> str:
 
 @dataclass(frozen=True)
 class _CallItem:
+    """COM 専用スレッドへ渡す 1 回分の実行要求。"""
+
     method_name: str
     args: Tuple[Any, ...]
     kwargs: Dict[str, Any]
@@ -51,7 +64,14 @@ class _CallItem:
 
 
 class ComExecutionRunner:
-    """COM 専用スレッドで ctrl を生成し、そのスレッドでのみ実行するランナーである。"""
+    """
+    ctrl を COM 専用スレッドで生成・実行するランナー。
+
+    役割:
+    - ctrl_factory の実行を COM 専用スレッドへ固定する
+    - gRPC 側からの呼び出しをキューで直列化して実行する
+    - public メソッド一覧とシグネチャを introspection 用に保持する
+    """
 
     def __init__(
         self,
@@ -91,7 +111,11 @@ class ComExecutionRunner:
         )
         self._thread.start()
 
-    def _try_initialize_com(self) -> bool:
+    def _try_initialize_com(
+        self,
+    ) -> bool:
+        """pythoncom が使える環境なら CoInitialize() を呼ぶ。"""
+
         try:
             import pythoncom  # type: ignore
 
@@ -102,7 +126,11 @@ class ComExecutionRunner:
             self._logger.warning(f"[ComExecutionRunner] CoInitialize skipped: {e}")
             return False
 
-    def _try_uninitialize_com(self) -> None:
+    def _try_uninitialize_com(
+        self,
+    ) -> None:
+        """CoInitialize() 済みの場合のみ後始末する。"""
+
         try:
             import pythoncom  # type: ignore
 
@@ -112,6 +140,13 @@ class ComExecutionRunner:
             self._logger.warning(f"[ComExecutionRunner] CoUninitialize skipped: {e}")
 
     def _run(self) -> None:
+        """
+        COM 専用ワーカースレッド本体。
+
+        重要:
+        - ctrl 生成と実行をこのスレッド内に限定する
+        - 初期化完了時点で ready_event を立てる
+        """
         com_initialized = False
         try:
             com_initialized = self._try_initialize_com()
@@ -162,7 +197,12 @@ class ComExecutionRunner:
             if com_initialized:
                 self._try_uninitialize_com()
 
-    def _collect_public_method_names(self, ctrl: Any) -> Tuple[str, ...]:
+    @staticmethod
+    def _collect_public_method_names(
+        ctrl: Any,
+    ) -> Tuple[str, ...]:
+        """ctrl の public callable 名を収集してソート返却する。"""
+
         names: list[str] = []
         for name in dir(ctrl):
             if name.startswith("_"):
@@ -176,11 +216,13 @@ class ComExecutionRunner:
         names.sort()
         return tuple(names)
 
+    @staticmethod
     def _collect_signatures(
-        self,
         ctrl: Any,
         names: Sequence[str],
     ) -> Dict[str, inspect.Signature]:
+        """公開メソッドの inspect.Signature を収集する。"""
+
         sigs: Dict[str, inspect.Signature] = {}
         for name in names:
             try:
@@ -194,7 +236,12 @@ class ComExecutionRunner:
                     sigs[name] = inspect.Signature()
         return sigs
 
-    def _execute_one(self, item: _CallItem) -> None:
+    def _execute_one(
+        self,
+        item: _CallItem,
+    ) -> None:
+        """キューから受け取った 1 呼び出しを COM スレッド上で実行する。"""
+
         try:
             if self._ctrl is None:
                 raise RuntimeError("ctrl is not initialized")
@@ -220,7 +267,12 @@ class ComExecutionRunner:
         finally:
             item.done_event.set()
 
-    def _ensure_ready_or_raise(self, timeout: Optional[float]) -> None:
+    def _ensure_ready_or_raise(
+        self,
+        timeout: Optional[float],
+    ) -> None:
+        """起動完了チェック。初期化失敗時は詳細例外を再送出する。"""
+
         if not self._ready_event.wait(timeout=timeout):
             raise TimeoutError("ComExecutionRunner initialization timed out")
         if self._startup_error is not None:
@@ -228,24 +280,40 @@ class ComExecutionRunner:
         if self._ctrl is None:
             raise RuntimeError("ctrl is not initialized")
 
-    def wait_ready(self, timeout: Optional[float] = None) -> bool:
+    def wait_ready(
+        self,
+        timeout: Optional[float] = None,
+    ) -> bool:
+        """runner が利用可能かを bool で返す。"""
+
         try:
             self._ensure_ready_or_raise(timeout=timeout)
             return True
         except Exception:
             return False
 
-    def get_startup_error(self) -> Optional[str]:
+    def get_startup_error(
+        self,
+    ) -> Optional[str]:
+        """起動エラー文字列（なければ None）を返す。"""
+
         self._ready_event.wait()
         return self._startup_error
 
-    def list_public_methods(self, timeout: Optional[float] = None) -> Tuple[str, ...]:
+    def list_public_methods(
+        self,
+        timeout: Optional[float] = None,
+    ) -> Tuple[str, ...]:
+        """public メソッド名一覧を返す。"""
+
         self._ensure_ready_or_raise(timeout=timeout)
         return self._public_method_names
 
     def get_signature(
         self, name: str, timeout: Optional[float] = None
     ) -> inspect.Signature:
+        """指定メソッドのシグネチャを返す（未知なら空シグネチャ）。"""
+
         self._ensure_ready_or_raise(timeout=timeout)
         return self._signatures.get(name, inspect.Signature())
 
@@ -257,6 +325,14 @@ class ComExecutionRunner:
         *,
         timeout: Optional[float] = None,
     ) -> Tuple[bool, Any, str]:
+        """
+        指定メソッドを COM スレッドへ委譲して実行する。
+
+        Returns:
+        - (True, result, "")
+        - (False, None, error_message)
+        """
+
         if self._stopped:
             return False, None, "ComExecutionRunner is stopped"
 
@@ -281,7 +357,7 @@ class ComExecutionRunner:
         if not completed:
             return False, None, f"timeout while waiting '{name}'"
 
-        if box.get("ok") is True:
+        if box.get("ok"):
             return True, box.get("result"), ""
 
         err = box.get("error") or "unknown error"
@@ -298,12 +374,19 @@ class ComExecutionRunner:
         self,
         timeout: Optional[float] = None,
     ) -> bool:
+        """ctrl が _set_event_bus を実装しているかを返す。"""
+
         self._ensure_ready_or_raise(timeout=timeout)
         return self._has_set_event_bus
 
 
 class ThreadSafeCtrlProxy:
-    """gRPC 側から見える ctrl 代理である。"""
+    """
+    gRPC 側へ渡す ctrl 代理。
+
+    - Describe 用 introspection を満たすため、公開メソッドを属性として生やす
+    - 実呼び出しはすべて runner.call(...) に委譲する
+    """
 
     def __init__(
         self,
@@ -315,7 +398,11 @@ class ThreadSafeCtrlProxy:
         self._ready_timeout = ready_timeout
         self._bind_public_methods()
 
-    def _bind_public_methods(self) -> None:
+    def _bind_public_methods(
+        self,
+    ) -> None:
+        """初期化時に public API を一括バインドする。"""
+
         for name in self._runner.list_public_methods(timeout=self._ready_timeout):
             setattr(self, name, self._build_method(name))
 
@@ -323,6 +410,8 @@ class ThreadSafeCtrlProxy:
         self,
         name: str,
     ):
+        """runner に委譲する callable を 1 つ生成する。"""
+
         sig = self._runner.get_signature(name, timeout=self._ready_timeout)
 
         def _method(*args: Any, **kwargs: Any) -> Any:
@@ -338,6 +427,8 @@ class ThreadSafeCtrlProxy:
     def __dir__(
         self,
     ) -> Sequence[str]:
+        """Describe/introspection のために runner 側メソッド名を露出する。"""
+
         names = set(super().__dir__())
         names.update(self._runner.list_public_methods(timeout=self._ready_timeout))
         return sorted(names)
@@ -346,6 +437,8 @@ class ThreadSafeCtrlProxy:
         self,
         name: str,
     ):
+        """未バインドメソッドへの遅延対応。"""
+
         if name.startswith("_"):
             raise AttributeError(name)
         method = self._build_method(name)
@@ -356,6 +449,11 @@ class ThreadSafeCtrlProxy:
         self,
         event_bus: Any,
     ) -> None:
+        """
+        gRPC フレームからの EventBus 注入点。
+
+        ctrl 側が _set_event_bus 非実装の場合は no-op とする。
+        """
         if not self._runner.supports_set_event_bus(
             timeout=self._ready_timeout,
         ):
@@ -381,6 +479,14 @@ def create_com_grpc_server(
     logger: Optional[Any] = None,
     log_level: Optional[str] = None,
 ):
+    """
+    COM 対応版 gRPC サーバーを組み立てるヘルパー。
+
+    処理:
+    1. ComExecutionRunner を起動して ctrl を COM スレッドで生成
+    2. ThreadSafeCtrlProxy で ctrl をラップ
+    3. 既存 create_grpc_server(ctrl_obj=proxy) へ接続
+    """
     from grpc_frame.grpc_server import create_grpc_server
 
     runner = ComExecutionRunner(
