@@ -15,6 +15,8 @@ gRPC サーバー実装（動的ディスパッチ + Event ストリーミング
 
 from __future__ import annotations
 
+import traceback
+
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional
 
@@ -31,6 +33,20 @@ from grpc_frame.event_bus import EventBus
 # COM 共存用
 import threading
 import queue
+
+
+def _format_exception(e: BaseException) -> str:
+    """例外を型名とスタックトレース込みの文字列に整形する。
+
+    Args:
+        e: 捕捉した例外である。
+
+    Returns:
+        型名・メッセージ・スタックトレースを連結した文字列である。
+    """
+    exc_type = type(e)
+    tb = e.__traceback__
+    return "".join(traceback.format_exception(exc_type, e, tb))
 
 
 class _ControlServicer(
@@ -165,6 +181,7 @@ class _ControlServicer(
 
         self._logger.info(f"[Frame:ControlServicer][{method_name}] called")
 
+        # ディスパッチするべきメソッドを見つける
         try:
             # 動的に対象メソッドを解決する（存在しなければ例外）
             target = getattr(self._ctrl_obj, method_name)
@@ -172,8 +189,15 @@ class _ControlServicer(
             self._logger.error(
                 f"[Frame:ControlServicer][{method_name}] getattr failed: {e}"
             )
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
 
+            return ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                # error=str(e),
+                error=_format_exception(e),
+            )
+
+        # 実際にメソッドを実行する
         try:
             # protobuf から引数を復元
             args = adapter.unpack_args(request.args)
@@ -191,11 +215,21 @@ class _ControlServicer(
 
             self._logger.info(f"[Frame:ControlServicer][{method_name}] completed")
 
-            return ctrl_pb2.DispatchResponse(ok=True, result=result_bin, error="")
+            return ctrl_pb2.DispatchResponse(
+                ok=True,
+                result=result_bin,
+                error="",
+            )
 
         except Exception as e:
             self._logger.error(f"[Frame:ControlServicer][{method_name}] failed: {e}")
-            return ctrl_pb2.DispatchResponse(ok=False, result=b"", error=str(e))
+
+            return ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                # error=str(e),
+                error=_format_exception(e),
+            )
 
 
 class _EventsServicer(
