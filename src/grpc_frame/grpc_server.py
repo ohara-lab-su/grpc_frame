@@ -30,10 +30,6 @@ from grpc_frame import events_pb2
 from grpc_frame import events_pb2_grpc
 from grpc_frame.event_bus import EventBus
 
-# COM 共存用
-import threading
-import queue
-
 
 def _format_exception(e: BaseException) -> str:
     """例外を型名とスタックトレース込みの文字列に整形する。
