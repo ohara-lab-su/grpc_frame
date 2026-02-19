@@ -81,6 +81,9 @@ class ComExecutionRunner:
         self._startup_error: Optional[str] = None
         self._stopped: bool = False
 
+        # event 有無
+        self._has_set_event_bus: bool = False
+
         self._thread = threading.Thread(
             target=self._run,
             name="ComExecutionRunner",
@@ -115,6 +118,18 @@ class ComExecutionRunner:
 
             self._logger.info("[ComExecutionRunner] create ctrl (COM thread)")
             self._ctrl = self._ctrl_factory()
+
+            # Event の有無
+            try:
+                self._has_set_event_bus: bool = callable(
+                    getattr(
+                        self._ctrl,
+                        "_set_event_bus",
+                        None,
+                    )
+                )
+            except Exception:
+                self._has_set_event_bus: bool = False
 
             if self._after_create is not None:
                 self._logger.info("[ComExecutionRunner] after_create start")
@@ -279,6 +294,13 @@ class ComExecutionRunner:
         self._queue.put(None)
         self._thread.join()
 
+    def supports_set_event_bus(
+        self,
+        timeout: Optional[float] = None,
+    ) -> bool:
+        self._ensure_ready_or_raise(timeout=timeout)
+        return self._has_set_event_bus
+
 
 class ThreadSafeCtrlProxy:
     """gRPC 側から見える ctrl 代理である。"""
@@ -297,7 +319,10 @@ class ThreadSafeCtrlProxy:
         for name in self._runner.list_public_methods(timeout=self._ready_timeout):
             setattr(self, name, self._build_method(name))
 
-    def _build_method(self, name: str):
+    def _build_method(
+        self,
+        name: str,
+    ):
         sig = self._runner.get_signature(name, timeout=self._ready_timeout)
 
         def _method(*args: Any, **kwargs: Any) -> Any:
@@ -310,19 +335,32 @@ class ThreadSafeCtrlProxy:
         _method.__signature__ = sig  # type: ignore[attr-defined]
         return _method
 
-    def __dir__(self) -> Sequence[str]:
+    def __dir__(
+        self,
+    ) -> Sequence[str]:
         names = set(super().__dir__())
         names.update(self._runner.list_public_methods(timeout=self._ready_timeout))
         return sorted(names)
 
-    def __getattr__(self, name: str):
+    def __getattr__(
+        self,
+        name: str,
+    ):
         if name.startswith("_"):
             raise AttributeError(name)
         method = self._build_method(name)
         setattr(self, name, method)
         return method
 
-    def _set_event_bus(self, event_bus: Any) -> None:
+    def _set_event_bus(
+        self,
+        event_bus: Any,
+    ) -> None:
+        if not self._runner.supports_set_event_bus(
+            timeout=self._ready_timeout,
+        ):
+            return
+
         ok, _result, error = self._runner.call(
             "_set_event_bus",
             (event_bus,),
