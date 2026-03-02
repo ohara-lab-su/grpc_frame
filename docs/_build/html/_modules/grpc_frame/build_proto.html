@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame.build_proto &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">grpc_frame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/grpc_frame.html">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grpc_frame.build_proto</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grpc_frame.build_proto のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">joypad.proto を gRPC (Python) 用コードにビルドするスクリプト</span>
+<span class="sd">Kengo NAKADA</span>
+<span class="sd">kengo.nakada@mat.shimane-u.ac.jp</span>
+<span class="sd">kengo.nakada@gmail.com</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">protoc</span>
+
+
+<div class="viewcode-block" id="build_proto">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_proto</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">proto_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">proto_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frame_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;grpc_frame&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    フレーム内 proto を gRPC Python 用にビルドする</span>
+
+<span class="sd">    proto_name:</span>
+<span class="sd">        &quot;ctrl&quot;, &quot;events&quot;, &quot;joypad&quot; など（拡張子なし）</span>
+<span class="sd">    proto_dir:</span>
+<span class="sd">        proto のあるディレクトリ（Noneならこのファイルの場所）</span>
+<span class="sd">    out_dir:</span>
+<span class="sd">        出力先（Noneなら proto_dir）</span>
+<span class="sd">    frame_package:</span>
+<span class="sd">        生成物が属する Python パッケージ名（通常 &quot;grpc_frame&quot;）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">proto_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">proto_dir</span> <span class="o">=</span> <span class="n">here</span>
+    <span class="k">if</span> <span class="n">out_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="n">proto_dir</span>
+
+    <span class="n">proto_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proto_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">.proto&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proto_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">proto_file</span><span class="p">)</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;grpc_tools.protoc&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;-I</span><span class="si">{</span><span class="n">proto_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;--python_out=</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;--grpc_python_out=</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">proto_file</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">protoc</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;protoc failed: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- *_pb2_grpc.py の import をフル修飾に直す ---</span>
+    <span class="n">grpc_py</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">_pb2_grpc.py&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">grpc_py</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">grpc_py</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">grpc_py</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">old</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;import </span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">_pb2 as </span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">__pb2&quot;</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">frame_package</span><span class="si">}</span><span class="s2"> import </span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">_pb2 as </span><span class="si">{</span><span class="n">proto_name</span><span class="si">}</span><span class="s2">__pb2&quot;</span>
+
+    <span class="k">if</span> <span class="n">old</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected import line in </span><span class="si">{</span><span class="n">grpc_py</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">grpc_py</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">build_proto</span><span class="p">(</span>
+        <span class="n">proto_name</span><span class="o">=</span><span class="s2">&quot;ctrl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">build_proto</span><span class="p">(</span>
+        <span class="n">proto_name</span><span class="o">=</span><span class="s2">&quot;events&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># def main():</span>
+<span class="c1">#     here = os.path.dirname(os.path.abspath(__file__))</span>
+<span class="c1">#     # proto_file = os.path.join(here, &quot;joypad.proto&quot;)</span>
+<span class="c1">#     proto_file = os.path.join(here, &quot;ctrl.proto&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#     # 出力先は同ディレクトリ</span>
+<span class="c1">#     out_dir = here</span>
+<span class="c1">#</span>
+<span class="c1">#     cmd = [</span>
+<span class="c1">#         &quot;grpc_tools.protoc&quot;,</span>
+<span class="c1">#         f&quot;-I{here}&quot;,</span>
+<span class="c1">#         f&quot;--python_out={out_dir}&quot;,</span>
+<span class="c1">#         f&quot;--grpc_python_out={out_dir}&quot;,</span>
+<span class="c1">#         proto_file,</span>
+<span class="c1">#     ]</span>
+<span class="c1">#</span>
+<span class="c1">#     print(&quot;Running protoc:&quot;)</span>
+<span class="c1">#     print(&quot; &quot;.join(cmd))</span>
+<span class="c1">#</span>
+<span class="c1">#     # protoc を python 経由で呼ぶ</span>
+<span class="c1">#     result = protoc.main(cmd)</span>
+<span class="c1">#</span>
+<span class="c1">#     if result != 0:</span>
+<span class="c1">#         print(f&quot;protoc failed with code {result}&quot;)</span>
+<span class="c1">#         sys.exit(result)</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         # 生成後に joypad_pb2_grpc.py の import を絶対インポートに書き換える</span>
+<span class="c1">#         grpc_path = os.path.join(out_dir, &quot;joypad_pb2_grpc.py&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#         try:</span>
+<span class="c1">#             with open(grpc_path, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:</span>
+<span class="c1">#                 text = f.read()</span>
+<span class="c1">#         except FileNotFoundError:</span>
+<span class="c1">#             print(f&quot;Error: {grpc_path} が見つかりません&quot;)</span>
+<span class="c1">#             sys.exit(1)</span>
+<span class="c1">#</span>
+<span class="c1">#         # protoc が生成する標準の行を絶対インポートに置き換え</span>
+<span class="c1">#         old = &quot;import joypad_pb2 as joypad__pb2&quot;</span>
+<span class="c1">#         new = &quot;from cobotta2.server_grpc import joypad_pb2 as joypad__pb2&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#         if old in text:</span>
+<span class="c1">#             text = text.replace(old, new)</span>
+<span class="c1">#             with open(grpc_path, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:</span>
+<span class="c1">#                 f.write(text)</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             # 想定と違う生成結果になっている場合のデバッグ用メッセージ</span>
+<span class="c1">#             print(f&quot;Warning: &#39;{old}&#39; が {grpc_path} 内に見つかりませんでした&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#         print(&quot;protoc build complete:&quot;)</span>
+<span class="c1">#         print(&quot;  joypad_pb2.py&quot;)</span>
+<span class="c1">#         print(&quot;  joypad_pb2_grpc.py&quot;)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># if __name__ == &quot;__main__&quot;:</span>
+<span class="c1">#     main()</span>
+<span class="c1">#</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

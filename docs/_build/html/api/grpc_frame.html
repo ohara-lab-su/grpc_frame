@@ -1,0 +1,1774 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame package &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=4755f45a"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="チュートリアル" href="../tutorials/intro.html" />
+    <link rel="prev" title="grpc_frame" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">grpc_frame</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">grpc_frame</a></li>
+      <li class="breadcrumb-item active">grpc_frame package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/grpc_frame.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-grpc_frame">
+<span id="grpc-frame-package"></span><h1>grpc_frame package<a class="headerlink" href="#module-grpc_frame" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-grpc_frame.adapter">
+<span id="grpc-frame-adapter-module"></span><h2>grpc_frame.adapter module<a class="headerlink" href="#module-grpc_frame.adapter" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>引数表現は adapter の「JSON優先 + pickleフォールバック」</p>
+</div></blockquote>
+<p>adapter.pack_args/pack_kwargs/pack_result は</p>
+<ol class="arabic simple">
+<li><p>JSON 変換を試す（bytes は base64 で JSON に入れる）</p></li>
+<li><p>失敗したら pickle</p></li>
+</ol>
+<p>という二段。payload 先頭 1byte に b&quot;J&quot; / b&quot;P&quot; を付ける方式</p>
+<p>「イベントを JSON で送りたい」
+「バイナリを運びたい」
+いずれも収容可能</p>
+<p>Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.adapter._BytesJsonEncoder">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_BytesJsonEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_BytesJsonEncoder"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._BytesJsonEncoder" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/json.html#json.JSONEncoder" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JSONEncoder</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.adapter._BytesJsonEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_BytesJsonEncoder.default"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._BytesJsonEncoder.default" title="Link to this definition"></a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter._bytes_json_object_hook">
+<span class="sig-name descname"><span class="pre">_bytes_json_object_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_bytes_json_object_hook"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._bytes_json_object_hook" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>d</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter._loads">
+<span class="sig-name descname"><span class="pre">_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_loads"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._loads" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter._prepare_json">
+<span class="sig-name descname"><span class="pre">_prepare_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_prepare_json"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._prepare_json" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter._try_json_dumps">
+<span class="sig-name descname"><span class="pre">_try_json_dumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#_try_json_dumps"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter._try_json_dumps" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.pack_args">
+<span class="sig-name descname"><span class="pre">pack_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#pack_args"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.pack_args" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>, </em><em>...</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.pack_kwargs">
+<span class="sig-name descname"><span class="pre">pack_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#pack_kwargs"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.pack_kwargs" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.pack_result">
+<span class="sig-name descname"><span class="pre">pack_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#pack_result"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.pack_result" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.unpack_args">
+<span class="sig-name descname"><span class="pre">unpack_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#unpack_args"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.unpack_args" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>, ...]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.unpack_kwargs">
+<span class="sig-name descname"><span class="pre">unpack_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#unpack_kwargs"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.unpack_kwargs" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.adapter.unpack_result">
+<span class="sig-name descname"><span class="pre">unpack_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/adapter.html#unpack_result"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.adapter.unpack_result" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>payload</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-grpc_frame.build_proto">
+<span id="grpc-frame-build-proto-module"></span><h2>grpc_frame.build_proto module<a class="headerlink" href="#module-grpc_frame.build_proto" title="Link to this heading"></a></h2>
+<p>joypad.proto を gRPC (Python) 用コードにビルドするスクリプト
+Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.build_proto.build_proto">
+<span class="sig-name descname"><span class="pre">build_proto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">proto_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proto_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grpc_frame'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/build_proto.html#build_proto"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.build_proto.build_proto" title="Link to this definition"></a></dt>
+<dd><p>フレーム内 proto を gRPC Python 用にビルドする</p>
+<dl class="simple">
+<dt>proto_name:</dt><dd><p>&quot;ctrl&quot;, &quot;events&quot;, &quot;joypad&quot; など（拡張子なし）</p>
+</dd>
+<dt>proto_dir:</dt><dd><p>proto のあるディレクトリ（Noneならこのファイルの場所）</p>
+</dd>
+<dt>out_dir:</dt><dd><p>出力先（Noneなら proto_dir）</p>
+</dd>
+<dt>frame_package:</dt><dd><p>生成物が属する Python パッケージ名（通常 &quot;grpc_frame&quot;）</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>proto_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>proto_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>frame_package</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="grpc-frame-ctrl-module">
+<h2>grpc_frame.ctrl module<a class="headerlink" href="#grpc-frame-ctrl-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-grpc_frame.ctrl_pb2">
+<span id="grpc-frame-ctrl-pb2-module"></span><h2>grpc_frame.ctrl_pb2 module<a class="headerlink" href="#module-grpc_frame.ctrl_pb2" title="Link to this heading"></a></h2>
+<p>Generated protocol buffer code.</p>
+</section>
+<section id="module-grpc_frame.ctrl_pb2_grpc">
+<span id="grpc-frame-ctrl-pb2-grpc-module"></span><h2>grpc_frame.ctrl_pb2_grpc module<a class="headerlink" href="#module-grpc_frame.ctrl_pb2_grpc" title="Link to this heading"></a></h2>
+<p>Client and server classes corresponding to protobuf-defined services.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.Control">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Control</span></span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#Control"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.Control" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.Control.Call">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insecure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_for_ready</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#Control.Call"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.Control.Call" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.Control.Describe">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insecure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_for_ready</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#Control.Describe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.Control.Describe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.ControlServicer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ControlServicer</span></span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#ControlServicer"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.ControlServicer.Call">
+<span class="sig-name descname"><span class="pre">Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#ControlServicer.Call"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer.Call" title="Link to this definition"></a></dt>
+<dd><p>Missing associated documentation comment in .proto file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.ControlServicer.Describe">
+<span class="sig-name descname"><span class="pre">Describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#ControlServicer.Describe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer.Describe" title="Link to this definition"></a></dt>
+<dd><p>Missing associated documentation comment in .proto file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.ControlStub">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ControlStub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#ControlStub"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.ControlStub" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server">
+<span class="sig-name descname"><span class="pre">add_ControlServicer_to_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">servicer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/ctrl_pb2_grpc.html#add_ControlServicer_to_server"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-grpc_frame.dispatch_core">
+<span id="grpc-frame-dispatch-core-module"></span><h2>grpc_frame.dispatch_core module<a class="headerlink" href="#module-grpc_frame.dispatch_core" title="Link to this heading"></a></h2>
+<p>Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.dispatch_core.MethodInfo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MethodInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/dispatch_core.html#MethodInfo"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.dispatch_core.MethodInfo" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>公開対象メソッドのメタ情報を保持するデータクラスである。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>signature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.dispatch_core.MethodInfo.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#grpc_frame.dispatch_core.MethodInfo.name" title="Link to this definition"></a></dt>
+<dd><p>メソッド名である。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.dispatch_core.MethodInfo.signature">
+<span class="sig-name descname"><span class="pre">signature</span></span><a class="headerlink" href="#grpc_frame.dispatch_core.MethodInfo.signature" title="Link to this definition"></a></dt>
+<dd><p>署名文字列である。取得できない場合は &quot;()&quot; とする。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">signature</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.dispatch_core.list_public_methods">
+<span class="sig-name descname"><span class="pre">list_public_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrl_obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/dispatch_core.html#list_public_methods"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.dispatch_core.list_public_methods" title="Link to this definition"></a></dt>
+<dd><p>制御オブジェクトの public callable を列挙して MethodInfo の配列を返す関数である。</p>
+<p>本関数は gRPC の Describe 用途を想定し、公開対象を「呼び出し可能な public メンバー」に限定する。
+ここで property は列挙時に評価され得るため、静的取得で判定し、列挙対象から除外する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctrl_obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>) -- 対象の制御オブジェクトである。</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>public callable の (name, signature) 一覧である。name 昇順にソートして返す。</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#grpc_frame.dispatch_core.MethodInfo" title="grpc_frame.dispatch_core.MethodInfo">MethodInfo</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-grpc_frame.event_bus">
+<span id="grpc-frame-event-bus-module"></span><h2>grpc_frame.event_bus module<a class="headerlink" href="#module-grpc_frame.event_bus" title="Link to this heading"></a></h2>
+<p>K.NAKADA, <a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a>, <a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a></p>
+<p>EventBus: 軽量な in-process イベント配信機構。</p>
+<ul class="simple">
+<li><p>publish: イベントを配信</p></li>
+<li><p>subscribe: イベントを generator で受信</p></li>
+<li><p>スレッド間での待機/通知に Condition を使用</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventBus">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EventBus</span></span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#EventBus"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus.EventBus" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>in-process のイベント配信ハブ。</p>
+<ul class="simple">
+<li><p>publish: topic に紐づく購読者へ配信</p></li>
+<li><p>subscribe: generator 形式でイベントを取得</p></li>
+</ul>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventBus.publish">
+<span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload_obj</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#EventBus.publish"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus.EventBus.publish" title="Link to this definition"></a></dt>
+<dd><p>イベントを publish して、該当トピックの購読者へ通知する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- トピック名</p></li>
+<li><p><strong>payload_obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>) -- 任意の payload</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- 発生元識別子</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventBus.subscribe">
+<span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">once</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cancel_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#EventBus.subscribe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus.EventBus.subscribe" title="Link to this definition"></a></dt>
+<dd><p>指定トピックを購読し、EventItem を generator で返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- 購読するトピック</p></li>
+<li><p><strong>once</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) -- True の場合は1件受信したら終了</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- 発生元フィルタ（未使用だが拡張用）</p></li>
+<li><p><strong>cancel_event</strong> (<a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Event" title="(in Python v3.14)"><em>Event</em></a><em> | </em><em>None</em>) -- 外部から購読解除するための Event</p></li>
+</ul>
+</dd>
+<dt class="field-even">列挙<span class="colon">:</span></dt>
+<dd class="field-even"><p>EventItem</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.14)"><em>Iterator</em></a>[<a class="reference internal" href="#grpc_frame.event_bus.EventItem" title="grpc_frame.event_bus.EventItem"><em>EventItem</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventItem">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EventItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts_ns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#EventItem"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus.EventItem" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>EventBus が配信するイベント1件のデータ構造。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>payload_obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p></li>
+<li><p><strong>ts_ns</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventItem.payload_obj">
+<span class="sig-name descname"><span class="pre">payload_obj</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><a class="headerlink" href="#grpc_frame.event_bus.EventItem.payload_obj" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventItem.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.event_bus.EventItem.source" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventItem.topic">
+<span class="sig-name descname"><span class="pre">topic</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.event_bus.EventItem.topic" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus.EventItem.ts_ns">
+<span class="sig-name descname"><span class="pre">ts_ns</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#grpc_frame.event_bus.EventItem.ts_ns" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_Subscriber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">once</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#_Subscriber"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus._Subscriber" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>once</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber._closed">
+<span class="sig-name descname"><span class="pre">_closed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber._closed" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber._cond">
+<span class="sig-name descname"><span class="pre">_cond</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Condition" title="(in Python v3.14)"><span class="pre">Condition</span></a></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber._cond" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber._queue">
+<span class="sig-name descname"><span class="pre">_queue</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Deque" title="(in Python v3.14)"><span class="pre">Deque</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#grpc_frame.event_bus.EventItem" title="grpc_frame.event_bus.EventItem"><span class="pre">EventItem</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber._queue" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#_Subscriber.close"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.close" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.once">
+<span class="sig-name descname"><span class="pre">once</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.once" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.pop_wait">
+<span class="sig-name descname"><span class="pre">pop_wait</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#_Subscriber.pop_wait"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.pop_wait" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#grpc_frame.event_bus.EventItem" title="grpc_frame.event_bus.EventItem"><em>EventItem</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.push">
+<span class="sig-name descname"><span class="pre">push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/event_bus.html#_Subscriber.push"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.push" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<a class="reference internal" href="#grpc_frame.event_bus.EventItem" title="grpc_frame.event_bus.EventItem"><em>EventItem</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.source" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.event_bus._Subscriber.topic">
+<span class="sig-name descname"><span class="pre">topic</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.event_bus._Subscriber.topic" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="grpc-frame-events-module">
+<h2>grpc_frame.events module<a class="headerlink" href="#grpc-frame-events-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-grpc_frame.events_pb2">
+<span id="grpc-frame-events-pb2-module"></span><h2>grpc_frame.events_pb2 module<a class="headerlink" href="#module-grpc_frame.events_pb2" title="Link to this heading"></a></h2>
+<p>Generated protocol buffer code.</p>
+</section>
+<section id="module-grpc_frame.events_pb2_grpc">
+<span id="grpc-frame-events-pb2-grpc-module"></span><h2>grpc_frame.events_pb2_grpc module<a class="headerlink" href="#module-grpc_frame.events_pb2_grpc" title="Link to this heading"></a></h2>
+<p>Client and server classes corresponding to protobuf-defined services.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.Events">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Events</span></span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#Events"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.Events" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.Events.Subscribe">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Subscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insecure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_for_ready</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#Events.Subscribe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.Events.Subscribe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.EventsServicer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EventsServicer</span></span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#EventsServicer"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.EventsServicer" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.EventsServicer.Subscribe">
+<span class="sig-name descname"><span class="pre">Subscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#EventsServicer.Subscribe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.EventsServicer.Subscribe" title="Link to this definition"></a></dt>
+<dd><p>Missing associated documentation comment in .proto file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.EventsStub">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EventsStub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#EventsStub"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.EventsStub" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Missing associated documentation comment in .proto file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.events_pb2_grpc.add_EventsServicer_to_server">
+<span class="sig-name descname"><span class="pre">add_EventsServicer_to_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">servicer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/events_pb2_grpc.html#add_EventsServicer_to_server"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-grpc_frame.grpc_client">
+<span id="grpc-frame-grpc-client-module"></span><h2>grpc_frame.grpc_client module<a class="headerlink" href="#module-grpc_frame.grpc_client" title="Link to this heading"></a></h2>
+<p>Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<p>gRPC クライアント実装（動的メソッドバインド）</p>
+<ul class="simple">
+<li><p>Describe RPC でサーバー側メソッド一覧を取得</p></li>
+<li><p>各メソッドを Python メソッドとして動的にバインド</p></li>
+<li><p>Call RPC で実行し、adapter で引数/戻り値を変換</p></li>
+<li><p>Events/Subscribe によりイベントをストリーム受信</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.AsyncGrpcClient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">AsyncGrpcClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#AsyncGrpcClient"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.AsyncGrpcClient" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#grpc_frame.grpc_client.GrpcClient" title="grpc_frame.grpc_client.GrpcClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_ip</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>timeout_sec</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.AsyncGrpcClient._make_async_method">
+<span class="sig-name descname"><span class="pre">_make_async_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#AsyncGrpcClient._make_async_method"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.AsyncGrpcClient._make_async_method" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>raw_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.AsyncGrpcClient._run_in_thread">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_run_in_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#AsyncGrpcClient._run_in_thread"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.AsyncGrpcClient._run_in_thread" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.AsyncGrpcClient._wrap_async_methods">
+<span class="sig-name descname"><span class="pre">_wrap_async_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#AsyncGrpcClient._wrap_async_methods"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.AsyncGrpcClient._wrap_async_methods" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GrpcClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>gRPC Control サービスに対する汎用クライアントクラス。</p>
+<p>このクラスは ctrl.Control サービスに接続し、
+サーバー側で公開されている制御メソッドを Describe RPC により取得し、
+各メソッドを Python メソッドとして動的にバインドする。</p>
+<p>クライアントは Describe を読んで動的に
+setattr(self, name, dispatcher)する</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>起動時に Describe を呼び、</p></li>
+</ol>
+<p>2. 返ってきた methods 全部を self.&lt;method名&gt; に動的に生やす
+（さらに _raw_&lt;method名&gt; にも退避）。</p>
+</div></blockquote>
+<p>「 API を gRPC 化する」だけなら ctrl_obj に public メソッドを増やすだけ
+proto 変更なしでクライアント側にも反映</p>
+<p>設計上の特徴:
+- gRPC の low-level API（unary_unary）を直接使用する
+- protobuf の Stub クラスには依存しない
+- サーバー側のメソッド追加・削除に対してクライアント側のコード変更を不要とする
+- adapter を用いて引数・戻り値の表現形式を統一する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_ip</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>timeout_sec</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._channel">
+<span class="sig-name descname"><span class="pre">_channel</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._channel" title="Link to this definition"></a></dt>
+<dd><p>gRPC サーバーとの通信に使用する Channel</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._rpc_describe">
+<span class="sig-name descname"><span class="pre">_rpc_describe</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._rpc_describe" title="Link to this definition"></a></dt>
+<dd><p>ctrl.Control/Describe RPC 呼び出し関数</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._rpc_call">
+<span class="sig-name descname"><span class="pre">_rpc_call</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._rpc_call" title="Link to this definition"></a></dt>
+<dd><p>ctrl.Control/Call RPC 呼び出し関数</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._method_table">
+<span class="sig-name descname"><span class="pre">_method_table</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._method_table" title="Link to this definition"></a></dt>
+<dd><p>サーバー側メソッド名とシグネチャの対応表</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._logger">
+<span class="sig-name descname"><span class="pre">_logger</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._logger" title="Link to this definition"></a></dt>
+<dd><p>クライアント動作記録用ロガー</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._timeout_sec">
+<span class="sig-name descname"><span class="pre">_timeout_sec</span></span><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._timeout_sec" title="Link to this definition"></a></dt>
+<dd><p>RPC 呼び出し時のタイムアウト秒数</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._bind_remote_methods">
+<span class="sig-name descname"><span class="pre">_bind_remote_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient._bind_remote_methods"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._bind_remote_methods" title="Link to this definition"></a></dt>
+<dd><p>サーバー側の公開メソッドを取得し、動的にバインドする。</p>
+<p>Describe RPC を用いてサーバー側の MethodTable を取得し、
+各メソッドについて dispatcher 関数を生成して self に属性として追加する。</p>
+<p>この処理により、
+クライアント側からは通常の Python メソッド呼び出しとして
+RPC を透過的に利用できるようになる。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient._make_dispatcher">
+<span class="sig-name descname"><span class="pre">_make_dispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient._make_dispatcher"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._make_dispatcher" title="Link to this definition"></a></dt>
+<dd><p>指定されたメソッド名に対応する RPC 呼び出し関数を生成する。</p>
+<p>生成される関数は以下の処理を行う:
+- Python の <a href="#id2"><span class="problematic" id="id3">*</span></a>args / <a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs を adapter によりシリアライズ
+- ctrl.Control/Call RPC を実行
+- 戻り値をデシリアライズして返却
+- サーバー側エラー時は RuntimeError を送出</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>method_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- サーバー側で公開されているメソッド名</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>RPC 呼び出しを行う関数</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable[..., Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient.close"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient.close" title="Link to this definition"></a></dt>
+<dd><p>gRPC Channel をクローズする。</p>
+<p>クライアント終了時に呼び出されることを想定しており、
+通信リソースを明示的に解放する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient.is_connected">
+<span class="sig-name descname"><span class="pre">is_connected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient.is_connected"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient.is_connected" title="Link to this definition"></a></dt>
+<dd><p>gRPC サーバーとの接続可否を確認する。</p>
+<p>Describe RPC を実行できるかどうかをもって、
+サーバーが到達可能かつ応答可能であるかを判定する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Describe RPC が成功した場合 True、
+例外が発生した場合 False</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient.subscribe">
+<span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">once</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient.subscribe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient.subscribe" title="Link to this definition"></a></dt>
+<dd><p>Events/Subscribe RPC の薄いラッパー。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- 購読トピック名</p></li>
+<li><p><strong>once</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) -- 1件だけ受け取って終了するなら True</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) -- イベントの発生元フィルタ</p></li>
+</ul>
+</dd>
+<dt class="field-even">列挙<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>payload</em> -- adapter で復元されたイベント payload</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.GrpcClient.wait_for_ready">
+<span class="sig-name descname"><span class="pre">wait_for_ready</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient.wait_for_ready"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient.wait_for_ready" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout_sec</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_client.SyncGrpcClient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SyncGrpcClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_ip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#SyncGrpcClient"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.SyncGrpcClient" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#grpc_frame.grpc_client.GrpcClient" title="grpc_frame.grpc_client.GrpcClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_ip</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>server_port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>timeout_sec</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-grpc_frame.grpc_com">
+<span id="grpc-frame-grpc-com-module"></span><h2>grpc_frame.grpc_com module<a class="headerlink" href="#module-grpc_frame.grpc_com" title="Link to this heading"></a></h2>
+<p>Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<p>COM スレッド境界を守って gRPC から ctrl を安全に呼び出す補助モジュール。</p>
+<p>windows の COM のインスタンスを別スレッドで回す
+（コンストラクタとメソッドを別スレッド）とおかしくなる。</p>
+<p>そのため gRPC などでは別スレッドでハンドラが動くのでCOM を破壊する。
+その対策で制御側で com 読み込みではなくて gRPCハンドラースレッドで
+COMを初期化するようにする</p>
+<dl class="simple">
+<dt>gRPC Client</dt><dd><p>--&gt; grpc_server._ControlServicer (gRPC worker thread)
+--&gt; ThreadSafeCtrlProxy
+--&gt; ComExecutionRunner (queueで直列化)
+--&gt; COM ctrl object (同一スレッドで生成/実行)</p>
+</dd>
+</dl>
+<p>要点
+- gRPC worker thread から COM を直接触らない
+- COM の生成/実行は ComExecutionRunner の専用スレッドに固定
+- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する
+- gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと</p>
+<blockquote>
+<div><p>呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。</p>
+</div></blockquote>
+<p>設計
+- COM 制約はこのモジュール内に閉じ込める。
+- ComExecutionRunner が COM 専用スレッドを持ち、ctrl 生成とメソッド実行を一本化する。
+- ThreadSafeCtrlProxy は gRPC 側に見せる代理で、呼び出しを runner に委譲する。
+- create_com_grpc_server は既存 create_grpc_server と組み合わせるための薄い組み立て関数。</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ComExecutionRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrl_factory</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">after_create</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>ctrl を COM 専用スレッドで生成・実行するランナー。</p>
+<p>役割:
+- ctrl_factory の実行を COM 専用スレッドへ固定する
+- gRPC 側からの呼び出しをキューで直列化して実行する
+- public メソッド一覧とシグネチャを introspection 用に保持する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctrl_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>after_create</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._collect_public_method_names">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_collect_public_method_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrl</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._collect_public_method_names"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._collect_public_method_names" title="Link to this definition"></a></dt>
+<dd><p>ctrl の public callable 名を収集してソート返却する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ctrl</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, ...]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._collect_signatures">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_collect_signatures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctrl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._collect_signatures"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._collect_signatures" title="Link to this definition"></a></dt>
+<dd><p>公開メソッドの inspect.Signature を収集する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctrl</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p></li>
+<li><p><strong>names</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/inspect.html#inspect.Signature" title="(in Python v3.14)"><em>Signature</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._ensure_ready_or_raise">
+<span class="sig-name descname"><span class="pre">_ensure_ready_or_raise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._ensure_ready_or_raise"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._ensure_ready_or_raise" title="Link to this definition"></a></dt>
+<dd><p>起動完了チェック。初期化失敗時は詳細例外を再送出する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._execute_one">
+<span class="sig-name descname"><span class="pre">_execute_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._execute_one"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._execute_one" title="Link to this definition"></a></dt>
+<dd><p>キューから受け取った 1 呼び出しを COM スレッド上で実行する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<a class="reference internal" href="#grpc_frame.grpc_com._CallItem" title="grpc_frame.grpc_com._CallItem"><em>_CallItem</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._run">
+<span class="sig-name descname"><span class="pre">_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._run" title="Link to this definition"></a></dt>
+<dd><p>COM 専用ワーカースレッド本体。</p>
+<p>重要:
+- ctrl 生成と実行をこのスレッド内に限定する
+- 初期化完了時点で ready_event を立てる</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._try_initialize_com">
+<span class="sig-name descname"><span class="pre">_try_initialize_com</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._try_initialize_com"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._try_initialize_com" title="Link to this definition"></a></dt>
+<dd><p>pythoncom が使える環境なら CoInitialize() を呼ぶ。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner._try_uninitialize_com">
+<span class="sig-name descname"><span class="pre">_try_uninitialize_com</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner._try_uninitialize_com"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner._try_uninitialize_com" title="Link to this definition"></a></dt>
+<dd><p>CoInitialize() 済みの場合のみ後始末する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.call"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.call" title="Link to this definition"></a></dt>
+<dd><p>指定メソッドを COM スレッドへ委譲して実行する。</p>
+<p>Returns:
+- (True, result, &quot;&quot;)
+- (False, None, error_message)</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.get_signature">
+<span class="sig-name descname"><span class="pre">get_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.get_signature"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.get_signature" title="Link to this definition"></a></dt>
+<dd><p>指定メソッドのシグネチャを返す（未知なら空シグネチャ）。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/inspect.html#inspect.Signature" title="(in Python v3.14)"><em>Signature</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.get_startup_error">
+<span class="sig-name descname"><span class="pre">get_startup_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.get_startup_error"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.get_startup_error" title="Link to this definition"></a></dt>
+<dd><p>起動エラー文字列（なければ None）を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.list_public_methods">
+<span class="sig-name descname"><span class="pre">list_public_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.list_public_methods"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.list_public_methods" title="Link to this definition"></a></dt>
+<dd><p>public メソッド名一覧を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, ...]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.stop"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.stop" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.supports_set_event_bus">
+<span class="sig-name descname"><span class="pre">supports_set_event_bus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.supports_set_event_bus"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.supports_set_event_bus" title="Link to this definition"></a></dt>
+<dd><p>ctrl が _set_event_bus を実装しているかを返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ComExecutionRunner.wait_ready">
+<span class="sig-name descname"><span class="pre">wait_ready</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ComExecutionRunner.wait_ready"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ComExecutionRunner.wait_ready" title="Link to this definition"></a></dt>
+<dd><p>runner が利用可能かを bool で返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ThreadSafeCtrlProxy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ThreadSafeCtrlProxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ThreadSafeCtrlProxy"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ThreadSafeCtrlProxy" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>gRPC 側へ渡す ctrl 代理。</p>
+<ul class="simple">
+<li><p>Describe 用 introspection を満たすため、公開メソッドを属性として生やす</p></li>
+<li><p>実呼び出しはすべて runner.call(...) に委譲する</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>runner</strong> (<a class="reference internal" href="#grpc_frame.grpc_com.ComExecutionRunner" title="grpc_frame.grpc_com.ComExecutionRunner"><em>ComExecutionRunner</em></a>)</p></li>
+<li><p><strong>ready_timeout</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ThreadSafeCtrlProxy._bind_public_methods">
+<span class="sig-name descname"><span class="pre">_bind_public_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ThreadSafeCtrlProxy._bind_public_methods"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ThreadSafeCtrlProxy._bind_public_methods" title="Link to this definition"></a></dt>
+<dd><p>初期化時に public API を一括バインドする。</p>
+<dl class="field-list simple">
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ThreadSafeCtrlProxy._build_method">
+<span class="sig-name descname"><span class="pre">_build_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ThreadSafeCtrlProxy._build_method"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ThreadSafeCtrlProxy._build_method" title="Link to this definition"></a></dt>
+<dd><p>runner に委譲する callable を 1 つ生成する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.ThreadSafeCtrlProxy._set_event_bus">
+<span class="sig-name descname"><span class="pre">_set_event_bus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_bus</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#ThreadSafeCtrlProxy._set_event_bus"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.ThreadSafeCtrlProxy._set_event_bus" title="Link to this definition"></a></dt>
+<dd><p>gRPC フレームからの EventBus 注入点。</p>
+<p>ctrl 側が _set_event_bus 非実装の場合は no-op とする。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>event_bus</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_CallItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done_event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#_CallItem"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com._CallItem" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>COM 専用スレッドへ渡す 1 回分の実行要求。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><em>Tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>, </em><em>...</em><em>]</em>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>done_event</strong> (<a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Event" title="(in Python v3.14)"><em>Event</em></a>)</p></li>
+<li><p><strong>box</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><em>Dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem.args">
+<span class="sig-name descname"><span class="pre">args</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#grpc_frame.grpc_com._CallItem.args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem.box">
+<span class="sig-name descname"><span class="pre">box</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#grpc_frame.grpc_com._CallItem.box" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem.done_event">
+<span class="sig-name descname"><span class="pre">done_event</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Event" title="(in Python v3.14)"><span class="pre">Event</span></a></span><a class="headerlink" href="#grpc_frame.grpc_com._CallItem.done_event" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem.kwargs">
+<span class="sig-name descname"><span class="pre">kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#grpc_frame.grpc_com._CallItem.kwargs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._CallItem.method_name">
+<span class="sig-name descname"><span class="pre">method_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.grpc_com._CallItem.method_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com._format_exception">
+<span class="sig-name descname"><span class="pre">_format_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#_format_exception"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com._format_exception" title="Link to this definition"></a></dt>
+<dd><p>例外をスタックトレース付き文字列へ整形する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BaseException" title="(in Python v3.14)"><em>BaseException</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.grpc_com.create_com_grpc_server">
+<span class="sig-name descname"><span class="pre">create_com_grpc_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after_create</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_com.html#create_com_grpc_server"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_com.create_com_grpc_server" title="Link to this definition"></a></dt>
+<dd><p>COM 対応版 gRPC サーバーを組み立てるヘルパー。</p>
+<p>処理:
+1. ComExecutionRunner を起動して ctrl を COM スレッドで生成
+2. ThreadSafeCtrlProxy で ctrl をラップ
+3. 既存 create_grpc_server(ctrl_obj=proxy) へ接続</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctrl_factory</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>after_create</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em>]</em><em>, </em><em>None</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>ready_timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>max_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>event_bus</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-grpc_frame.grpc_server">
+<span id="grpc-frame-grpc-server-module"></span><h2>grpc_frame.grpc_server module<a class="headerlink" href="#module-grpc_frame.grpc_server" title="Link to this heading"></a></h2>
+<p>Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+<p>gRPC サーバー実装（動的ディスパッチ + Event ストリーミング）</p>
+<ul class="simple">
+<li><p>_ControlServicer: ctrl_obj の public メソッドを動的に RPC 化</p></li>
+<li><p>_EventsServicer: EventBus のイベントを gRPC でストリーム配信</p></li>
+<li><p>create_grpc_server: 上記サービスを束ねた grpc.Server を生成</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._ControlServicer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_ControlServicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_ControlServicer"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._ControlServicer" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer" title="grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></p>
+<p>gRPC Control サービスのサーバー側実装クラス。</p>
+<p>このクラスは gRPC で定義された ctrl.Control サービスを実装し、
+任意の制御オブジェクト（ctrl_obj）の public メソッドを
+動的に RPC として公開する。</p>
+<dl class="simple">
+<dt>method_name = request.method で</dt><dd><p>getattr(self._ctrl_obj, method_name) を取り、
+adapter.unpack_args/kwargs してそのまま呼んで返す</p>
+</dd>
+</dl>
+<p>つまり RPC は ctrl_obj の Python 実装そのもので決まる</p>
+<p>役割:
+- Describe RPC:</p>
+<blockquote>
+<div><p>ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Call RPC:</dt><dd><p>クライアントから指定されたメソッド名を getattr により解決し、
+引数・戻り値をシリアライズして実行結果を返す</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>設計上の特徴:
+- ctrl_obj の型や実装には依存しない
+- dispatch_core による introspection にのみ依存する
+- adapter により引数・戻り値の表現形式を統一する</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctrl_obj</strong> (<em>Any</em>)</p></li>
+<li><p><strong>event_bus</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#grpc_frame.event_bus.EventBus" title="grpc_frame.event_bus.EventBus"><em>EventBus</em></a><em>]</em>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._ControlServicer._ctrl_obj">
+<span class="sig-name descname"><span class="pre">_ctrl_obj</span></span><a class="headerlink" href="#grpc_frame.grpc_server._ControlServicer._ctrl_obj" title="Link to this definition"></a></dt>
+<dd><p>実際の制御対象オブジェクト</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._ControlServicer._logger">
+<span class="sig-name descname"><span class="pre">_logger</span></span><a class="headerlink" href="#grpc_frame.grpc_server._ControlServicer._logger" title="Link to this definition"></a></dt>
+<dd><p>任意のロガー（未指定の場合でも動作に影響しない）</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._ControlServicer.Call">
+<span class="sig-name descname"><span class="pre">Call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_ControlServicer.Call"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._ControlServicer.Call" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>DispatchRequest</em>)</p></li>
+<li><p><strong>context</strong> (<em>ServicerContext</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DispatchResponse</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._ControlServicer.Describe">
+<span class="sig-name descname"><span class="pre">Describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_ControlServicer.Describe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._ControlServicer.Describe" title="Link to this definition"></a></dt>
+<dd><p>制御オブジェクトの public メソッド一覧を返す RPC。</p>
+<p>ctrl_obj に対して dispatch_core.list_public_methods() を適用し、
+各メソッド名とシグネチャを MethodTable として返却する。</p>
+<p>この RPC はクライアント側で:
+- 利用可能な RPC メソッドの列挙
+- 動的メソッドバインド
+に使用される。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>Empty</em>) -- ctrl_pb2.Empty 型のリクエスト（内容は使用しない）</p></li>
+<li><p><strong>context</strong> (<em>ServicerContext</em>) -- gRPC のコンテキストオブジェクト</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>公開メソッド名とシグネチャの一覧</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ctrl_pb2.MethodTable</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._EventsServicer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_EventsServicer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_bus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_EventsServicer"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._EventsServicer" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#grpc_frame.events_pb2_grpc.EventsServicer" title="grpc_frame.events_pb2_grpc.EventsServicer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></p>
+<p>EventBus のイベントを gRPC ストリームで配信するサービス実装。</p>
+<p>Subscribe は EventBus の generator をそのまま gRPC の
+server-side streaming として返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event_bus</strong> (<a class="reference internal" href="#grpc_frame.event_bus.EventBus" title="grpc_frame.event_bus.EventBus"><em>EventBus</em></a>)</p></li>
+<li><p><strong>logger</strong> (<em>Optional</em><em>[</em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>log_level</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._EventsServicer.Subscribe">
+<span class="sig-name descname"><span class="pre">Subscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_EventsServicer.Subscribe"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._EventsServicer.Subscribe" title="Link to this definition"></a></dt>
+<dd><p>EventBus の publish を gRPC streaming として転送する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> (<em>SubscribeRequest</em>) -- topic / once / source を含む SubscribeRequest</p></li>
+<li><p><strong>context</strong> (<em>ServicerContext</em>) -- gRPC コンテキスト</p></li>
+</ul>
+</dd>
+<dt class="field-even">列挙<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>events_pb2.Event</em> -- 受信イベント</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server._format_exception">
+<span class="sig-name descname"><span class="pre">_format_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#_format_exception"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server._format_exception" title="Link to this definition"></a></dt>
+<dd><p>例外を型名とスタックトレース込みの文字列に整形する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> (<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BaseException" title="(in Python v3.14)"><em>BaseException</em></a>) -- 捕捉した例外である。</p>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>型名・メッセージ・スタックトレースを連結した文字列である。</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.grpc_server.create_grpc_server">
+<span class="sig-name descname"><span class="pre">create_grpc_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_bus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_server.html#create_grpc_server"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_server.create_grpc_server" title="Link to this definition"></a></dt>
+<dd><p>Control + Events の両サービスを載せた gRPC server を生成する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctrl_obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a>) -- Control サービスのディスパッチ対象（public メソッドのみ公開）</p></li>
+<li><p><strong>max_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) -- gRPC の ThreadPoolExecutor の worker 数</p></li>
+<li><p><strong>event_bus</strong> (<a class="reference internal" href="#grpc_frame.event_bus.EventBus" title="grpc_frame.event_bus.EventBus"><em>EventBus</em></a><em> | </em><em>None</em>) -- EventBus（None の場合は内部生成）</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><em>Any</em></a><em> | </em><em>None</em>) -- ロガー</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><em>None</em>) -- ログレベル</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値<span class="colon">:</span></dt>
+<dd class="field-even"><p>gRPC サーバーインスタンス</p>
+</dd>
+<dt class="field-odd">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-odd"><p>grpc.Server</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-grpc_frame.make_pyi">
+<span id="grpc-frame-make-pyi-module"></span><h2>grpc_frame.make_pyi module<a class="headerlink" href="#module-grpc_frame.make_pyi" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Method">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_Method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'List[_Param]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_async</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_Method"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._Method" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>params</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference internal" href="#grpc_frame.make_pyi._Param" title="grpc_frame.make_pyi._Param"><em>_Param</em></a><em>]</em>)</p></li>
+<li><p><strong>return_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>is_async</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Method.is_async">
+<span class="sig-name descname"><span class="pre">is_async</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Method.is_async" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Method.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Method.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Method.params">
+<span class="sig-name descname"><span class="pre">params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#grpc_frame.make_pyi._Param" title="grpc_frame.make_pyi._Param"><span class="pre">_Param</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#grpc_frame.make_pyi._Method.params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Method.return_type">
+<span class="sig-name descname"><span class="pre">return_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Method.return_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Param">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_Param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_Param"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._Param" title="Link to this definition"></a></dt>
+<dd><p>ベースクラス: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>type_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>has_default</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+<li><p><strong>kind</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Param.has_default">
+<span class="sig-name descname"><span class="pre">has_default</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Param.has_default" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Param.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Param.kind" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Param.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Param.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._Param.type_str">
+<span class="sig-name descname"><span class="pre">type_str</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#grpc_frame.make_pyi._Param.type_str" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._extract_method">
+<span class="sig-name descname"><span class="pre">_extract_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_extract_method"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._extract_method" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.FunctionDef" title="(in Python v3.14)"><em>FunctionDef</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#grpc_frame.make_pyi._Method" title="grpc_frame.make_pyi._Method"><em>_Method</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._fmt_method">
+<span class="sig-name descname"><span class="pre">_fmt_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_fmt_method"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._fmt_method" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<a class="reference internal" href="#grpc_frame.make_pyi._Method" title="grpc_frame.make_pyi._Method"><em>_Method</em></a>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._parse_class">
+<span class="sig-name descname"><span class="pre">_parse_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">py_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_parse_class"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._parse_class" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>py_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a>)</p></li>
+<li><p><strong>class_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a>[<a class="reference internal" href="#grpc_frame.make_pyi._Method" title="grpc_frame.make_pyi._Method"><em>_Method</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi._type_str">
+<span class="sig-name descname"><span class="pre">_type_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#_type_str"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi._type_str" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>annotation</strong> (<a class="reference external" href="https://docs.python.org/3/library/ast.html#ast.AST" title="(in Python v3.14)"><em>AST</em></a><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi.generate_client_pyi">
+<span class="sig-name descname"><span class="pre">generate_client_pyi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_py</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_py</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_py</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GrpcClient'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_async</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#generate_client_pyi"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi.generate_client_pyi" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client_py</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a>)</p></li>
+<li><p><strong>client_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>ctrl_py</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a>)</p></li>
+<li><p><strong>ctrl_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>base_py</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>base_class</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>out_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a>)</p></li>
+<li><p><strong>ctrl_async</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_frame.make_pyi.generate_pyi">
+<span class="sig-name descname"><span class="pre">generate_pyi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">methods</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/make_pyi.html#generate_pyi"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.make_pyi.generate_pyi" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">パラメータ<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>class_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>ctor</strong> (<a class="reference internal" href="#grpc_frame.make_pyi._Method" title="grpc_frame.make_pyi._Method"><em>_Method</em></a>)</p></li>
+<li><p><strong>methods</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><em>List</em></a><em>[</em><a class="reference internal" href="#grpc_frame.make_pyi._Method" title="grpc_frame.make_pyi._Method"><em>_Method</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">戻り値の型<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="grpc_frame" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tutorials/intro.html" class="btn btn-neutral float-right" title="チュートリアル" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

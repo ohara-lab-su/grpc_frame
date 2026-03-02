@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame.grpc_server &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">grpc_frame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/grpc_frame.html">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grpc_frame.grpc_server</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grpc_frame.grpc_server のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Kengo NAKADA</span>
+<span class="sd">kengo.nakada@mat.shimane-u.ac.jp</span>
+<span class="sd">kengo.nakada@gmail.com</span>
+
+<span class="sd">gRPC サーバー実装（動的ディスパッチ + Event ストリーミング）</span>
+
+<span class="sd">- _ControlServicer: ctrl_obj の public メソッドを動的に RPC 化</span>
+<span class="sd">- _EventsServicer: EventBus のイベントを gRPC でストリーム配信</span>
+<span class="sd">- create_grpc_server: 上記サービスを束ねた grpc.Server を生成</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">adapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctrl_pb2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctrl_pb2_grpc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">events_pb2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">events_pb2_grpc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame.event_bus</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventBus</span>
+
+
+<div class="viewcode-block" id="_format_exception">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_exception</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;例外を型名とスタックトレース込みの文字列に整形する。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        e: 捕捉した例外である。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        型名・メッセージ・スタックトレースを連結した文字列である。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">exc_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">__traceback__</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">tb</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="_ControlServicer">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ControlServicer</span><span class="p">(</span>
+    <span class="n">ctrl_pb2_grpc</span><span class="o">.</span><span class="n">ControlServicer</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    gRPC Control サービスのサーバー側実装クラス。</span>
+
+<span class="sd">    このクラスは gRPC で定義された ctrl.Control サービスを実装し、</span>
+<span class="sd">    任意の制御オブジェクト（ctrl_obj）の public メソッドを</span>
+<span class="sd">    動的に RPC として公開する。</span>
+
+<span class="sd">    method_name = request.method で</span>
+<span class="sd">     getattr(self._ctrl_obj, method_name) を取り、</span>
+<span class="sd">     adapter.unpack_args/kwargs してそのまま呼んで返す</span>
+<span class="sd">    つまり RPC は ctrl_obj の Python 実装そのもので決まる</span>
+
+<span class="sd">    役割:</span>
+<span class="sd">    - Describe RPC:</span>
+<span class="sd">        ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す</span>
+<span class="sd">    - Call RPC:</span>
+<span class="sd">        クライアントから指定されたメソッド名を getattr により解決し、</span>
+<span class="sd">        引数・戻り値をシリアライズして実行結果を返す</span>
+
+<span class="sd">    設計上の特徴:</span>
+<span class="sd">    - ctrl_obj の型や実装には依存しない</span>
+<span class="sd">    - dispatch_core による introspection にのみ依存する</span>
+<span class="sd">    - adapter により引数・戻り値の表現形式を統一する</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _ctrl_obj:</span>
+<span class="sd">            実際の制御対象オブジェクト</span>
+<span class="sd">        _logger:</span>
+<span class="sd">            任意のロガー（未指定の場合でも動作に影響しない）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">ctrl_obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">event_bus</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EventBus</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ControlServicer を初期化する。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ctrl_obj:</span>
+<span class="sd">                RPC 経由で操作対象となる制御オブジェクト。</span>
+<span class="sd">                public メソッドのみが RPC として公開される。</span>
+<span class="sd">            event_bus: イベントよう(Noneならばイベントを使わない)</span>
+<span class="sd">            logger:</span>
+<span class="sd">                ログ出力用のオブジェクト。</span>
+<span class="sd">                None の場合でもクラスの動作自体には影響しない。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+            <span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span> <span class="ow">or</span> <span class="s2">&quot;INFO&quot;</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_obj</span> <span class="o">=</span> <span class="n">ctrl_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_event_bus</span> <span class="o">=</span> <span class="n">event_bus</span>
+
+        <span class="c1"># ctrl 側がイベントバスを受け取れる実装を持つ場合のみ注入します。</span>
+        <span class="c1"># ここは gRPC フレームの都合であり、ctrl の設計を強制しない</span>
+        <span class="n">setter</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_obj</span><span class="p">,</span> <span class="s2">&quot;_set_event_bus&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">setter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">setter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_event_bus</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="c1"># ctrl 側の実装事情で注入できないケースはあり得るため、ここでは握りつぶす</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="_ControlServicer.Describe">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer.Describe">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Describe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">Empty</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">ServicerContext</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        制御オブジェクトの public メソッド一覧を返す RPC。</span>
+
+<span class="sd">        ctrl_obj に対して dispatch_core.list_public_methods() を適用し、</span>
+<span class="sd">        各メソッド名とシグネチャを MethodTable として返却する。</span>
+
+<span class="sd">        この RPC はクライアント側で:</span>
+<span class="sd">        - 利用可能な RPC メソッドの列挙</span>
+<span class="sd">        - 動的メソッドバインド</span>
+<span class="sd">        に使用される。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request:</span>
+<span class="sd">                ctrl_pb2.Empty 型のリクエスト（内容は使用しない）</span>
+<span class="sd">            context:</span>
+<span class="sd">                gRPC のコンテキストオブジェクト</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ctrl_pb2.MethodTable:</span>
+<span class="sd">                公開メソッド名とシグネチャの一覧</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Describe&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">log_method</span><span class="si">}</span><span class="s2">] called&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ctrl_obj が持つ public メソッドを introspection により取得</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="n">dispatch_core</span><span class="o">.</span><span class="n">list_public_methods</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_obj</span><span class="p">)</span>
+
+        <span class="c1"># protobuf の MethodTable を構築</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">:</span>
+            <span class="n">mi</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">add</span><span class="p">()</span>
+            <span class="n">mi</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">mi</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">signature</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">log_method</span><span class="si">}</span><span class="s2">] completed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+
+<div class="viewcode-block" id="_ControlServicer.Call">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer.Call">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Call</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">ServicerContext</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+        <span class="c1"># request.method は ctrl_obj の public メソッド名</span>
+        <span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] called&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ディスパッチするべきメソッドを見つける</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 動的に対象メソッドを解決する（存在しなければ例外）</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_obj</span><span class="p">,</span> <span class="n">method_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] getattr failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="p">(</span>
+                <span class="n">ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="c1"># error=str(e),</span>
+                <span class="n">error</span><span class="o">=</span><span class="n">_format_exception</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 実際にメソッドを実行する</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># protobuf から引数を復元</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_args</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_kwargs</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2"> kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 実メソッドを実行</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">target</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># 戻り値を protobuf 用にシリアライズ</span>
+            <span class="n">result_bin</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">pack_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] completed&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="p">(</span>
+                <span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">=</span><span class="n">result_bin</span><span class="p">,</span>
+                <span class="n">error</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:ControlServicer][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="p">(</span>
+                <span class="n">ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="c1"># error=str(e),</span>
+                <span class="n">error</span><span class="o">=</span><span class="n">_format_exception</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_EventsServicer">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">_EventsServicer</span><span class="p">(</span>
+    <span class="n">events_pb2_grpc</span><span class="o">.</span><span class="n">EventsServicer</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    EventBus のイベントを gRPC ストリームで配信するサービス実装。</span>
+
+<span class="sd">    Subscribe は EventBus の generator をそのまま gRPC の</span>
+<span class="sd">    server-side streaming として返す。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">event_bus</span><span class="p">:</span> <span class="n">EventBus</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            event_bus: EventBus インスタンス（イベント配信元）</span>
+<span class="sd">            logger: ロガー（未指定でも動作に影響しない）</span>
+<span class="sd">            log_level: ログレベル</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+            <span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span> <span class="ow">or</span> <span class="s2">&quot;INFO&quot;</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span> <span class="o">=</span> <span class="n">event_bus</span>
+
+<div class="viewcode-block" id="_EventsServicer.Subscribe">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer.Subscribe">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Subscribe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">request</span><span class="p">:</span> <span class="n">events_pb2</span><span class="o">.</span><span class="n">SubscribeRequest</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">ServicerContext</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        EventBus の publish を gRPC streaming として転送する。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request: topic / once / source を含む SubscribeRequest</span>
+<span class="sd">            context: gRPC コンテキスト</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            events_pb2.Event: 受信イベント</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">topic</span>
+        <span class="n">once</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">once</span><span class="p">)</span>
+        <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bus</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span> <span class="n">once</span><span class="o">=</span><span class="n">once</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">):</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">events_pb2</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">topic</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">topic</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">payload</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">pack_result</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">payload_obj</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">ts_ns</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">ts_ns</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">source</span>
+            <span class="k">yield</span> <span class="n">event</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="create_grpc_server">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_grpc_server</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">ctrl_obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">event_bus</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EventBus</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">log_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">grpc</span><span class="o">.</span><span class="n">Server</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Control + Events の両サービスを載せた gRPC server を生成する。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ctrl_obj: Control サービスのディスパッチ対象（public メソッドのみ公開）</span>
+<span class="sd">        max_workers: gRPC の ThreadPoolExecutor の worker 数</span>
+<span class="sd">        event_bus: EventBus（None の場合は内部生成）</span>
+<span class="sd">        logger: ロガー</span>
+<span class="sd">        log_level: ログレベル</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        grpc.Server: gRPC サーバーインスタンス</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+        <span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span> <span class="ow">or</span> <span class="s2">&quot;INFO&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="c1"># EventBus が未指定なら内部で生成する</span>
+    <span class="k">if</span> <span class="n">event_bus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Event がない時(default EventBus作成)</span>
+        <span class="n">event_bus</span> <span class="o">=</span> <span class="n">EventBus</span><span class="p">()</span>
+
+    <span class="c1"># gRPC サーバー本体（ThreadPoolExecutor）</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">server</span><span class="p">(</span>
+        <span class="n">ThreadPoolExecutor</span><span class="p">(</span>
+            <span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">ctrl_servicer</span> <span class="o">=</span> <span class="n">_ControlServicer</span><span class="p">(</span>
+        <span class="n">ctrl_obj</span><span class="o">=</span><span class="n">ctrl_obj</span><span class="p">,</span>
+        <span class="n">event_bus</span><span class="o">=</span><span class="n">event_bus</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># gRPC サーバー本体（ThreadPoolExecutor）</span>
+    <span class="n">ctrl_pb2_grpc</span><span class="o">.</span><span class="n">add_ControlServicer_to_server</span><span class="p">(</span>
+        <span class="n">ctrl_servicer</span><span class="p">,</span>
+        <span class="n">server</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">events_servicer</span> <span class="o">=</span> <span class="n">_EventsServicer</span><span class="p">(</span>
+        <span class="n">event_bus</span><span class="o">=</span><span class="n">event_bus</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Events サービスを登録</span>
+    <span class="n">events_pb2_grpc</span><span class="o">.</span><span class="n">add_EventsServicer_to_server</span><span class="p">(</span>
+        <span class="n">events_servicer</span><span class="p">,</span>
+        <span class="n">server</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">server</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

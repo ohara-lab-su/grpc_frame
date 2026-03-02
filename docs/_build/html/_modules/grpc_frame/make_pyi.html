@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame.make_pyi &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">grpc_frame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/grpc_frame.html">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grpc_frame.make_pyi</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grpc_frame.make_pyi のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+
+<div class="viewcode-block" id="_Param">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param">[ドキュメント]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Param</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">type_str</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">has_default</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># posonly / pos / vararg / kwonly / kwarg</span></div>
+
+
+
+<div class="viewcode-block" id="_Method">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method">[ドキュメント]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Method</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Param</span><span class="p">]</span>
+    <span class="n">return_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">is_async</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+
+<div class="viewcode-block" id="_type_str">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_type_str</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">AST</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Any&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">unparse</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Any&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="_extract_method">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_method</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Method</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AsyncFunctionDef</span><span class="p">):</span>
+        <span class="n">is_async</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_async</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span>
+
+    <span class="n">params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Param</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">posonly</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">posonlyargs</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">defaults</span><span class="p">)</span>
+
+    <span class="n">pos_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">posonly</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+    <span class="n">default_start</span> <span class="o">=</span> <span class="n">pos_total</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">default_start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">default_start</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">posonly</span> <span class="o">+</span> <span class="n">pos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">arg</span> <span class="o">==</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="n">has_default</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">default_start</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;posonly&quot;</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">posonly</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;pos&quot;</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_Param</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">arg</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span>
+                <span class="n">type_str</span><span class="o">=</span><span class="n">_type_str</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">annotation</span><span class="p">),</span>
+                <span class="n">has_default</span><span class="o">=</span><span class="n">has_default</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">vararg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_Param</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">vararg</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span>
+                <span class="n">type_str</span><span class="o">=</span><span class="n">_type_str</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">vararg</span><span class="o">.</span><span class="n">annotation</span><span class="p">),</span>
+                <span class="n">has_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;vararg&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">kwonly</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kwonlyargs</span><span class="p">)</span>
+    <span class="n">kw_defaults</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kw_defaults</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kwonly</span><span class="p">,</span> <span class="n">kw_defaults</span><span class="p">):</span>
+        <span class="n">has_default</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_Param</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">arg</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span>
+                <span class="n">type_str</span><span class="o">=</span><span class="n">_type_str</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">annotation</span><span class="p">),</span>
+                <span class="n">has_default</span><span class="o">=</span><span class="n">has_default</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;kwonly&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kwarg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_Param</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kwarg</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span>
+                <span class="n">type_str</span><span class="o">=</span><span class="n">_type_str</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">kwarg</span><span class="o">.</span><span class="n">annotation</span><span class="p">),</span>
+                <span class="n">has_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;kwarg&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__init__&quot;</span><span class="p">:</span>
+        <span class="n">return_type</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">return_type</span> <span class="o">=</span> <span class="n">_type_str</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">returns</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_Method</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+        <span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">,</span>
+        <span class="n">is_async</span><span class="o">=</span><span class="n">is_async</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_parse_class">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_class</span><span class="p">(</span>
+    <span class="n">py_file</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">class_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_Method</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">py_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">ClassDef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">class_name</span><span class="p">:</span>
+            <span class="n">methods</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Method</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AsyncFunctionDef</span><span class="p">)):</span>
+                    <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_extract_method</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">methods</span>
+
+    <span class="k">return</span> <span class="p">[]</span></div>
+
+
+
+<div class="viewcode-block" id="_fmt_method">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fmt_method</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">_Method</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fmt_param</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">_Param</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">has_default</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">type_str</span><span class="si">}</span><span class="s2"> = ...&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">type_str</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">posonly</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;posonly&quot;</span><span class="p">]</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;pos&quot;</span><span class="p">]</span>
+    <span class="n">vararg</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;vararg&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">kwonly</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;kwonly&quot;</span><span class="p">]</span>
+    <span class="n">kwarg</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;kwarg&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;self&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">posonly</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_param</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">posonly</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_param</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">vararg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_param</span><span class="p">(</span><span class="n">vararg</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">kwonly</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vararg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">kwonly</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_param</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">kwarg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_param</span><span class="p">(</span><span class="n">kwarg</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;**&quot;</span><span class="p">))</span>
+
+    <span class="n">sig</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="c1"># async def / def</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;async def&quot;</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">is_async</span> <span class="k">else</span> <span class="s2">&quot;def&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="s2">) -&gt; </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">return_type</span><span class="si">}</span><span class="s2">: ...&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="generate_pyi">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_pyi</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">class_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ctor</span><span class="p">:</span> <span class="n">_Method</span><span class="p">,</span>
+    <span class="n">methods</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Method</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="s2">&quot;from typing import Any, Optional, Union, Dict, List, Tuple, Callable, Sequence&quot;</span>
+    <span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;class </span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_method</span><span class="p">(</span><span class="n">ctor</span><span class="p">))</span>
+
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fmt_method</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="generate_client_pyi">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_client_pyi</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">client_py</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">client_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ctrl_py</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">ctrl_class</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">base_py</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">base_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;GrpcClient&quot;</span><span class="p">,</span>
+    <span class="n">out_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">ctrl_async</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">client_methods</span> <span class="o">=</span> <span class="n">_parse_class</span><span class="p">(</span><span class="n">client_py</span><span class="p">,</span> <span class="n">client_class</span><span class="p">)</span>
+    <span class="n">ctrl_methods</span> <span class="o">=</span> <span class="n">_parse_class</span><span class="p">(</span><span class="n">ctrl_py</span><span class="p">,</span> <span class="n">ctrl_class</span><span class="p">)</span>
+    <span class="n">base_methods</span> <span class="o">=</span> <span class="n">_parse_class</span><span class="p">(</span><span class="n">base_py</span><span class="p">,</span> <span class="n">base_class</span><span class="p">)</span> <span class="k">if</span> <span class="n">base_py</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="n">ctor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_Method</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">client_methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__init__&quot;</span><span class="p">:</span>
+            <span class="n">ctor</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">ctor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">client_class</span><span class="si">}</span><span class="s2">.__init__ not found&quot;</span><span class="p">)</span>
+
+    <span class="n">merged</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Method</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># 1) クライアント固有</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">client_methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__init__&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="c1"># 2) 継承元（GrpcClient）</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">base_methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="c1"># 3) ディスパッチ元（AanddReader）</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ctrl_methods</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># if async?</span>
+        <span class="k">if</span> <span class="n">ctrl_async</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">_Method</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">params</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                <span class="n">return_type</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">return_type</span><span class="p">,</span>
+                <span class="n">is_async</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="n">pyi_text</span> <span class="o">=</span> <span class="n">generate_pyi</span><span class="p">(</span>
+        <span class="n">class_name</span><span class="o">=</span><span class="n">client_class</span><span class="p">,</span>
+        <span class="n">ctor</span><span class="o">=</span><span class="n">ctor</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">out_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">pyi_text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

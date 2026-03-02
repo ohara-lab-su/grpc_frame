@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame.ctrl_pb2_grpc &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">grpc_frame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/grpc_frame.html">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grpc_frame.ctrl_pb2_grpc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grpc_frame.ctrl_pb2_grpc のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Generated by the gRPC Python protocol compiler plugin. DO NOT EDIT!</span>
+<span class="sd">&quot;&quot;&quot;Client and server classes corresponding to protobuf-defined services.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">grpc_frame</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctrl_pb2</span> <span class="k">as</span> <span class="n">ctrl__pb2</span>
+
+<span class="n">GRPC_GENERATED_VERSION</span> <span class="o">=</span> <span class="s1">&#39;1.76.0&#39;</span>
+<span class="n">GRPC_VERSION</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">__version__</span>
+<span class="n">_version_not_supported</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">grpc._utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">first_version_is_lower</span>
+    <span class="n">_version_not_supported</span> <span class="o">=</span> <span class="n">first_version_is_lower</span><span class="p">(</span><span class="n">GRPC_VERSION</span><span class="p">,</span> <span class="n">GRPC_GENERATED_VERSION</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">_version_not_supported</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">if</span> <span class="n">_version_not_supported</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;The grpc package installed is at version </span><span class="si">{</span><span class="n">GRPC_VERSION</span><span class="si">}</span><span class="s1">,&#39;</span>
+        <span class="o">+</span> <span class="s1">&#39; but the generated code in ctrl_pb2_grpc.py depends on&#39;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; grpcio&gt;=</span><span class="si">{</span><span class="n">GRPC_GENERATED_VERSION</span><span class="si">}</span><span class="s1">.&#39;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; Please upgrade your grpc module to grpcio&gt;=</span><span class="si">{</span><span class="n">GRPC_GENERATED_VERSION</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39; or downgrade your generated code using grpcio-tools&lt;=</span><span class="si">{</span><span class="n">GRPC_VERSION</span><span class="si">}</span><span class="s1">.&#39;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="ControlStub">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ControlStub</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Missing associated documentation comment in .proto file.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            channel: A grpc.Channel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Describe</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+                <span class="s1">&#39;/ctrl.Control/Describe&#39;</span><span class="p">,</span>
+                <span class="n">request_serializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">Empty</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+                <span class="n">response_deserializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+                <span class="n">_registered_method</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Call</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+                <span class="s1">&#39;/ctrl.Control/Call&#39;</span><span class="p">,</span>
+                <span class="n">request_serializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+                <span class="n">response_deserializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+                <span class="n">_registered_method</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ControlServicer">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ControlServicer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Missing associated documentation comment in .proto file.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ControlServicer.Describe">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer.Describe">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Missing associated documentation comment in .proto file.&quot;&quot;&quot;</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_code</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNIMPLEMENTED</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_details</span><span class="p">(</span><span class="s1">&#39;Method not implemented!&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method not implemented!&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ControlServicer.Call">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer.Call">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Missing associated documentation comment in .proto file.&quot;&quot;&quot;</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_code</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">StatusCode</span><span class="o">.</span><span class="n">UNIMPLEMENTED</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_details</span><span class="p">(</span><span class="s1">&#39;Method not implemented!&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Method not implemented!&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="add_ControlServicer_to_server">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server">[ドキュメント]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_ControlServicer_to_server</span><span class="p">(</span><span class="n">servicer</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
+    <span class="n">rpc_method_handlers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Describe&#39;</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_unary_rpc_method_handler</span><span class="p">(</span>
+                    <span class="n">servicer</span><span class="o">.</span><span class="n">Describe</span><span class="p">,</span>
+                    <span class="n">request_deserializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">Empty</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+                    <span class="n">response_serializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;Call&#39;</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">unary_unary_rpc_method_handler</span><span class="p">(</span>
+                    <span class="n">servicer</span><span class="o">.</span><span class="n">Call</span><span class="p">,</span>
+                    <span class="n">request_deserializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+                    <span class="n">response_serializer</span><span class="o">=</span><span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">generic_handler</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">method_handlers_generic_handler</span><span class="p">(</span>
+            <span class="s1">&#39;ctrl.Control&#39;</span><span class="p">,</span> <span class="n">rpc_method_handlers</span><span class="p">)</span>
+    <span class="n">server</span><span class="o">.</span><span class="n">add_generic_rpc_handlers</span><span class="p">((</span><span class="n">generic_handler</span><span class="p">,))</span>
+    <span class="n">server</span><span class="o">.</span><span class="n">add_registered_method_handlers</span><span class="p">(</span><span class="s1">&#39;ctrl.Control&#39;</span><span class="p">,</span> <span class="n">rpc_method_handlers</span><span class="p">)</span></div>
+
+
+
+ <span class="c1"># This class is part of an EXPERIMENTAL API.</span>
+<div class="viewcode-block" id="Control">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Control</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Missing associated documentation comment in .proto file.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Control.Describe">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control.Describe">[ドキュメント]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Describe</span><span class="p">(</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">channel_credentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">call_credentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">insecure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">wait_for_ready</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="s1">&#39;/ctrl.Control/Describe&#39;</span><span class="p">,</span>
+            <span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">Empty</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+            <span class="n">options</span><span class="p">,</span>
+            <span class="n">channel_credentials</span><span class="p">,</span>
+            <span class="n">insecure</span><span class="p">,</span>
+            <span class="n">call_credentials</span><span class="p">,</span>
+            <span class="n">compression</span><span class="p">,</span>
+            <span class="n">wait_for_ready</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_registered_method</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Control.Call">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control.Call">[ドキュメント]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Call</span><span class="p">(</span><span class="n">request</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">channel_credentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">call_credentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">insecure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">wait_for_ready</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">grpc</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">,</span>
+            <span class="s1">&#39;/ctrl.Control/Call&#39;</span><span class="p">,</span>
+            <span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="n">ctrl__pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+            <span class="n">options</span><span class="p">,</span>
+            <span class="n">channel_credentials</span><span class="p">,</span>
+            <span class="n">insecure</span><span class="p">,</span>
+            <span class="n">call_credentials</span><span class="p">,</span>
+            <span class="n">compression</span><span class="p">,</span>
+            <span class="n">wait_for_ready</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_registered_method</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

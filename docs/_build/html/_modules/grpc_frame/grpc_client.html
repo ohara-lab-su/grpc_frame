@@ -1,0 +1,638 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grpc_frame.grpc_client &mdash; Project  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c033477b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/translations.js?v=4755f45a"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">grpc_frame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/grpc_frame.html">grpc_frame package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.adapter">grpc_frame.adapter module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._BytesJsonEncoder"><code class="docutils literal notranslate"><span class="pre">_BytesJsonEncoder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._bytes_json_object_hook"><code class="docutils literal notranslate"><span class="pre">_bytes_json_object_hook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._loads"><code class="docutils literal notranslate"><span class="pre">_loads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._prepare_json"><code class="docutils literal notranslate"><span class="pre">_prepare_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter._try_json_dumps"><code class="docutils literal notranslate"><span class="pre">_try_json_dumps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_args"><code class="docutils literal notranslate"><span class="pre">pack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_kwargs"><code class="docutils literal notranslate"><span class="pre">pack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.pack_result"><code class="docutils literal notranslate"><span class="pre">pack_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_args"><code class="docutils literal notranslate"><span class="pre">unpack_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_kwargs"><code class="docutils literal notranslate"><span class="pre">unpack_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.adapter.unpack_result"><code class="docutils literal notranslate"><span class="pre">unpack_result()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.build_proto">grpc_frame.build_proto module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.ControlStub"><code class="docutils literal notranslate"><span class="pre">ControlStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.add_ControlServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_ControlServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.dispatch_core">grpc_frame.dispatch_core module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.MethodInfo"><code class="docutils literal notranslate"><span class="pre">MethodInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.dispatch_core.list_public_methods"><code class="docutils literal notranslate"><span class="pre">list_public_methods()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.event_bus">grpc_frame.event_bus module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventBus"><code class="docutils literal notranslate"><span class="pre">EventBus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus.EventItem"><code class="docutils literal notranslate"><span class="pre">EventItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsServicer"><code class="docutils literal notranslate"><span class="pre">EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.EventsStub"><code class="docutils literal notranslate"><span class="pre">EventsStub</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.add_EventsServicer_to_server"><code class="docutils literal notranslate"><span class="pre">add_EventsServicer_to_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_client">grpc_frame.grpc_client module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">AsyncGrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient"><code class="docutils literal notranslate"><span class="pre">GrpcClient</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient"><code class="docutils literal notranslate"><span class="pre">SyncGrpcClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_com">grpc_frame.grpc_com module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ComExecutionRunner"><code class="docutils literal notranslate"><span class="pre">ComExecutionRunner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.ThreadSafeCtrlProxy"><code class="docutils literal notranslate"><span class="pre">ThreadSafeCtrlProxy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._CallItem"><code class="docutils literal notranslate"><span class="pre">_CallItem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_com.create_com_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_com_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.grpc_server">grpc_frame.grpc_server module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._ControlServicer"><code class="docutils literal notranslate"><span class="pre">_ControlServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._EventsServicer"><code class="docutils literal notranslate"><span class="pre">_EventsServicer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server._format_exception"><code class="docutils literal notranslate"><span class="pre">_format_exception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.grpc_server.create_grpc_server"><code class="docutils literal notranslate"><span class="pre">create_grpc_server()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.make_pyi">grpc_frame.make_pyi module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Method"><code class="docutils literal notranslate"><span class="pre">_Method</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._Param"><code class="docutils literal notranslate"><span class="pre">_Param</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._extract_method"><code class="docutils literal notranslate"><span class="pre">_extract_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._fmt_method"><code class="docutils literal notranslate"><span class="pre">_fmt_method()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._parse_class"><code class="docutils literal notranslate"><span class="pre">_parse_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi._type_str"><code class="docutils literal notranslate"><span class="pre">_type_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_client_pyi"><code class="docutils literal notranslate"><span class="pre">generate_client_pyi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.make_pyi.generate_pyi"><code class="docutils literal notranslate"><span class="pre">generate_pyi()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/intro.html">チュートリアル</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">モジュールコード</a></li>
+      <li class="breadcrumb-item active">grpc_frame.grpc_client</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>grpc_frame.grpc_client のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Kengo NAKADA</span>
+<span class="sd">kengo.nakada@mat.shimane-u.ac.jp</span>
+<span class="sd">kengo.nakada@gmail.com</span>
+
+<span class="sd">gRPC クライアント実装（動的メソッドバインド）</span>
+
+<span class="sd">- Describe RPC でサーバー側メソッド一覧を取得</span>
+<span class="sd">- 各メソッドを Python メソッドとして動的にバインド</span>
+<span class="sd">- Call RPC で実行し、adapter で引数/戻り値を変換</span>
+<span class="sd">- Events/Subscribe によりイベントをストリーム受信</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc_frame.adapter</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">adapter</span>
+
+<span class="c1"># proto 追加で追加する</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc_frame.ctrl_pb2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ctrl_pb2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">grpc_frame.events_pb2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">events_pb2</span>
+
+
+<div class="viewcode-block" id="GrpcClient">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GrpcClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    gRPC Control サービスに対する汎用クライアントクラス。</span>
+
+<span class="sd">    このクラスは ctrl.Control サービスに接続し、</span>
+<span class="sd">    サーバー側で公開されている制御メソッドを Describe RPC により取得し、</span>
+<span class="sd">    各メソッドを Python メソッドとして動的にバインドする。</span>
+
+<span class="sd">    クライアントは Describe を読んで動的に</span>
+<span class="sd">    setattr(self, name, dispatcher)する</span>
+
+<span class="sd">        1. 起動時に Describe を呼び、</span>
+<span class="sd">        2. 返ってきた methods 全部を self.&lt;method名&gt; に動的に生やす</span>
+<span class="sd">        （さらに _raw_&lt;method名&gt; にも退避）。</span>
+
+<span class="sd">    「 API を gRPC 化する」だけなら ctrl_obj に public メソッドを増やすだけ</span>
+<span class="sd">    proto 変更なしでクライアント側にも反映</span>
+
+<span class="sd">    設計上の特徴:</span>
+<span class="sd">    - gRPC の low-level API（unary_unary）を直接使用する</span>
+<span class="sd">    - protobuf の Stub クラスには依存しない</span>
+<span class="sd">    - サーバー側のメソッド追加・削除に対してクライアント側のコード変更を不要とする</span>
+<span class="sd">    - adapter を用いて引数・戻り値の表現形式を統一する</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _channel:</span>
+<span class="sd">            gRPC サーバーとの通信に使用する Channel</span>
+<span class="sd">        _rpc_describe:</span>
+<span class="sd">            ctrl.Control/Describe RPC 呼び出し関数</span>
+<span class="sd">        _rpc_call:</span>
+<span class="sd">            ctrl.Control/Call RPC 呼び出し関数</span>
+<span class="sd">        _method_table:</span>
+<span class="sd">            サーバー側メソッド名とシグネチャの対応表</span>
+<span class="sd">        _logger:</span>
+<span class="sd">            クライアント動作記録用ロガー</span>
+<span class="sd">        _timeout_sec:</span>
+<span class="sd">            RPC 呼び出し時のタイムアウト秒数</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">server_ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">server_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        GrpcClient を初期化する。</span>
+
+<span class="sd">        指定されたサーバーアドレスに対して gRPC Channel を生成し、</span>
+<span class="sd">        Describe RPC を用いてサーバー側の公開メソッド一覧を取得する。</span>
+<span class="sd">        取得した各メソッドは動的に Python メソッドとして self にバインドされる。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            server_ip:</span>
+<span class="sd">                gRPC サーバーの IP アドレス</span>
+<span class="sd">            server_port:</span>
+<span class="sd">                gRPC サーバーのポート番号</span>
+<span class="sd">            logger:</span>
+<span class="sd">                ログ出力用オブジェクト。</span>
+<span class="sd">                None の場合は標準 logging を使用する。</span>
+<span class="sd">            log_level:</span>
+<span class="sd">                logger 未指定時に使用するログレベル</span>
+<span class="sd">            timeout_sec:</span>
+<span class="sd">                RPC 呼び出し時のタイムアウト秒数。</span>
+<span class="sd">                None の場合は gRPC のデフォルト挙動に従う。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+            <span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span> <span class="ow">or</span> <span class="s2">&quot;INFO&quot;</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">timeout_sec</span>
+
+        <span class="n">addr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">server_ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">server_port</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:GrpcClient] connect to </span><span class="si">{</span><span class="n">addr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 非 TLS の gRPC チャネルを生成</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="p">:</span> <span class="n">grpc</span><span class="o">.</span><span class="n">Channel</span> <span class="o">=</span> <span class="n">grpc</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+
+        <span class="c1"># Describe RPC（メソッド一覧取得）を low-level API で定義</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_describe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+            <span class="s2">&quot;/ctrl.Control/Describe&quot;</span><span class="p">,</span>
+            <span class="n">request_serializer</span><span class="o">=</span><span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">Empty</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="n">response_deserializer</span><span class="o">=</span><span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">MethodTable</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Call RPC（汎用メソッド呼び出し）を low-level API で定義</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="o">.</span><span class="n">unary_unary</span><span class="p">(</span>
+            <span class="s2">&quot;/ctrl.Control/Call&quot;</span><span class="p">,</span>
+            <span class="n">request_serializer</span><span class="o">=</span><span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="n">response_deserializer</span><span class="o">=</span><span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchResponse</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_subscribe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="o">.</span><span class="n">unary_stream</span><span class="p">(</span>
+            <span class="s2">&quot;/frame.Events/Subscribe&quot;</span><span class="p">,</span>
+            <span class="n">request_serializer</span><span class="o">=</span><span class="n">events_pb2</span><span class="o">.</span><span class="n">SubscribeRequest</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">,</span>
+            <span class="n">response_deserializer</span><span class="o">=</span><span class="n">events_pb2</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">FromString</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># サーバー側メソッド名とシグネチャの対応表</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method_table</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># サーバ起動チェック（gRPC）</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_ready</span><span class="p">(</span><span class="n">timeout_sec</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Error**: gRPC server not ready: </span><span class="si">{</span><span class="n">addr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># サーバーからメソッド一覧を取得し、動的にバインド</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_remote_methods</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GrpcClient.wait_for_ready">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient.wait_for_ready">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout_sec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">grpc</span><span class="o">.</span><span class="n">channel_ready_future</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout_sec</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="GrpcClient.is_connected">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient.is_connected">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gRPC サーバーとの接続可否を確認する。</span>
+
+<span class="sd">        Describe RPC を実行できるかどうかをもって、</span>
+<span class="sd">        サーバーが到達可能かつ応答可能であるかを判定する。</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool:</span>
+<span class="sd">                Describe RPC が成功した場合 True、</span>
+<span class="sd">                例外が発生した場合 False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># self._logger.debug(&quot;[GrpcClient] check connection&quot;)</span>
+
+            <span class="c1"># Describe RPC が成功するかで接続可否を判定</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_describe</span><span class="p">(</span>
+                <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">Empty</span><span class="p">(),</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout_sec</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="GrpcClient._bind_remote_methods">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient._bind_remote_methods">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_bind_remote_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        サーバー側の公開メソッドを取得し、動的にバインドする。</span>
+
+<span class="sd">        Describe RPC を用いてサーバー側の MethodTable を取得し、</span>
+<span class="sd">        各メソッドについて dispatcher 関数を生成して self に属性として追加する。</span>
+
+<span class="sd">        この処理により、</span>
+<span class="sd">        クライアント側からは通常の Python メソッド呼び出しとして</span>
+<span class="sd">        RPC を透過的に利用できるようになる。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[Frame:GrpcClient] Describe request&quot;</span><span class="p">)</span>
+
+        <span class="c1"># サーバーから公開メソッド一覧を取得</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_describe</span><span class="p">(</span>
+            <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">Empty</span><span class="p">(),</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout_sec</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 各メソッドについて dispatcher を生成し self に動的追加</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">methods</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">sig</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">signature</span><span class="p">)</span>
+
+            <span class="c1"># メソッド名とシグネチャを内部表に保存</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_method_table</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sig</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:GrpcClient] bind method: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># method_name 固定の dispatcher 関数を生成</span>
+            <span class="n">dispatcher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_dispatcher</span><span class="p">(</span><span class="n">method_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="c1"># 公開API</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dispatcher</span><span class="p">)</span>
+
+            <span class="c1"># 元の dispatcher を必ず退避</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_raw_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dispatcher</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[Frame:GrpcClient] method binding completed&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GrpcClient._make_dispatcher">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient._make_dispatcher">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_dispatcher</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        指定されたメソッド名に対応する RPC 呼び出し関数を生成する。</span>
+
+<span class="sd">        生成される関数は以下の処理を行う:</span>
+<span class="sd">        - Python の *args / **kwargs を adapter によりシリアライズ</span>
+<span class="sd">        - ctrl.Control/Call RPC を実行</span>
+<span class="sd">        - 戻り値をデシリアライズして返却</span>
+<span class="sd">        - サーバー側エラー時は RuntimeError を送出</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method_name:</span>
+<span class="sd">                サーバー側で公開されているメソッド名</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Callable[..., Any]:</span>
+<span class="sd">                RPC 呼び出しを行う関数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># サーバー側 1 メソッドに対応するローカル関数を生成</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_method</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+            <span class="n">is_silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">_method</span><span class="p">,</span> <span class="s2">&quot;_frame_silent&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+
+            <span class="c1"># 呼び出すfunction でこの表示の有無を変更する</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_silent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;[Frame:GrpcClient][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] call args=</span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2"> kwargs=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Python 引数を protobuf 送信用にシリアライズ</span>
+            <span class="n">args_bin</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">pack_args</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+            <span class="n">kwargs_bin</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">pack_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># RPC リクエストを構築 (DispatchRequest を構築)</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="n">ctrl_pb2</span><span class="o">.</span><span class="n">DispatchRequest</span><span class="p">(</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method_name</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="n">args_bin</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs_bin</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Call RPC を実行</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_call</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout_sec</span><span class="p">)</span>
+
+            <span class="n">ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">ok</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_silent</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:GrpcClient][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] completed&quot;</span><span class="p">)</span>
+                <span class="c1"># 戻り値をデシリアライズして返却 (pytonオブジェクトに復元)</span>
+                <span class="k">return</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_result</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+
+            <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_silent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Frame:GrpcClient][</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">] failed: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+        <span class="c1"># 動的に生成した関数名を RPC メソッド名に合わせる</span>
+        <span class="n">_method</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">method_name</span>
+        <span class="k">return</span> <span class="n">_method</span></div>
+
+
+<div class="viewcode-block" id="GrpcClient.close">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient.close">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gRPC Channel をクローズする。</span>
+
+<span class="sd">        クライアント終了時に呼び出されることを想定しており、</span>
+<span class="sd">        通信リソースを明示的に解放する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[Frame:GrpcClient] close channel&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+    <span class="c1"># def subscribe(self, *, topic: str) -&gt; Any:</span>
+    <span class="c1">#     req = events_pb2.SubscribeRequest(topic=str(topic))</span>
+    <span class="c1">#     resp_iter = self._rpc_subscribe(req, timeout=None)</span>
+
+    <span class="c1">#     for ev in resp_iter:</span>
+    <span class="c1">#         yield adapter._try_json_loads(bytes(ev.payload))</span>
+
+<div class="viewcode-block" id="GrpcClient.subscribe">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.GrpcClient.subscribe">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subscribe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">once</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Events/Subscribe RPC の薄いラッパー。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            topic: 購読トピック名</span>
+<span class="sd">            once: 1件だけ受け取って終了するなら True</span>
+<span class="sd">            source: イベントの発生元フィルタ</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            payload: adapter で復元されたイベント payload</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># サブスクライブ要求を構築</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">events_pb2</span><span class="o">.</span><span class="n">SubscribeRequest</span><span class="p">(</span>
+            <span class="n">topic</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">),</span>
+            <span class="n">once</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">once</span><span class="p">),</span>
+            <span class="n">source</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># server-side streaming を開始</span>
+        <span class="n">resp_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rpc_subscribe</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="n">resp_iter</span><span class="p">:</span>
+            <span class="c1"># payload を復元して返す</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_result</span><span class="p">(</span><span class="n">ev</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">payload</span>
+            <span class="k">if</span> <span class="n">once</span><span class="p">:</span>
+                <span class="k">break</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SyncGrpcClient">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.SyncGrpcClient">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SyncGrpcClient</span><span class="p">(</span><span class="n">GrpcClient</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">server_ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">server_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">server_ip</span><span class="o">=</span><span class="n">server_ip</span><span class="p">,</span>
+            <span class="n">server_port</span><span class="o">=</span><span class="n">server_port</span><span class="p">,</span>
+            <span class="n">timeout_sec</span><span class="o">=</span><span class="n">timeout_sec</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AsyncGrpcClient">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient">[ドキュメント]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AsyncGrpcClient</span><span class="p">(</span><span class="n">GrpcClient</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">server_ip</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">server_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">server_ip</span><span class="o">=</span><span class="n">server_ip</span><span class="p">,</span>
+            <span class="n">server_port</span><span class="o">=</span><span class="n">server_port</span><span class="p">,</span>
+            <span class="n">timeout_sec</span><span class="o">=</span><span class="n">timeout_sec</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_async_methods</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AsyncGrpcClient._wrap_async_methods">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient._wrap_async_methods">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_async_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Describe で取得したメソッド群を async 化</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_method_table</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_raw_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">async_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_async_method</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">raw_method</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">async_method</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AsyncGrpcClient._run_in_thread">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient._run_in_thread">[ドキュメント]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_in_thread</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_call</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">raw_method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">_call</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AsyncGrpcClient._make_async_method">
+<a class="viewcode-back" href="../../api/grpc_frame.html#grpc_frame.grpc_client.AsyncGrpcClient._make_async_method">[ドキュメント]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_async_method</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raw_method</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_method</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_in_thread</span><span class="p">(</span>
+                <span class="n">raw_method</span><span class="p">,</span>
+                <span class="n">args</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">_method</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">_method</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
