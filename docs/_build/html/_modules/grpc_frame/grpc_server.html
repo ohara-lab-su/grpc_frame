@@ -63,7 +63,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl">grpc_frame.ctrl module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
@@ -83,7 +83,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events">grpc_frame.events module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
@@ -215,27 +215,32 @@
 <span class="sd">    gRPC Control サービスのサーバー側実装クラス。</span>
 
 <span class="sd">    このクラスは gRPC で定義された ctrl.Control サービスを実装し、</span>
-<span class="sd">    任意の制御オブジェクト（ctrl_obj）の public メソッドを</span>
-<span class="sd">    動的に RPC として公開する。</span>
+<span class="sd">    任意の制御オブジェクト（ctrl_obj）の public メソッドを動的に RPC として公開する。</span>
 
-<span class="sd">    method_name = request.method で</span>
-<span class="sd">     getattr(self._ctrl_obj, method_name) を取り、</span>
-<span class="sd">     adapter.unpack_args/kwargs してそのまま呼んで返す</span>
-<span class="sd">    つまり RPC は ctrl_obj の Python 実装そのもので決まる</span>
+<span class="sd">    処理概要::</span>
+
+<span class="sd">        method_name = request.method</span>
+<span class="sd">        target = getattr(self._ctrl_obj, method_name)</span>
+<span class="sd">        args = adapter.unpack_args(request.args)</span>
+<span class="sd">        kwargs = adapter.unpack_kwargs(request.kwargs)</span>
+<span class="sd">        result = target(*args, **kwargs)</span>
 
 <span class="sd">    役割:</span>
+
 <span class="sd">    - Describe RPC:</span>
-<span class="sd">        ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す</span>
+<span class="sd">      ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す。</span>
 <span class="sd">    - Call RPC:</span>
-<span class="sd">        クライアントから指定されたメソッド名を getattr により解決し、</span>
-<span class="sd">        引数・戻り値をシリアライズして実行結果を返す</span>
+<span class="sd">      クライアントから指定されたメソッド名を getattr により解決し、</span>
+<span class="sd">      引数・戻り値をシリアライズして実行結果を返す。</span>
 
 <span class="sd">    設計上の特徴:</span>
-<span class="sd">    - ctrl_obj の型や実装には依存しない</span>
-<span class="sd">    - dispatch_core による introspection にのみ依存する</span>
-<span class="sd">    - adapter により引数・戻り値の表現形式を統一する</span>
+
+<span class="sd">    - ctrl_obj の型や実装には依存しない。</span>
+<span class="sd">    - dispatch_core による introspection にのみ依存する。</span>
+<span class="sd">    - adapter により引数・戻り値の表現形式を統一する。</span>
 
 <span class="sd">    Attributes:</span>
+
 <span class="sd">        _ctrl_obj:</span>
 <span class="sd">            実際の制御対象オブジェクト</span>
 <span class="sd">        _logger:</span>

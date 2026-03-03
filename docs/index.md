@@ -1,5 +1,5 @@
 
-gRPC Frame
+# gRPC Frame
 ---
 
 ```{toctree}

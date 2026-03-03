@@ -63,7 +63,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl">grpc_frame.ctrl module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
@@ -83,7 +83,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events">grpc_frame.events module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/grpc_frame.html#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/grpc_frame.html#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
@@ -171,13 +171,16 @@
 <span class="sd">その対策で制御側で com 読み込みではなくて gRPCハンドラースレッドで</span>
 <span class="sd">COMを初期化するようにする</span>
 
-<span class="sd">gRPC Client</span>
-<span class="sd">  --&gt; grpc_server._ControlServicer (gRPC worker thread)</span>
-<span class="sd">  --&gt; ThreadSafeCtrlProxy</span>
-<span class="sd">  --&gt; ComExecutionRunner (queueで直列化)</span>
-<span class="sd">  --&gt; COM ctrl object (同一スレッドで生成/実行)</span>
+<span class="sd">gRPC Client から COM ctrl object までの流れ::</span>
 
-<span class="sd">要点</span>
+<span class="sd">    gRPC Client</span>
+<span class="sd">      --&gt; grpc_server._ControlServicer (gRPC worker thread)</span>
+<span class="sd">      --&gt; ThreadSafeCtrlProxy</span>
+<span class="sd">      --&gt; ComExecutionRunner (queueで直列化)</span>
+<span class="sd">      --&gt; COM ctrl object (同一スレッドで生成/実行)</span>
+
+<span class="sd">要点:</span>
+
 <span class="sd">- gRPC worker thread から COM を直接触らない</span>
 <span class="sd">- COM の生成/実行は ComExecutionRunner の専用スレッドに固定</span>
 <span class="sd">- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する</span>

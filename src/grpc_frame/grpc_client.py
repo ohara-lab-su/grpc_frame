@@ -223,7 +223,7 @@ class GrpcClient:
         指定されたメソッド名に対応する RPC 呼び出し関数を生成する。
 
         生成される関数は以下の処理を行う:
-        - Python の *args / **kwargs を adapter によりシリアライズ
+        - Python の ``*args`` / ``**kwargs`` を adapter によりシリアライズ
         - ctrl.Control/Call RPC を実行
         - 戻り値をデシリアライズして返却
         - サーバー側エラー時は RuntimeError を送出

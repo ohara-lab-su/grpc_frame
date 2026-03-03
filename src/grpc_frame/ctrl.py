@@ -5,14 +5,16 @@ Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
 """
-from build_proto import build_proto as build_proto
+
+# from build_proto import build_proto as build_proto
 
 
 if __name__ == "__main__":
+    from .build_proto import build_proto
+
     build_proto(
         proto_name="ctrl",
     )
-
 
 # def main():
 #     here = os.path.dirname(os.path.abspath(__file__))

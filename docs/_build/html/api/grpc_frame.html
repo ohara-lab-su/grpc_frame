@@ -66,7 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#grpc_frame.build_proto.build_proto"><code class="docutils literal notranslate"><span class="pre">build_proto()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#grpc-frame-ctrl-module">grpc_frame.ctrl module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.ctrl">grpc_frame.ctrl module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.ctrl_pb2">grpc_frame.ctrl_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.ctrl_pb2_grpc">grpc_frame.ctrl_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.Control"><code class="docutils literal notranslate"><span class="pre">Control</span></code></a></li>
@@ -86,7 +86,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#grpc_frame.event_bus._Subscriber"><code class="docutils literal notranslate"><span class="pre">_Subscriber</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#grpc-frame-events-module">grpc_frame.events module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.events">grpc_frame.events module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.events_pb2">grpc_frame.events_pb2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-grpc_frame.events_pb2_grpc">grpc_frame.events_pb2_grpc module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#grpc_frame.events_pb2_grpc.Events"><code class="docutils literal notranslate"><span class="pre">Events</span></code></a></li>
@@ -166,10 +166,8 @@
 </section>
 <section id="module-grpc_frame.adapter">
 <span id="grpc-frame-adapter-module"></span><h2>grpc_frame.adapter module<a class="headerlink" href="#module-grpc_frame.adapter" title="Link to this heading"></a></h2>
-<blockquote>
-<div><p>引数表現は adapter の「JSON優先 + pickleフォールバック」</p>
-</div></blockquote>
-<p>adapter.pack_args/pack_kwargs/pack_result は</p>
+<p>引数表現は adapter の「JSON優先 + pickleフォールバック」
+adapter.pack_args/pack_kwargs/pack_result は</p>
 <ol class="arabic simple">
 <li><p>JSON 変換を試す（bytes は base64 で JSON に入れる）</p></li>
 <li><p>失敗したら pickle</p></li>
@@ -383,8 +381,12 @@ Kengo NAKADA
 </dd></dl>
 
 </section>
-<section id="grpc-frame-ctrl-module">
-<h2>grpc_frame.ctrl module<a class="headerlink" href="#grpc-frame-ctrl-module" title="Link to this heading"></a></h2>
+<section id="module-grpc_frame.ctrl">
+<span id="grpc-frame-ctrl-module"></span><h2>grpc_frame.ctrl module<a class="headerlink" href="#module-grpc_frame.ctrl" title="Link to this heading"></a></h2>
+<p>joypad.proto を gRPC (Python) 用コードにビルドするスクリプト
+Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
 </section>
 <section id="module-grpc_frame.ctrl_pb2">
 <span id="grpc-frame-ctrl-pb2-module"></span><h2>grpc_frame.ctrl_pb2 module<a class="headerlink" href="#module-grpc_frame.ctrl_pb2" title="Link to this heading"></a></h2>
@@ -692,8 +694,12 @@ Kengo NAKADA
 </dd></dl>
 
 </section>
-<section id="grpc-frame-events-module">
-<h2>grpc_frame.events module<a class="headerlink" href="#grpc-frame-events-module" title="Link to this heading"></a></h2>
+<section id="module-grpc_frame.events">
+<span id="grpc-frame-events-module"></span><h2>grpc_frame.events module<a class="headerlink" href="#module-grpc_frame.events" title="Link to this heading"></a></h2>
+<p>joypad.proto を gRPC (Python) 用コードにビルドするスクリプト
+Kengo NAKADA
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;mat&#46;shimane-u&#46;ac&#46;jp">kengo<span>&#46;</span>nakada<span>&#64;</span>mat<span>&#46;</span>shimane-u<span>&#46;</span>ac<span>&#46;</span>jp</a>
+<a class="reference external" href="mailto:kengo&#46;nakada&#37;&#52;&#48;gmail&#46;com">kengo<span>&#46;</span>nakada<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
 </section>
 <section id="module-grpc_frame.events_pb2">
 <span id="grpc-frame-events-pb2-module"></span><h2>grpc_frame.events_pb2 module<a class="headerlink" href="#module-grpc_frame.events_pb2" title="Link to this heading"></a></h2>
@@ -901,7 +907,7 @@ RPC を透過的に利用できるようになる。</p>
 <span class="sig-name descname"><span class="pre">_make_dispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/grpc_frame/grpc_client.html#GrpcClient._make_dispatcher"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#grpc_frame.grpc_client.GrpcClient._make_dispatcher" title="Link to this definition"></a></dt>
 <dd><p>指定されたメソッド名に対応する RPC 呼び出し関数を生成する。</p>
 <p>生成される関数は以下の処理を行う:
-- Python の <a href="#id2"><span class="problematic" id="id3">*</span></a>args / <a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs を adapter によりシリアライズ
+- Python の <code class="docutils literal notranslate"><span class="pre">*args</span></code> / <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> を adapter によりシリアライズ
 - ctrl.Control/Call RPC を実行
 - 戻り値をデシリアライズして返却
 - サーバー側エラー時は RuntimeError を送出</p>
@@ -1010,21 +1016,22 @@ RPC を透過的に利用できるようになる。</p>
 <p>そのため gRPC などでは別スレッドでハンドラが動くのでCOM を破壊する。
 その対策で制御側で com 読み込みではなくて gRPCハンドラースレッドで
 COMを初期化するようにする</p>
-<dl class="simple">
-<dt>gRPC Client</dt><dd><p>--&gt; grpc_server._ControlServicer (gRPC worker thread)
---&gt; ThreadSafeCtrlProxy
---&gt; ComExecutionRunner (queueで直列化)
---&gt; COM ctrl object (同一スレッドで生成/実行)</p>
-</dd>
-</dl>
-<p>要点
-- gRPC worker thread から COM を直接触らない
-- COM の生成/実行は ComExecutionRunner の専用スレッドに固定
-- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する
-- gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと</p>
-<blockquote>
-<div><p>呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。</p>
-</div></blockquote>
+<p>gRPC Client から COM ctrl object までの流れ:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gRPC</span> <span class="n">Client</span>
+  <span class="o">--&gt;</span> <span class="n">grpc_server</span><span class="o">.</span><span class="n">_ControlServicer</span> <span class="p">(</span><span class="n">gRPC</span> <span class="n">worker</span> <span class="n">thread</span><span class="p">)</span>
+  <span class="o">--&gt;</span> <span class="n">ThreadSafeCtrlProxy</span>
+  <span class="o">--&gt;</span> <span class="n">ComExecutionRunner</span> <span class="p">(</span><span class="n">queueで直列化</span><span class="p">)</span>
+  <span class="o">--&gt;</span> <span class="n">COM</span> <span class="n">ctrl</span> <span class="nb">object</span> <span class="p">(</span><span class="n">同一スレッドで生成</span><span class="o">/</span><span class="n">実行</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>要点:</p>
+<ul class="simple">
+<li><p>gRPC worker thread から COM を直接触らない</p></li>
+<li><p>COM の生成/実行は ComExecutionRunner の専用スレッドに固定</p></li>
+<li><p>grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する</p></li>
+<li><p>gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと
+呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。</p></li>
+</ul>
 <p>設計
 - COM 制約はこのモジュール内に閉じ込める。
 - ComExecutionRunner が COM 専用スレッドを持ち、ctrl 生成とメソッド実行を一本化する。
@@ -1402,31 +1409,29 @@ COMを初期化するようにする</p>
 <dd><p>ベースクラス: <a class="reference internal" href="#grpc_frame.ctrl_pb2_grpc.ControlServicer" title="grpc_frame.ctrl_pb2_grpc.ControlServicer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ControlServicer</span></code></a></p>
 <p>gRPC Control サービスのサーバー側実装クラス。</p>
 <p>このクラスは gRPC で定義された ctrl.Control サービスを実装し、
-任意の制御オブジェクト（ctrl_obj）の public メソッドを
-動的に RPC として公開する。</p>
-<dl class="simple">
-<dt>method_name = request.method で</dt><dd><p>getattr(self._ctrl_obj, method_name) を取り、
-adapter.unpack_args/kwargs してそのまま呼んで返す</p>
-</dd>
-</dl>
-<p>つまり RPC は ctrl_obj の Python 実装そのもので決まる</p>
-<p>役割:
-- Describe RPC:</p>
-<blockquote>
-<div><p>ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す</p>
-</div></blockquote>
+任意の制御オブジェクト（ctrl_obj）の public メソッドを動的に RPC として公開する。</p>
+<p>処理概要:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">method_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span>
+<span class="n">target</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ctrl_obj</span><span class="p">,</span> <span class="n">method_name</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_args</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">unpack_kwargs</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">target</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>役割:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt>Call RPC:</dt><dd><p>クライアントから指定されたメソッド名を getattr により解決し、
-引数・戻り値をシリアライズして実行結果を返す</p>
-</dd>
-</dl>
-</li>
+<li><p>Describe RPC:
+ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す。</p></li>
+<li><p>Call RPC:
+クライアントから指定されたメソッド名を getattr により解決し、
+引数・戻り値をシリアライズして実行結果を返す。</p></li>
 </ul>
-<p>設計上の特徴:
-- ctrl_obj の型や実装には依存しない
-- dispatch_core による introspection にのみ依存する
-- adapter により引数・戻り値の表現形式を統一する</p>
+<p>設計上の特徴:</p>
+<ul class="simple">
+<li><p>ctrl_obj の型や実装には依存しない。</p></li>
+<li><p>dispatch_core による introspection にのみ依存する。</p></li>
+<li><p>adapter により引数・戻り値の表現形式を統一する。</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">パラメータ<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

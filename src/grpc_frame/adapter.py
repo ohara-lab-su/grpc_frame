@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
- 引数表現は adapter の「JSON優先 + pickleフォールバック」
+引数表現は adapter の「JSON優先 + pickleフォールバック」
 adapter.pack_args/pack_kwargs/pack_result は
 
 1.	JSON 変換を試す（bytes は base64 で JSON に入れる）

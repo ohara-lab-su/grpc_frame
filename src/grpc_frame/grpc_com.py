@@ -13,13 +13,16 @@ windows の COM のインスタンスを別スレッドで回す
 その対策で制御側で com 読み込みではなくて gRPCハンドラースレッドで
 COMを初期化するようにする
 
-gRPC Client
-  --> grpc_server._ControlServicer (gRPC worker thread)
-  --> ThreadSafeCtrlProxy
-  --> ComExecutionRunner (queueで直列化)
-  --> COM ctrl object (同一スレッドで生成/実行)
+gRPC Client から COM ctrl object までの流れ::
 
-要点
+    gRPC Client
+      --> grpc_server._ControlServicer (gRPC worker thread)
+      --> ThreadSafeCtrlProxy
+      --> ComExecutionRunner (queueで直列化)
+      --> COM ctrl object (同一スレッドで生成/実行)
+
+要点:
+
 - gRPC worker thread から COM を直接触らない
 - COM の生成/実行は ComExecutionRunner の専用スレッドに固定
 - grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する

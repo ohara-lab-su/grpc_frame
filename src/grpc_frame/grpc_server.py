@@ -52,27 +52,32 @@ class _ControlServicer(
     gRPC Control サービスのサーバー側実装クラス。
 
     このクラスは gRPC で定義された ctrl.Control サービスを実装し、
-    任意の制御オブジェクト（ctrl_obj）の public メソッドを
-    動的に RPC として公開する。
+    任意の制御オブジェクト（ctrl_obj）の public メソッドを動的に RPC として公開する。
 
-    method_name = request.method で
-     getattr(self._ctrl_obj, method_name) を取り、
-     adapter.unpack_args/kwargs してそのまま呼んで返す
-    つまり RPC は ctrl_obj の Python 実装そのもので決まる
+    処理概要::
+
+        method_name = request.method
+        target = getattr(self._ctrl_obj, method_name)
+        args = adapter.unpack_args(request.args)
+        kwargs = adapter.unpack_kwargs(request.kwargs)
+        result = target(*args, **kwargs)
 
     役割:
+
     - Describe RPC:
-        ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す
+      ctrl_obj が持つ public メソッド一覧とそのシグネチャを返す。
     - Call RPC:
-        クライアントから指定されたメソッド名を getattr により解決し、
-        引数・戻り値をシリアライズして実行結果を返す
+      クライアントから指定されたメソッド名を getattr により解決し、
+      引数・戻り値をシリアライズして実行結果を返す。
 
     設計上の特徴:
-    - ctrl_obj の型や実装には依存しない
-    - dispatch_core による introspection にのみ依存する
-    - adapter により引数・戻り値の表現形式を統一する
+
+    - ctrl_obj の型や実装には依存しない。
+    - dispatch_core による introspection にのみ依存する。
+    - adapter により引数・戻り値の表現形式を統一する。
 
     Attributes:
+
         _ctrl_obj:
             実際の制御対象オブジェクト
         _logger:

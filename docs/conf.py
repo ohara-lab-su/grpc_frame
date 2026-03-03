@@ -36,7 +36,6 @@ myst_enable_extensions = [
     "attrs_block",  # attrs_block: ブロック要素にクラスやIDなどの属性を付与できる
     "substitution",  # substitution: {sub} のような変数置換構文を有効化
     "linkify",  # linkify: テキスト中のURLやメールアドレスを自動的にリンク化
-    "heading_anchors",
 ]
 myst_linkify_fuzzy_links = True
 myst_heading_anchors = 3
