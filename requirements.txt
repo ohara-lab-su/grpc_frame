@@ -9,4 +9,8 @@ myst-parser
 sphinx-autobuild
 sphinx-rtd-theme
 sphinxcontrib-napoleon
+grpcio
+grpcio-tools
+protobuf
+google
 linkify-it-py
