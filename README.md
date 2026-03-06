@@ -1,6 +1,6 @@
 # README
 
-[ohara-lab-su](https://ohara-lab-su.github.io/)/[grpc_frame](https://ohara-lab-su.github.io/grpc_frame/)
+[ohara-lab-su](https://ohara-lab-su.github.io/)/[grpc_frame (doc)](https://ohara-lab-su.github.io/grpc_frame/)
 
 gRPC client/server 用。
 自動ディスパッチサーバークライアントのフレーム
