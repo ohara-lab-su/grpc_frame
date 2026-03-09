@@ -1,5 +1,9 @@
 # README
 
+## v0.5.1, K nakada
+
+ドキュメント調整
+
 ## v0.5.0, (v0.4.10+fix),k nakada
 
 COM スレッド問題対応版 (ORIN2-gRPC/FastAPI対応版)
