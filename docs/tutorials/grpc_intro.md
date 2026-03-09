@@ -18,7 +18,11 @@ class SimpleCtrl:
     - 引数/戻り値パターンの検証用
     """
 
-    def __init__(self, name: str = "simple", logger: Optional[Any] = None):
+    def __init__(
+        self,
+        name: str = "simple",
+        logger: Optional[Any] = None,
+    ):
         self._name = name
         self._counter = 0
         self._logger = logger
@@ -101,9 +105,104 @@ class SimpleCtrl:
 ```
 
 ## 制御クラスをサーバーメソッドに食わせてサーバーを起動する
+
 gRPC frame では現在のところ問答無用でサーバーがの機器制御クラスを丸ごと
 クライアントで再現する完全な透過型プロキシです。ese774_frame とことなり
 制御クラスの中から使用するI/Fを呈するという作業はありません。
+
+サーバー起動スクリプトを用意する
+```python
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import time
+from concurrent import futures
+from typing import Any, Optional
+
+import grpc
+from grpc import channel_ready_future
+
+import grpc_frame.ctrl_pb2_grpc as ctrl_pb2_grpc
+from grpc_frame.grpc_server import _ControlServicer
+from x_logger import XLogger
+
+######################################
+# --- Device Class ---
+from simple_ctrl import SimpleCtrl
+######################################
+
+def simple_server(
+    grpc_host: str,
+    grpc_port: int,
+    interval: float = 0.01,
+    logger: Optional[Any] = None,
+    log_level: Optional[str] = None,
+) -> None:
+    """ """
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=10),
+    )
+
+    bind_addr: str = f"{grpc_host}:{grpc_port}"
+    ret: int = server.add_insecure_port(bind_addr)
+    if ret == 0:
+        raise RuntimeError(f"bind failed: {bind_addr}")
+
+    logger.info(f"gRPC bind OK: {bind_addr}")
+    
+    server.start()
+
+    # # self-check（旧版と同一）
+    ch = grpc.insecure_channel(bind_addr)
+    channel_ready_future(ch).result(timeout=2.0)
+    logger.info("gRPC self-check OK")
+
+    #######################
+    ctrl = SimpleCtrl()
+    #######################
+
+    servicer = _ControlServicer(
+        ctrl_obj=ctrl,
+        logger=logger,
+        log_level=log_level,
+    )
+
+    ctrl_pb2_grpc.add_ControlServicer_to_server(
+        servicer,
+        server,
+    )
+
+    try:
+        while True:
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        logger.info("KeyboardInterrupt")
+
+    finally:
+        server.stop(grace=None)
+        logger.info("gRPC server stopped")
+
+        
+if __name__ == "__main__":
+    GRPC_HOST = "localhost"
+    GRPC_PORT = 50051
+    INTERVAL = 0.01
+    LOG_LEVEL = "INFO"
+
+    logger_ = XLogger(
+        log_level=LOG_LEVEL,
+        logger_name="SimpleCtrl",
+    )
+
+    simple_server(
+        grpc_host=GRPC_HOST,
+        grpc_port=GRPC_PORT,
+        interval=INTERVAL,
+        logger=logger_,
+        log_level=LOG_LEVEL,
+    )
+```
 
 ## クライアントクラスを Frame を継承して作る
 

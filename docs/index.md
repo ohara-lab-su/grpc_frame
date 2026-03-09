@@ -7,7 +7,7 @@
 :caption: Contents:
 
 api/modules
-tutorials/intro
+tutorials/grpc_intro
 ```
 
 gRPC Frame は gRPC を使った通信フレームです。
