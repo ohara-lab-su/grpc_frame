@@ -9,6 +9,9 @@
 api/modules
 tutorials/grpc_intro
 ```
+view on [github](https://github.com/ohara-lab-su/grpc_frame/)
+
+---
 
 gRPC Frame は gRPC を使った通信フレームです。
 基本センスは「透過型プロキシ」であり、我々の[ese774_frame](http://github.com/ohara-lab-su/ese774_frame/)
