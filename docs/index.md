@@ -1,7 +1,7 @@
-
 # gRPC Frame
----
+view on [github](https://github.com/ohara-lab-su/grpc_frame/)
 
+---
 ```{toctree}
 :maxdepth: 2
 :caption: Contents:
@@ -9,8 +9,6 @@
 api/modules
 tutorials/grpc_intro
 ```
-view on [github](https://github.com/ohara-lab-su/grpc_frame/)
-
 ---
 
 gRPC Frame は gRPC を使った通信フレームです。
