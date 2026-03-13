@@ -1,4 +1,5 @@
 # gRPC Frame
+K.NAKADA (Shimane University)  
 view on [github](https://github.com/ohara-lab-su/grpc_frame/) / [ohara-lab-su (doc)](https://ohara-lab-su.github.io/)
 
 
