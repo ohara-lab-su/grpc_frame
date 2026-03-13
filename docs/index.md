@@ -1,5 +1,4 @@
 # gRPC Frame
-K.NAKADA (Shimane University)  
 view on [github](https://github.com/ohara-lab-su/grpc_frame/) / [ohara-lab-su (doc)](https://ohara-lab-su.github.io/)
 
 
@@ -42,6 +41,7 @@ event 形にも対応しています。
 最小の通信こととで実現されます。
 
 
+---
 # 作者
 - Kengo NAKADA (中田謙吾)
   - kengo.nakada@mat.shimane-u.ac.jp
