@@ -209,7 +209,5 @@ if __name__ == "__main__":
 ## クライアントで制御プログラムを書く
 
 ---
-# 作者
-- Kengo NAKADA (中田謙吾)
-  - kengo.nakada@mat.shimane-u.ac.jp
-  - kengo.nakada@gmail.com
+## 作者
+- Kengo NAKADA
