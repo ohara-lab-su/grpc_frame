@@ -8,14 +8,18 @@ kengo.nakada@gmail.com
 
 # from build_proto import build_proto as build_proto
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 if __name__ == "__main__":
-    from .build_proto import build_proto
+    # from .build_proto import build_proto
+    from grpc_frame.build_proto import build_proto
 
     build_proto(
-        proto_name="events",
+        proto_name="ctrl",
     )
-
 
 # def main():
 #     here = os.path.dirname(os.path.abspath(__file__))
