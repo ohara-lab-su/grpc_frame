@@ -1,5 +1,10 @@
 # README
 
+## v0.5.3, K.nakada
+
+- min_pix 検出器対応のために python 3.7 対応
+- そのために gRPC を落とす。toml 書き換えた他のバージョンと切り替え
+
 ## v0.5.2, K nakada
 
 - 出張前 FINALバージョン(2026.03.15)
