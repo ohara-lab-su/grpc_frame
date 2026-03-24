@@ -2,14 +2,13 @@ setuptools
 python-dotenv
 coloredlogs
 colorlog
+grpcio==1.54.3
+grpcio-tools==1.54.3
+protobuf==4.21.12
 nest_asyncio
 sphinx
 myst-parser
 sphinx-autobuild
 sphinx-rtd-theme
 sphinxcontrib-napoleon
-grpcio
-grpcio-tools
-protobuf
-google
 linkify-it-py
