@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-joypad.proto を gRPC (Python) 用コードにビルドするスクリプト
+{ctrl,events}.proto を gRPC (Python) 用コードにビルドするスクリプト
 Kengo NAKADA
 kengo.nakada@mat.shimane-u.ac.jp
 kengo.nakada@gmail.com
