@@ -5,6 +5,7 @@ colorlog
 grpcio==1.54.3
 grpcio-tools==1.54.3
 protobuf==4.21.12
+google
 nest_asyncio
 sphinx
 myst-parser
