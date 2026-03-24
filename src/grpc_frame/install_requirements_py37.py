@@ -6,8 +6,7 @@ import sys
 from pathlib import Path
 
 if __name__ == "__main__":
-    repo_root = Path(__file__).resolve().parent
-    requirements_file = repo_root / "requirements-py37.txt"
+    requirements_file = Path(__file__).resolve().parents[2] / "requirements-py37.txt"
 
     if not requirements_file.exists():
         raise FileNotFoundError(requirements_file)
