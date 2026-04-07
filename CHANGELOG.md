@@ -1,5 +1,9 @@
 # README
 
+## v0.5.4, K.nakada
+
+python 3.7 対応(まだ未完の可能性)
+
 ## v0.5.3, K.nakada
 
 - min_pix 検出器対応のために python 3.7 対応
