@@ -52,7 +52,7 @@ pythonpath = ["src"]
 # 例えばテストマーク、フィルタ、カバレッジなども追記可能
 
 [tool.black]
-line-length = 88
+line-length = 89
 
 [tool.isort]
 profile = "black"
