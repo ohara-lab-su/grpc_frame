@@ -1,5 +1,10 @@
 # README
 
+## v0.5.5, (2026.04.30), K.Nakada
+
+- setuptools 82 環境での grpc_tools の不具合を修正
+  - build_proto.py
+
 ## v0.5.4, K.nakada
 
 python 3.7 対応(まだ未完の可能性)
