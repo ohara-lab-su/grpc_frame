@@ -8,14 +8,17 @@ kengo.nakada@gmail.com
 
 from typing import Optional
 import os
-import types
 
+#############
 # grpc_tools.protoc は内部で pkg_resources.resource_filename() を使う。
 # setuptools 80.9.0 では pkg_resources は存在するが、非推奨警告が出る。
 # setuptools 82.0.1 では pkg_resources が存在しないため(2026.04.30の最新)
 # from grpc_tools import protoc の時点で ModuleNotFoundError になる。
 # grpc_tools.protoc が必要としているのは resource_filename() なので、
 # pkg_resources が無い場合だけ、同名モジュールにその関数だけを用意する。
+import sys
+import importlib
+import types
 try:
     import pkg_resources
 except ModuleNotFoundError:
@@ -26,6 +29,7 @@ except ModuleNotFoundError:
 
     pkg_resources.resource_filename = resource_filename
     sys.modules["pkg_resources"] = pkg_resources
+#############
 
 from grpc_tools import protoc
 
