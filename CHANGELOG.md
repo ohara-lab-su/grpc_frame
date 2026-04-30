@@ -1,5 +1,12 @@
 # README
 
+## v0.5.6, (2026.04.30), K.Nakada
+
+pyproject.toml 再調整
+- 3.7
+- 3.11.9
+- 3.13.13
+
 ## v0.5.5, (2026.04.30), K.Nakada
 
 - setuptools 82 環境での grpc_tools の不具合を修正
