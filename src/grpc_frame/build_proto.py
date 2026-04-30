@@ -8,6 +8,7 @@ kengo.nakada@gmail.com
 
 from typing import Optional
 import os
+import types
 
 # grpc_tools.protoc は内部で pkg_resources.resource_filename() を使う。
 # setuptools 80.9.0 では pkg_resources は存在するが、非推奨警告が出る。
