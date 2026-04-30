@@ -8,6 +8,24 @@ kengo.nakada@gmail.com
 
 from typing import Optional
 import os
+
+# grpc_tools.protoc は内部で pkg_resources.resource_filename を使用する
+# しかし setuptools>=82 では pkg_resources が削除されているため import で落ちる
+# ここでは「pkg_resources が存在しない場合のみ」必要な関数だけを自前で補う
+try:
+    import pkg_resources
+except ModuleNotFoundError:
+    # pkg_resources モジュールが無い場合にダミーを作る
+    m = types.ModuleType("pkg_resources")
+
+    def resource_filename(package: str, resource: str) -> str:
+        return str(importlib.resources.files(package).joinpath(resource))
+
+    # grpc_tools が実際に使うのは resource_filename のみ
+    # importlib.resources を使って同等の機能を実装する
+    m.resource_filename = resource_filename
+    sys.modules["pkg_resources"] = m
+
 from grpc_tools import protoc
 
 
