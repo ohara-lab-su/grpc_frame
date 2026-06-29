@@ -22,6 +22,16 @@ from grpc_frame.grpc_client import AsyncGrpcClient
 from grpc_frame.grpc_client import SyncGrpcClient
 from grpc_frame.grpc_client import GrpcClient
 
+
+# --- public API (DeviceProxy) ---
+from grpc_frame.device_proxy import DeviceProxyEntry
+from grpc_frame.device_proxy import register_device_proxy
+from grpc_frame.device_proxy import unregister_device_proxy
+from grpc_frame.device_proxy import get_device_proxy_entry
+from grpc_frame.device_proxy import list_device_proxies
+from grpc_frame.device_proxy import DeviceProxy
+from grpc_frame.device_proxy import create_device_proxy
+
 # --- public API for COM (server) ---
 from grpc_frame.grpc_com import ComExecutionRunner
 from grpc_frame.grpc_com import ThreadSafeCtrlProxy

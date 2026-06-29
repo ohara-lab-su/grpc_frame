@@ -1,7 +1,24 @@
 # README
 
-## v0.5.6, (2026.04.30), K.Nakada
+## v0.5.7, (2026.06.29), K.Nakada
 
+DeviceProxy 対応を追加
+
+- ese774_frame の DeviceProxy と互換の entry API を grpc_frame 側に追加
+  - DeviceProxyEntry
+  - register_device_proxy()
+  - unregister_device_proxy()
+  - get_device_proxy_entry()
+  - list_device_proxies()
+  - DeviceProxy()
+  - create_device_proxy()
+- 直接の client_class を登録し、device_class 名または alias から client インスタンスを生成できるようにした
+- sync/async client class の登録に対応
+- default_async_mode により DeviceProxy() の既定生成モードを指定可能にした
+- DeviceProxy 用 pyi 生成補助を追加
+- grpc_frame.__init__ から DeviceProxy 関連 API を公開
+
+## v0.5.6, (2026.04.30), K.Nakada
 
 pyproject.toml 再調整
 - 3.7
