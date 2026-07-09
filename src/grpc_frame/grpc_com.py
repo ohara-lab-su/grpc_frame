@@ -513,6 +513,7 @@ def create_com_grpc_server(
     event_bus: Optional[Any] = None,
     logger: Optional[Any] = None,
     log_level: Optional[str] = None,
+    grpc_options: Optional[Sequence[Tuple[str, Any]]] = None,
 ):
     """
     COM 対応版 gRPC サーバーを組み立てるヘルパー。
@@ -549,5 +550,6 @@ def create_com_grpc_server(
         event_bus=event_bus,
         logger=logger,
         log_level=log_level,
+        grpc_options=grpc_options,
     )
     return server, runner, proxy

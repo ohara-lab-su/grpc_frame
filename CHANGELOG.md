@@ -1,5 +1,22 @@
 # README
 
+## v0.5.8, (2026.07.09), K.Nakada
+
+gRPC の大容量メッセージ option 指定に対応
+
+- gRPC channel/server 作成時に任意の `grpc_options` を渡せるようにした
+  - `grpc_frame.grpc_client.GrpcClient` に `grpc_options` 引数を追加
+  - `grpc_frame.grpc_server.create_grpc_server()` に `grpc_options` 引数を追加
+  - `grpc_frame.grpc_com.create_com_grpc_server()` に `grpc_options` 引数を追加
+- `grpc_options` は `grpc.insecure_channel()` および `grpc.server()` にそのまま渡す
+- 大きな `bytes` 戻り値を unary RPC で扱う用途に対応
+  - 例: BMP 画像のように gRPC Python の既定上限 4 MB を超えるデータ
+  - 利用側で `grpc.max_receive_message_length` / `grpc.max_send_message_length` を指定可能にした
+- 既定値は従来互換とし、`grpc_options` 未指定時は空 tuple を使う
+- COM 対応 server でも通常 server と同じ option 指定ができるようにした
+  - `create_com_grpc_server()` から `create_grpc_server()` へ `grpc_options` を透過する
+
+
 ## v0.5.7, (2026.06.29), K.Nakada
 
 DeviceProxy 対応を追加

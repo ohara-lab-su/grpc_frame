@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "grpc_frame"
 
-version = "0.5.7"
+version = "0.5.8"
 
 description = "gRPC server/client frame"
 authors = [
