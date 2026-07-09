@@ -18,7 +18,7 @@ from __future__ import annotations
 import traceback
 
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, Tuple
 
 import grpc
 
@@ -302,6 +302,7 @@ def create_grpc_server(
     event_bus: Optional[EventBus] = None,
     logger: Optional[Any] = None,
     log_level: Optional[str] = None,
+    grpc_options: Optional[Sequence[Tuple[str, Any]]] = None,
 ) -> grpc.Server:
     """
     Control + Events の両サービスを載せた gRPC server を生成する。
@@ -312,6 +313,9 @@ def create_grpc_server(
         event_bus: EventBus（None の場合は内部生成）
         logger: ロガー
         log_level: ログレベル
+        grpc_options: grpc.server に渡す option 群。
+            大きな画像 bytes を扱う場合は
+            grpc.max_send_message_length などを指定する。
 
     Returns:
         grpc.Server: gRPC サーバーインスタンス
@@ -329,10 +333,14 @@ def create_grpc_server(
         event_bus = EventBus()
 
     # gRPC サーバー本体（ThreadPoolExecutor）
+    if grpc_options is None:
+        grpc_options = tuple()
+
     server = grpc.server(
         ThreadPoolExecutor(
             max_workers=max_workers,
         ),
+        options=tuple(grpc_options),
     )
 
     ctrl_servicer = _ControlServicer(

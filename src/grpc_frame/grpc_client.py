@@ -72,6 +72,7 @@ class GrpcClient:
         timeout_sec: Optional[float] = None,
         logger: Optional[Any] = None,
         log_level: str = None,
+        grpc_options: Optional[Sequence[Tuple[str, Any]]] = None,
     ) -> None:
         """
         GrpcClient を初期化する。
@@ -93,6 +94,10 @@ class GrpcClient:
             timeout_sec:
                 RPC 呼び出し時のタイムアウト秒数。
                 None の場合は gRPC のデフォルト挙動に従う。
+            grpc_options:
+                grpc.insecure_channel に渡す option 群。
+                大きな画像 bytes を扱う場合は
+                grpc.max_receive_message_length などを指定する。
         """
         if logger is None:
             import logging
@@ -109,7 +114,15 @@ class GrpcClient:
         self._logger.info(f"[Frame:GrpcClient] connect to {addr}")
 
         # 非 TLS の gRPC チャネルを生成
-        self._channel: grpc.Channel = grpc.insecure_channel(addr)
+        if grpc_options is None:
+            grpc_options = tuple()
+
+        self._grpc_options = tuple(grpc_options)
+
+        self._channel: grpc.Channel = grpc.insecure_channel(
+            addr,
+            options=self._grpc_options,
+        )
 
         # Describe RPC（メソッド一覧取得）を low-level API で定義
         self._rpc_describe = self._channel.unary_unary(
@@ -344,6 +357,7 @@ class SyncGrpcClient(GrpcClient):
         timeout_sec: Optional[float] = None,
         logger: Optional[Any] = None,
         log_level: str = None,
+        grpc_options: Optional[Sequence[Tuple[str, Any]]] = None,
     ) -> None:
         super().__init__(
             server_ip=server_ip,
@@ -362,6 +376,7 @@ class AsyncGrpcClient(GrpcClient):
         timeout_sec: Optional[float] = None,
         logger: Optional[Any] = None,
         log_level: str = None,
+        grpc_options: Optional[Sequence[Tuple[str, Any]]] = None,
     ) -> None:
         super().__init__(
             server_ip=server_ip,
