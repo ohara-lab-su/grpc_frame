@@ -138,6 +138,13 @@ class GrpcClient:
             response_deserializer=ctrl_pb2.DispatchResponse.FromString,
         )
 
+        # StreamCall RPC（汎用 server-streaming 呼び出し）
+        self._rpc_stream_call = self._channel.unary_stream(
+            "/ctrl.Control/StreamCall",
+            request_serializer=ctrl_pb2.DispatchRequest.SerializeToString,
+            response_deserializer=ctrl_pb2.DispatchResponse.FromString,
+        )
+
         # Event
         self._rpc_subscribe = self._channel.unary_stream(
             "/frame.Events/Subscribe",
@@ -293,6 +300,39 @@ class GrpcClient:
         # 動的に生成した関数名を RPC メソッド名に合わせる
         _method.__name__ = method_name
         return _method
+
+    def stream_call(
+        self,
+        method_name: str,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        """
+        server-streaming として明示公開されたメソッドを呼び出す。
+
+        Describe/Call による通常の動的メソッドバインドとは独立した低レベル API。
+        各レスポンスは既存 Call と同じ adapter.unpack_result() で復元する。
+        """
+        args_bin: bytes = adapter.pack_args(tuple(args))
+        kwargs_bin: bytes = adapter.pack_kwargs(kwargs)
+
+        req = ctrl_pb2.DispatchRequest(
+            method=str(method_name),
+            args=args_bin,
+            kwargs=kwargs_bin,
+        )
+
+        call = self._rpc_stream_call(req, timeout=self._timeout_sec)
+        try:
+            for resp in call:
+                if bool(resp.ok):
+                    yield adapter.unpack_result(resp.result)
+                    continue
+                raise RuntimeError(str(resp.error))
+        finally:
+            cancel = getattr(call, "cancel", None)
+            if callable(cancel):
+                cancel()
 
     def close(self) -> None:
         """

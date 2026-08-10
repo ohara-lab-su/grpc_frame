@@ -88,6 +88,7 @@ class _ControlServicer(
         self,
         *,
         ctrl_obj: Any,
+        stream_obj: Optional[Any] = None,
         event_bus: Optional[EventBus] = None,
         logger: Optional[Any] = None,
         log_level: Optional[str] = None,
@@ -114,6 +115,7 @@ class _ControlServicer(
         self._logger: Optional[Any] = logger
 
         self._ctrl_obj = ctrl_obj
+        self._stream_obj = stream_obj
         self._event_bus = event_bus
 
         # ctrl 側がイベントバスを受け取れる実装を持つ場合のみ注入します。
@@ -233,6 +235,80 @@ class _ControlServicer(
             )
 
 
+    def StreamCall(
+        self,
+        request: ctrl_pb2.DispatchRequest,
+        context: grpc.ServicerContext,
+    ):
+        """
+        明示的に登録された streaming object のメソッドを server-streaming RPC として実行する。
+
+        通常の ctrl_obj / Describe / Call とは分離し、stream_obj の public callable のみを対象とする。
+        各 yield 値は既存 Call と同じ adapter.pack_result() で DispatchResponse に格納する。
+        """
+        method_name: str = str(request.method)
+        self._logger.info(
+            f"[Frame:ControlServicer][StreamCall:{method_name}] called"
+        )
+
+        if self._stream_obj is None:
+            yield ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                error="server-streaming is not configured",
+            )
+            return
+
+        if method_name.startswith("_"):
+            yield ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                error=f"stream method is not public: {method_name}",
+            )
+            return
+
+        try:
+            target = getattr(self._stream_obj, method_name)
+            if not callable(target):
+                raise AttributeError(f"stream method is not callable: {method_name}")
+
+            args = adapter.unpack_args(request.args)
+            kwargs = adapter.unpack_kwargs(request.kwargs)
+            iterator = iter(target(*args, **kwargs))
+
+            try:
+                while context.is_active():
+                    try:
+                        result = next(iterator)
+                    except StopIteration:
+                        break
+
+                    yield ctrl_pb2.DispatchResponse(
+                        ok=True,
+                        result=adapter.pack_result(result),
+                        error="",
+                    )
+            finally:
+                close = getattr(iterator, "close", None)
+                if callable(close):
+                    close()
+
+            self._logger.info(
+                f"[Frame:ControlServicer][StreamCall:{method_name}] completed"
+            )
+
+        except Exception as e:
+            self._logger.error(
+                f"[Frame:ControlServicer][StreamCall:{method_name}] failed: {e}"
+            )
+            yield ctrl_pb2.DispatchResponse(
+                ok=False,
+                result=b"",
+                error=_format_exception(e),
+            )
+
+
+
 class _EventsServicer(
     events_pb2_grpc.EventsServicer,
 ):
@@ -298,6 +374,7 @@ class _EventsServicer(
 def create_grpc_server(
     *,
     ctrl_obj: Any,
+    stream_obj: Optional[Any] = None,
     max_workers: int = 10,
     event_bus: Optional[EventBus] = None,
     logger: Optional[Any] = None,
@@ -308,7 +385,8 @@ def create_grpc_server(
     Control + Events の両サービスを載せた gRPC server を生成する。
 
     Args:
-        ctrl_obj: Control サービスのディスパッチ対象（public メソッドのみ公開）
+        ctrl_obj: Control/Call のディスパッチ対象（public メソッドのみ公開）
+        stream_obj: Control/StreamCall のディスパッチ対象。None の場合は streaming 無効。
         max_workers: gRPC の ThreadPoolExecutor の worker 数
         event_bus: EventBus（None の場合は内部生成）
         logger: ロガー
@@ -345,6 +423,7 @@ def create_grpc_server(
 
     ctrl_servicer = _ControlServicer(
         ctrl_obj=ctrl_obj,
+        stream_obj=stream_obj,
         event_bus=event_bus,
         logger=logger,
         log_level=log_level,
