@@ -1,5 +1,46 @@
 # README
 
+## v0.5.11, 2026-08-10, K.Nakada
+
+汎用ディスパッチに server-streaming RPC を追加
+
+- `ctrl.proto` の `Control` service に `StreamCall` を追加
+  - `rpc StreamCall(DispatchRequest) returns (stream DispatchResponse);`
+  - 既存の `Call` は通常の unary RPC としてそのまま維持
+  - `DispatchRequest` / `DispatchResponse` も既存定義をそのまま利用
+
+- `grpc_server.py` / `grpc_client.py` に `StreamCall` の処理を追加
+  - `Call`：1回の呼び出しに対して1つの結果を返す通常の汎用ディスパッチ
+  - `StreamCall`：1回の呼び出しに対して複数の結果を順次返す汎用 server-streaming ディスパッチ
+  - streaming するデータの種類や用途は grpc_frame 側では規定しない
+
+### 設計
+
+従来の grpc_frame は、`Call` によってデバイス側の Python メソッドを透過的に呼び出す
+汎用 unary RPC を基本としている。
+
+今回、この基本設計は変更せず、gRPC が標準で持つ server-streaming RPC を
+同じ汎用ディスパッチの考え方で扱えるよう `StreamCall` を追加した。
+
+```text
+Call
+    request
+        ↓
+    method(...)
+        ↓
+    result
+
+StreamCall
+    request
+        ↓
+    streaming method(...)
+        ↓
+    result
+    result
+    result
+    ...
+```
+
 ## v0.5.10, 2026-07-28, nakada
 
 - after cobotta3/4 setup

@@ -28,4 +28,5 @@ message DispatchResponse {
 service Control {
   rpc Describe(Empty) returns (MethodTable);
   rpc Call(DispatchRequest) returns (DispatchResponse);
+  rpc StreamCall(DispatchRequest) returns (stream DispatchResponse);
 }
