@@ -47,18 +47,19 @@ def build_proto(
     proto_name:
         "ctrl", "events", "joypad" など（拡張子なし）
     proto_dir:
-        proto のあるディレクトリ（Noneならこのファイルの場所）
+        proto のあるディレクトリ（Noneなら grpc_frame パッケージ直下）
     out_dir:
-        出力先（Noneなら proto_dir）
+        出力先（Noneなら grpc_frame パッケージ直下）
     frame_package:
         生成物が属する Python パッケージ名（通常 "grpc_frame"）
     """
-    here = os.path.dirname(os.path.abspath(__file__))
+    util_dir = os.path.dirname(os.path.abspath(__file__))
+    frame_dir = os.path.dirname(util_dir)
 
     if proto_dir is None:
-        proto_dir = here
+        proto_dir = frame_dir
     if out_dir is None:
-        out_dir = proto_dir
+        out_dir = frame_dir
 
     proto_file = os.path.join(proto_dir, f"{proto_name}.proto")
     if not os.path.exists(proto_file):

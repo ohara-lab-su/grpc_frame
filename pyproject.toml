@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "grpc_frame"
 
-version = "0.5.11"
+version = "0.5.12"
 
 description = "gRPC server/client frame"
 authors = [
@@ -16,7 +16,8 @@ requires-python = ">=3.7"
 #requires-python = ">=3.8"
 #requires-python = ">=3.11"
 dependencies = [
-"x_logger",
+#"x_logger",
+"xlogger-py",
 #
 "coloredlogs",
 "colorlog",

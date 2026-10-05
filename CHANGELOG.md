@@ -1,5 +1,47 @@
 # README
 
+## v0.5.12, 2026-10-05, K.Nakada
+
+grpc_frame 内の proto build / maintenance utility を整理
+
+- proto 生成・清掃用スクリプトを `grpc_frame/util/` に移動
+  - `build_proto.py`
+  - `build_proto_ctrl.py`
+  - `build_proto_events.py`
+  - `clean_proto.py`
+  - `clean_site_packages.py`
+
+- utility の配置変更に伴い、proto ファイルおよび生成ファイルのパス処理を修正
+  - `ctrl.proto` / `events.proto` は従来どおり `grpc_frame/` 直下に配置
+  - 生成される `ctrl_pb2.py` / `ctrl_pb2_grpc.py` / `events_pb2.py` / `events_pb2_grpc.py` も従来どおり `grpc_frame/` 直下に生成
+  - build utility 自体の配置場所と、proto の入力・生成先を分離
+
+- 個別 proto build スクリプトの import 処理を修正
+  - `build_proto_ctrl.py` / `build_proto_events.py` から `grpc_frame` package を経由せず、同一 `util/` 内の `build_proto.py` を直接利用
+  - pb2 ファイルが未生成の状態でも個別 build を実行できるようにした
+
+### ディレクトリ構成
+
+```text
+grpc_frame/
+├── ctrl.proto
+├── events.proto
+├── ctrl_pb2.py
+├── ctrl_pb2_grpc.py
+├── events_pb2.py
+├── events_pb2_grpc.py
+├── ...
+└── util/
+    ├── __init__.py
+    ├── build_proto.py
+    ├── build_proto_ctrl.py
+    ├── build_proto_events.py
+    ├── clean_proto.py
+    └── clean_site_packages.py
+```
+
+proto および生成された pb2 は grpc_frame 本体から直接利用するため従来の配置を維持し、build・clean など開発／保守用のスクリプトのみ `util` に分離した。
+
 ## v0.5.11, 2026-08-10, K.Nakada
 
 汎用ディスパッチに server-streaming RPC を追加
