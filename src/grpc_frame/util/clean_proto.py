@@ -18,21 +18,23 @@ def remove_dir(path: Path) -> None:
 
 
 if __name__ == "__main__":
-    here = Path(__file__).resolve().parent
-    repo_root = here.parents[1]
+    util_dir = Path(__file__).resolve().parent
+    frame_dir = util_dir.parent
+    repo_root = frame_dir.parents[1]
 
     files = [
-        here / "ctrl_pb2.py",
-        here / "ctrl_pb2_grpc.py",
-        here / "events_pb2.py",
-        here / "events_pb2_grpc.py",
+        frame_dir / "ctrl_pb2.py",
+        frame_dir / "ctrl_pb2_grpc.py",
+        frame_dir / "events_pb2.py",
+        frame_dir / "events_pb2_grpc.py",
     ]
 
     dirs = [
         repo_root / "build",
         repo_root / "dist",
         repo_root / "src" / "grpc_frame.egg-info",
-        here / "__pycache__",
+        frame_dir / "__pycache__",
+        util_dir / "__pycache__",
     ]
 
     for path in files:
