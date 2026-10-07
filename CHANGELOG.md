@@ -1,5 +1,10 @@
 # README
 
+## v0.5.13, 2026-10-05, K.Nakada
+
+- toml 修正
+- PyPI 対応
+
 ## v0.5.12, 2026-10-05, K.Nakada
 
 grpc_frame 内の proto build / maintenance utility を整理
