@@ -1,5 +1,8 @@
 # README
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.en.md)
+[![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.md)
+
 ## v0.5.14, 2026-10-05, K.Nakada
 
 - README 修正
