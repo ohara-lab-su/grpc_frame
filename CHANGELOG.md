@@ -1,5 +1,9 @@
 # README
 
+## v0.5.14, 2026-10-05, K.Nakada
+
+- README 修正
+ 
 ## v0.5.13, 2026-10-05, K.Nakada
 
 - toml 修正
