@@ -3,6 +3,22 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.md)
 
+## v0.5.16, 2026-10-12, K.Nakada
+
+proto の Python コード生成を package build に組み込んだ。
+
+- `pip install .` や wheel build の `build_py` 実行前に、既存の `grpc_frame/util/build_proto.py` を使用して以下を自動生成するようにした。
+  - `ctrl_pb2.py`
+  - `ctrl_pb2_grpc.py`
+  - `events_pb2.py`
+  - `events_pb2_grpc.py`
+- `setup.py` に setuptools の `build_py` hook を追加。
+- `grpcio-tools` を build dependency に追加。
+  - Python 3.7 では従来の互換性を考慮して `grpcio-tools==1.54.3` を使用。
+  - Python 3.8 以降では通常の `grpcio-tools` を使用。
+- sdist からの build でも proto を利用できるよう、`ctrl.proto` / `events.proto` を package data に追加。
+- 既存の手動 proto build utility はそのまま維持。
+
 ## v0.5.14, 2026-10-05, K.Nakada
 
 - README 修正

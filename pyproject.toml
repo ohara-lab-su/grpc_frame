@@ -1,11 +1,15 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [
+    "setuptools>=61.0",
+    "grpcio-tools==1.54.3; python_version < '3.8'",
+    "grpcio-tools; python_version >= '3.8'",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "grpc_frame"
 
-version = "0.5.15"
+version = "0.5.16"
 
 description = "gRPC server/client frame"
 authors = [
@@ -56,3 +60,6 @@ line-length = 89
 
 [tool.isort]
 profile = "black"
+
+[tool.setuptools.package-data]
+grpc_frame = ["*.proto"]

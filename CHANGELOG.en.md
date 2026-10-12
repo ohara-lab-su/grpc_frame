@@ -3,6 +3,22 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.md)
 
+## v0.5.16, 2026-10-12, K.Nakada
+
+Integrated Python code generation from proto files into the package build process.
+
+- `pip install .` and wheel builds now automatically run the existing `grpc_frame/util/build_proto.py` before `build_py` copies package modules, generating:
+  - `ctrl_pb2.py`
+  - `ctrl_pb2_grpc.py`
+  - `events_pb2.py`
+  - `events_pb2_grpc.py`
+- Added a setuptools `build_py` hook in `setup.py`.
+- Added `grpcio-tools` as a build dependency.
+  - Python 3.7 uses `grpcio-tools==1.54.3` for the existing compatibility requirement.
+  - Python 3.8 and later use the normal `grpcio-tools` dependency.
+- Added `ctrl.proto` / `events.proto` as package data so proto generation also works when building from an sdist.
+- Existing manual proto build utilities remain available.
+
 ## v0.5.14, 2026-10-05, K.Nakada
 
 - Updated README.
