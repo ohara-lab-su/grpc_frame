@@ -3,21 +3,20 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.md)
 
-## v0.5.16, 2026-10-12, K.Nakada
 
-Integrated Python code generation from proto files into the package build process.
+## v0.5.18 - 2026-10-12
 
-- `pip install .` and wheel builds now automatically run the existing `grpc_frame/util/build_proto.py` before `build_py` copies package modules, generating:
-  - `ctrl_pb2.py`
-  - `ctrl_pb2_grpc.py`
-  - `events_pb2.py`
-  - `events_pb2_grpc.py`
-- Added a setuptools `build_py` hook in `setup.py`.
-- Added `grpcio-tools` as a build dependency.
-  - Python 3.7 uses `grpcio-tools==1.54.3` for the existing compatibility requirement.
-  - Python 3.8 and later use the normal `grpcio-tools` dependency.
-- Added `ctrl.proto` / `events.proto` as package data so proto generation also works when building from an sdist.
-- Existing manual proto build utilities remain available.
+- Generate protobuf modules in the build directory rather than overwriting tracked source files.
+- Use pinned gRPC/protobuf versions on Python 3.7 and resolve newer compatible releases on later Python versions.
+- Per-environment generation from PyPI requires publishing only an sdist, not a wheel (wheel installation does not run the build hook).
+- Pinned the build-time `grpcio-tools` version to `1.54.3` to preserve compatibility of generated pb2 modules with Python 3.7.
+- On Python 3.7, pinned runtime `grpcio==1.54.3` and `protobuf==4.21.12`, and restricted build-time `setuptools` to a Python 3.7-compatible version range.
+- For Python 3.8 and later, retained generally unpinned runtime dependencies, with a minimum version for `grpcio`.
+- Added a `build_py` hook in `setup.py` to run the existing `build_proto.py` for `ctrl` and `events` during package builds.
+- Included `.proto` files as package data.
+- v0.5.16 was skipped; this release follows v0.5.17.
+
+- Note: Generated code depends on the build environment. A wheel generated using a recent `grpcio-tools` is not guaranteed to work on Python 3.7.
 
 ## v0.5.14, 2026-10-05, K.Nakada
 
