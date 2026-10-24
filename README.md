@@ -1,51 +1,38 @@
 # gRPC Frame
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.en.md)
-[![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.md)
+[![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.ja.md)
 
-gRPC Frame is a communication framework for exposing Python control
-classes over gRPC.
+gRPC Frame is a communication framework for remotely accessing Python control classes over gRPC.
 
-Its central design concept is a **transparent proxy**. Public methods of
-a server-side control object are discovered automatically and
-dynamically bound to the client as Python methods. For ordinary unary
-calls, this removes the need to define a dedicated protobuf message and
-RPC method for every control method.
+Its central concept is a **transparent proxy**. The framework automatically discovers the public methods of a control class (`ctrl` object) hosted on the server and dynamically exposes methods with the same names on the client. Consequently, ordinary unary RPC operations do not require a separate protobuf message or RPC definition for every control method.
 
-The framework is intended for device control, experimental instruments,
-measurement servers, laboratory automation, and similar systems where an
-existing Python control class should be accessible over the network with
-nearly the same calling style as a local object.
+It is intended for device control, experimental instruments, measurement servers, laboratory automation, and other applications that need to invoke an existing Python control class across a network using almost the same interface as a local object.
 
-> gRPC Frame exposes **public callables** of the control object.
-> Properties are intentionally excluded from discovery to avoid side
-> effects during introspection.
+> gRPC Frame discovers **public callables** on the control object. Properties are excluded to avoid side effects during discovery.
 
-------------------------------------------------------------------------
+---
 
 ## Features
 
--   Automatic discovery of server-side public methods through the
-    `Describe` RPC
--   Dynamic binding of remote methods on the client
--   Generic transport of Python `*args` and `**kwargs`
--   Standard unary calls plus server-streaming `StreamCall`
--   Topic-based event subscription
--   JSON-first serialization with pickle fallback
--   JSON handling for `bytes`, `bytearray`, and `tuple`
--   Synchronous client and an asynchronous wrapper
--   DeviceProxy registry for constructing clients from device-class
-    names
--   Low-level gRPC API usage without depending on generated Stub classes
-    for client dispatch
+- Automatic discovery of server-side public methods through the `Describe` RPC
+- Dynamic binding of remote methods on the client
+- Generic RPC dispatch of `*args` and `**kwargs`
+- Server-streaming `StreamCall` in addition to ordinary unary calls
+- Topic-based event subscriptions
+- JSON-first serialization with pickle fallback for objects that cannot be encoded as JSON
+- Preservation of `bytes`, `bytearray`, and `tuple` through the JSON encoding path
+- Synchronous clients and an asynchronous wrapper
+- A DeviceProxy registry for constructing clients by device class name
+- RPC construction through the low-level gRPC API without depending on generated protobuf stubs
 
-------------------------------------------------------------------------
+---
 
 ## Architecture
 
-A normal method call follows this conceptual path:
+An ordinary method call follows this conceptual path:
 
-``` text
+```text
 [ Python client ]
         |
         |  method(*args, **kwargs)
@@ -73,13 +60,11 @@ A normal method call follows this conceptual path:
 [ Python client ]
 ```
 
-When a client connects, it calls `Control/Describe`. The returned method
-names and signatures are used to create `self.<method_name>`
-dynamically.
+On connection, the client calls `Control/Describe`. Based on the method names and signatures returned by the server, it dynamically creates `self.<method_name>` methods.
 
-For example, if the server-side control class contains:
+For example, suppose the server-side control class provides:
 
-``` python
+```python
 class SimpleCtrl:
     def ping(self) -> str:
         return "pong"
@@ -88,26 +73,24 @@ class SimpleCtrl:
         return a + b
 ```
 
-the client can conceptually use:
+The client can then call:
 
-``` python
+```python
 client.ping()
 client.add(10, 20)
 ```
 
-Instead of adding dedicated protobuf RPCs for `ping` and `add`, both
-calls are transported through the generic `Call` RPC with a method name,
-positional arguments, and keyword arguments.
+Instead of adding a dedicated protobuf RPC for each method, the shared `Call` RPC carries the method name, positional arguments, and keyword arguments and dispatches the call to the corresponding server-side method.
 
-------------------------------------------------------------------------
+---
 
 ## RPC interface
 
 ### Control service
 
-`ctrl.proto` defines three RPCs:
+`ctrl.proto` defines three RPC operations:
 
-``` proto
+```proto
 service Control {
   rpc Describe(Empty) returns (MethodTable);
   rpc Call(DispatchRequest) returns (DispatchResponse);
@@ -117,23 +100,18 @@ service Control {
 
 ### `Describe`
 
-`Describe` returns the callable methods that the server exposes.
+Retrieves the server-side methods eligible for discovery. For each method, it returns:
 
-For each method, it reports:
+- The method name
+- A signature string obtained from `inspect.signature()`
 
--   method name
--   signature string obtained from `inspect.signature()`
-
-Only public callables are included. Members whose names begin with `_`
-are excluded. Properties are also excluded using static inspection
-because evaluating a property during discovery may trigger side effects
-such as COM operations, device access, or other I/O.
+Discovery includes public callables and excludes names beginning with `_`. Properties are detected statically and excluded because evaluating them could trigger COM operations, device access, or other side effects.
 
 ### `Call`
 
-`Call` is the generic one-request/one-response method invocation RPC.
+A generic request/response operation with one request and one response:
 
-``` proto
+```proto
 message DispatchRequest {
   string method = 1;
   bytes args = 2;
@@ -147,117 +125,93 @@ message DispatchResponse {
 }
 ```
 
-The client serializes Python positional and keyword arguments into byte
-payloads and sends them with the target method name. A successful
-response is deserialized back into a Python object. If the server
-returns an error, the client raises `RuntimeError`.
+The client serializes Python positional and keyword arguments into `bytes` and sends them with the method name. On success, it reconstructs the returned Python object. If the server reports an error, the client raises `RuntimeError`.
 
 ### `StreamCall`
 
-`StreamCall` is a server-streaming variant in which one request can
-produce multiple responses.
+A server-streaming RPC that returns multiple responses for a single request. Invoke it explicitly:
 
-The client exposes it explicitly:
-
-``` python
+```python
 for value in client.stream_call("method_name", arg1, arg2):
     print(value)
 ```
 
-This is a lower-level API independent of the normal `Describe` → dynamic
-binding → `Call` path.
+This is a separate, lower-level API; it is not the ordinary `Describe` → dynamic binding → `Call` path.
 
-------------------------------------------------------------------------
+---
 
 ## Event communication
 
-gRPC Frame also supports event subscription through server-side
-streaming.
+gRPC Frame also provides event subscriptions implemented with server-side streaming. `events.proto` defines:
 
-`events.proto` defines:
-
-``` proto
+```proto
 service Events {
   rpc Subscribe(SubscribeRequest) returns (stream Event);
 }
 ```
 
-A subscription request contains:
+A subscription request can specify:
 
--   `topic`: topic to subscribe to
--   `once`: whether to stop after one event
--   `source`: event-source information
+- `topic`: the topic to subscribe to
+- `once`: whether to stop after receiving one event
+- `source`: identifying information for the event source
 
-Client example:
+For example:
 
-``` python
+```python
 for payload in client.subscribe(topic="status"):
     print(payload)
 ```
 
 To receive only one event:
 
-``` python
+```python
 for payload in client.subscribe(topic="status", once=True):
     print(payload)
 ```
 
-The internal `EventBus` is a lightweight in-process publish/subscribe
-mechanism. It maintains subscriber queues and uses `threading.Condition`
-to coordinate publishers and subscribers.
+The internal `EventBus` is a lightweight, in-process publish/subscribe mechanism. It maintains subscriber queues by topic and synchronizes publishing and subscription with `threading.Condition`.
 
-In the current `EventBus` implementation, `source` is stored as part of
-the subscription state but is not yet applied as a publish-time source
-filter. It is retained for future extension.
+In the current `EventBus` implementation, `source` is retained in the subscription state but is **not yet used to filter events by source** when publishing. It is reserved for possible future extension.
 
-------------------------------------------------------------------------
+---
 
 ## Serialization
 
-Arguments, return values, and event payloads are handled by `adapter`.
+The `adapter` module handles conversion of arguments, return values, and event payloads. Its policy is **JSON first, pickle fallback**:
 
-The serialization policy is **JSON first + pickle fallback**:
+1. Attempt JSON serialization.
+2. Fall back to pickle if the object cannot be serialized as JSON.
 
-1.  Attempt JSON serialization.
-2.  If the object cannot be represented as JSON, fall back to pickle.
+The first byte of a payload identifies the format:
 
-The first byte of each payload identifies the format:
+| Prefix | Format |
+| --- | --- |
+| `b"J"` | JSON |
+| `b"P"` | pickle |
 
-  Prefix   Format
-  -------- --------
-  `b"J"`   JSON
-  `b"P"`   pickle
+### Additional JSON type support
 
-### Additional JSON handling
+The adapter preserves certain types that standard JSON does not represent directly:
 
-The adapter preserves several Python types that plain JSON cannot
-represent directly:
+- `bytes` / `bytearray`: encoded using Base64
+- `tuple`: encoded with a dedicated marker to distinguish it from a list, then reconstructed as a tuple
 
--   `bytes` / `bytearray`: encoded as Base64
--   `tuple`: represented with a dedicated marker and restored as a tuple
-    during decoding
+Thus, the JSON path supports ordinary `dict`, `list`, `str`, `int`, `float`, `bool`, and `None`, as well as binary data and tuples.
 
-This allows common dict/list/string/numeric/boolean/`None` data, binary
-payloads, and tuples to remain on the JSON path where possible.
+### Security considerations for pickle fallback
 
-### Security note for pickle
+Pickle supports a broad range of Python objects, but deserializing untrusted pickle data is unsafe. If gRPC Frame is exposed to an untrusted network, consider both its current serialization model, including pickle, and its non-TLS channel. Network isolation, authentication, TLS, and serialization restrictions must be designed separately as appropriate.
 
-pickle can represent a wide range of Python objects, but it is not
-suitable for deserializing untrusted input. If gRPC Frame is exposed
-beyond a trusted network, the pickle fallback and the current non-TLS
-channel model must be considered explicitly. Network isolation,
-authentication, TLS, and a restricted serialization policy may be
-required.
+---
 
-------------------------------------------------------------------------
-
-## Client API
+## Clients
 
 ### `GrpcClient`
 
-`GrpcClient` is the base generic client.
+The basic client:
 
-``` python
+```python
 from grpc_frame.grpc_client import GrpcClient
 
 client = GrpcClient(
@@ -274,25 +228,24 @@ print(result)
 client.close()
 ```
 
-Initialization performs the following steps:
+Initialization performs the following operations:
 
-1.  Create a channel with `grpc.insecure_channel()`.
-2.  Wait for the gRPC server to become ready.
-3.  Call the `Describe` RPC.
-4.  Receive the remote method table.
-5.  Build a dispatcher for each method.
-6.  Register each dispatcher as `self.<method_name>` and
-    `_raw_<method_name>`.
+1. Create a channel with `grpc.insecure_channel()`.
+2. Wait until the gRPC server is ready.
+3. Execute the `Describe` RPC.
+4. Retrieve the method table.
+5. Create a dispatcher for each remote method.
+6. Register it as `self.<method_name>` and `_raw_<method_name>`.
 
-`is_connected()` checks whether a real `Describe` RPC succeeds rather
-than only inspecting local channel state.
+`is_connected()` checks connectivity by verifying that the `Describe` RPC actually succeeds.
 
 ### gRPC options
 
-`GrpcClient` accepts `grpc_options`. This is useful when transferring
-large images or other binary payloads.
+`GrpcClient` accepts `grpc_options`. However, in the current implementation supplied for review, `SyncGrpcClient` and `AsyncGrpcClient` do **not** forward the received `grpc_options` argument to their base class. The following configuration is therefore effective **when using `GrpcClient` directly**.
 
-``` python
+For large images or binary payloads, for example, gRPC message-size options can be specified:
+
+```python
 options = (
     ("grpc.max_receive_message_length", 32 * 1024 * 1024),
     ("grpc.max_send_message_length", 32 * 1024 * 1024),
@@ -305,14 +258,13 @@ client = GrpcClient(
 )
 ```
 
-Corresponding server-side limits must also be configured when required.
+Corresponding server-side settings are also required.
 
 ### `SyncGrpcClient`
 
-`SyncGrpcClient` provides the synchronous interface. Dynamically
-discovered methods behave as normal blocking Python calls.
+A synchronous client whose remote methods are invoked as ordinary functions:
 
-``` python
+```python
 from grpc_frame.grpc_client import SyncGrpcClient
 
 client = SyncGrpcClient(
@@ -325,10 +277,9 @@ value = client.ping()
 
 ### `AsyncGrpcClient`
 
-`AsyncGrpcClient` wraps methods discovered by `Describe` as async
-methods.
+Wraps the remote methods discovered by `Describe` as asynchronous methods:
 
-``` python
+```python
 import asyncio
 from grpc_frame.grpc_client import AsyncGrpcClient
 
@@ -347,19 +298,17 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-The current implementation is not based on native `grpc.aio` calls. It
-runs the synchronous remote method through the event loop executor.
+The current implementation is **not** a native asynchronous RPC client using `grpc.aio`. It is a wrapper that executes synchronous remote methods in an event-loop executor.
 
-------------------------------------------------------------------------
+---
 
 ## DeviceProxy
 
-`device_proxy.py` provides a registry that maps a device-class name to
-client classes and creates a client instance from that name.
+`device_proxy.py` provides a registry that associates device class names with client classes and constructs client instances by name.
 
-The public API includes:
+Its main APIs are:
 
-``` text
+```text
 DeviceProxyEntry
 register_device_proxy(...)
 unregister_device_proxy(...)
@@ -371,7 +320,7 @@ create_device_proxy(...)
 
 Registration example:
 
-``` python
+```python
 from grpc_frame.device_proxy import register_device_proxy
 
 register_device_proxy(
@@ -382,9 +331,9 @@ register_device_proxy(
 )
 ```
 
-Client creation:
+Construction example:
 
-``` python
+```python
 from grpc_frame.device_proxy import DeviceProxy
 
 client = DeviceProxy(
@@ -395,20 +344,17 @@ client = DeviceProxy(
 )
 ```
 
-If a direct client class is not registered, DeviceProxy can fall back to
-the generic `SyncGrpcClient` or `AsyncGrpcClient`.
+When no dedicated client class has been registered, the framework can fall back to the generic `SyncGrpcClient` or `AsyncGrpcClient`.
 
-`api_spec` and `object_name` are retained as compatibility/tooling
-metadata. Runtime method discovery in gRPC Frame itself is performed by
-the `Describe` RPC.
+`api_spec` and `object_name` are retained as metadata for compatibility and tooling. Runtime method discovery itself uses the `Describe` RPC.
 
-------------------------------------------------------------------------
+---
 
 ## Designing a control class
 
-A control object can be implemented as an ordinary Python class.
+A control class exposed through gRPC Frame can be an ordinary Python class:
 
-``` python
+```python
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -455,110 +401,118 @@ class SimpleCtrl:
         }
 ```
 
-In this example, `ping`, `add`, `echo`, `sum_list`, `mix`, `make_tuple`,
-and `get_state` are discoverable public callables.
+Here, `ping`, `add`, `echo`, `sum_list`, `mix`, `make_tuple`, and `get_state` are public callables and therefore eligible for discovery.
 
-The `name` property is not exposed by `Describe`.
+By contrast, `name` is a property and is not included among the methods returned by `Describe`.
 
-------------------------------------------------------------------------
+---
 
-## How much protobuf definition is required?
+## How much protobuf code is necessary?
 
-Adding an ordinary control method does not require a new protobuf RPC
-for that method.
+Adding an ordinary control method does not require a separate protobuf RPC definition.
 
-For example, after adding:
+For example, add the following method to `SimpleCtrl`:
 
-``` python
+```python
 def reset(self) -> None:
     ...
 ```
 
-to the server-side control object, `Describe` can discover `reset`, and
-a newly connected client can bind `reset()` dynamically.
+When the class is exposed as the server-side `ctrl_obj`, `Describe` detects `reset`, and the client dynamically gains `reset()` upon connection:
 
-The normal workflow is therefore:
-
-``` text
-add a public method to the ctrl class
+```text
+Add a public method to the ctrl class
         |
         v
-Describe discovers it
+Describe discovers the method
         |
         v
-the client binds it dynamically
+The client binds it dynamically
         |
         v
-the generic Call RPC executes it
+The shared Call RPC invokes it
 ```
 
-A protobuf change is required when the communication pattern itself
-changes---for example, when adding a fundamentally different streaming
-service or a new explicit message contract.
+A protobuf extension is necessary when adding a different communication pattern, such as a new streaming service or another message contract.
 
-------------------------------------------------------------------------
+---
+
+## Client-side behavior overrides and file saving
+
+`GrpcClient` and `SyncGrpcClient` use the server's `Describe` results to register remote methods as **instance attributes** through `setattr(self, name, dispatcher)`. Consequently, merely defining a method with the same name in a client subclass does not override the dynamically installed dispatcher: the instance attribute takes precedence during normal lookup.
+
+To change behavior on the client, rebind the method **after** calling `super().__init__()`. The original remote dispatcher is preserved as `_raw_<method_name>`.
+
+```python
+from pathlib import Path
+from grpc_frame.grpc_client import SyncGrpcClient
+
+
+class FileClient(SyncGrpcClient):
+    def __init__(self, server_ip: str, server_port: int) -> None:
+        super().__init__(server_ip=server_ip, server_port=server_port)
+        self.save_on_server = self._save_locally
+
+    def _save_locally(self, filename: str) -> str:
+        data = self.get_value()  # Retrieve data from the server.
+        Path(filename).write_text(f"{data}\n", encoding="utf-8")
+        return filename
+```
+
+Despite its name, `save_on_server()` in this example writes a file **on the client**. To invoke the original server-side method, use `client._raw_save_on_server(...)`.
+
+A less ambiguous design is to provide a separate local method such as `save_on_client()`. Both approaches are illustrated in `example/server_grpc/client.py`.
+
+---
 
 ## Relationship to `ese774_frame`
 
-gRPC Frame shares the goal of making a server-side control object easy
-to use from a client.
+Like `ese774_frame`, gRPC Frame aims to make server-side control objects straightforward to operate from client programs.
 
-For ordinary method calls, gRPC Frame emphasizes transparent discovery
-and generic dispatch through `Describe` and `Call`, rather than
-requiring a separate API schema for every control method.
+gRPC Frame prioritizes transparency through `Describe` and generic dispatch over defining an individual API schema for each ordinary control method.
 
-`device_proxy.py` also intentionally preserves an entry/register API
-compatible with `ese774_frame.clients.device_proxy`.
+`device_proxy.py` also retains entry and registration APIs designed with compatibility with `ese774_frame.clients.device_proxy` in mind.
 
-------------------------------------------------------------------------
+---
 
 ## Operational considerations
 
-### Public methods become remote API
+### Public methods become remote APIs
 
-Public callables on the control object are discovery candidates.
-Internal server methods should not be left public unintentionally.
-Methods that must not become remote API should use private/internal
-names beginning with `_`.
+Public callables on the control object are eligible for discovery. Do not unintentionally expose methods intended only for server-side use. Name internal methods with a leading `_` to keep them out of automatic discovery.
+
+**This naming convention is not access control.** The current server-side `Call` implementation directly evaluates `getattr(self._ctrl_obj, method_name)` without verifying that the requested name belongs to the `Describe` method table. A caller capable of sending arbitrary `DispatchRequest` messages therefore cannot be prevented from invoking internal methods merely by using underscore-prefixed names.
+
+Where access control is required, implement server-side validation of permitted method names and appropriate network authentication and protection.
 
 ### Properties are not remote methods
 
-Properties are explicitly excluded from discovery. This prevents
-introspection from accidentally triggering device I/O, COM access, or
-other side effects.
+Properties are explicitly excluded from discovery to avoid triggering side effects such as device I/O or COM access while enumerating methods.
 
-Values that must be queried remotely are better exposed as explicit
-methods such as `get_status()`.
+Expose values that must be read remotely through explicit public methods such as `get_status()`.
 
 ### Network security
 
-The current client uses `grpc.insecure_channel()`. For deployments
-outside a closed experimental network, TLS, authentication,
-authorization, and network access control should be designed separately.
+The current client uses `grpc.insecure_channel()`. Outside an isolated experimental network, consider TLS, authentication, access control, and other protective measures.
 
 ### API compatibility
 
-Dynamic binding makes it easy to add server methods, but renaming
-methods or changing arguments and return values can still break client
-programs. A versioning policy is recommended when the framework is used
-as a stable device-control API.
+Dynamic binding makes it easy to add server methods, but renaming existing methods or changing their arguments or return types can break client applications. A versioning policy is advisable for instrument-control APIs.
 
-------------------------------------------------------------------------
+---
 
-## Documentation
+## Related documentation
 
-The Sphinx documentation contains the tutorial and API reference:
+The Sphinx documentation includes tutorials and an API reference:
 
-``` text
+```text
 api/modules
 tutorials/grpc_intro
 ```
 
-Repository:
+Repository: https://github.com/ohara-lab-su/grpc_frame/
 
-https://github.com/ohara-lab-su/grpc_frame/
-
-------------------------------------------------------------------------
+---
 
 ## Author
 

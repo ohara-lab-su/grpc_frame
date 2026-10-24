@@ -125,7 +125,7 @@ service Control {
 -   method name
 -   `inspect.signature()` から得た signature 文字列
 
-公開対象は public callable です。名前が `_` から始まる member
+Describe に列挙される対象は public callable です。名前が `_` から始まる member
 は除外されます。また、`property` は値の取得によって COM
 呼び出しや機器アクセスなどの副作用が起きる可能性があるため、静的に判定して除外します。
 
@@ -291,7 +291,7 @@ client.close()
 
 ### gRPC options
 
-`GrpcClient` は `grpc_options` を受け取れます。大きな画像や binary data
+`GrpcClient` は `grpc_options` を受け取れます。ただし、提示された現行実装では `SyncGrpcClient` / `AsyncGrpcClient` が受け取った `grpc_options` を基底クラスへ渡していません。下記の設定例は **`GrpcClient` を直接使用する場合**に有効です。大きな画像や binary data
 を転送する場合には、たとえば gRPC message size に関する option
 を指定できます。
 
@@ -501,6 +501,35 @@ service や別種の message contract が必要な場合には protobuf
 
 ------------------------------------------------------------------------
 
+## クライアント側での動作変更とファイル保存
+
+`GrpcClient` / `SyncGrpcClient` はサーバーの `Describe` 結果を使い、
+`setattr(self, name, dispatcher)` によって **インスタンス属性**としてリモートメソッドを登録します。
+したがって、クライアントのサブクラスに同名のメソッドを定義しただけでは、
+初期化時にリモートディスパッチャが優先されます。
+クライアント側で動作を変える場合は `super().__init__()` の後に再バインドします。
+元のリモート呼び出しは `_raw_<method_name>` に保存されています。
+
+```python
+from pathlib import Path
+from grpc_frame.grpc_client import SyncGrpcClient
+
+class FileClient(SyncGrpcClient):
+    def __init__(self, server_ip: str, server_port: int) -> None:
+        super().__init__(server_ip=server_ip, server_port=server_port)
+        self.save_on_server = self._save_locally
+
+    def _save_locally(self, filename: str) -> str:
+        data = self.get_value()  # サーバーから取得
+        Path(filename).write_text(f"{data}\n", encoding="utf-8")
+        return filename
+```
+
+この例の `save_on_server()` は名前こそ同じですが、クライアント側に保存します。
+サーバー側に保存する元のメソッドを呼ぶ場合は `client._raw_save_on_server(...)` を使用します。
+より誤解の少ない設計では、`save_on_client()` のような別名のローカルメソッドを
+設ける方法もあります。`example/server_grpc/client.py` に両方の例があります。
+
 ## `ese774_frame` との位置づけ
 
 gRPC Frame は `ese774_frame` と同様に、サーバー側の制御 object
@@ -520,8 +549,14 @@ gRPC Frame では、通常の method call に対して個別の API schema
 
 制御 object の public callable は discovery
 対象です。サーバー内部だけで使う method を不用意に public
-にしないでください。remote API にしたくない method は `_` で始まる
-private/internal name として設計する必要があります。
+にしないでください。通常のクライアントに自動バインドさせたくない method は `_` で始まる
+private/internal name として設計します。ただし **これはアクセス制御ではありません**。
+現行サーバーの `Call` は `getattr(self._ctrl_obj, method_name)` を直接実行しており、
+`Describe` の公開メソッド一覧に含まれるかを検証していません。
+そのため、外部から任意の `DispatchRequest` を送れる相手に対して、
+アンダースコア接頭辞だけで内部メソッドを保護することはできません。
+アクセス制御が必要な環境では、サーバー側で呼び出し許可メソッドを検証する実装と
+ネットワーク上の認証・保護を追加する必要があります。
 
 ### property は remote method ではない
 

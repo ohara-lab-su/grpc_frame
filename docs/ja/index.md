@@ -1,48 +1,13 @@
-# gRPC Frame
+# grpc_frame
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://ohara-lab-su.github.io/grpc_frame/en/index.html) [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://ohara-lab-su.github.io/grpc_frame/ja/index.html)
-view on [github](https://github.com/ohara-lab-su/grpc_frame/) / [ohara-lab-su (doc)](https://ohara-lab-su.github.io/)
 
+サーバー側の制御クラスの公開メソッドを、クライアント側で通常のPythonメソッドのように呼び出すためのgRPCフレームワークです。メソッドごとにprotobufのRPC定義を追加する必要はありません。
 
----
 ```{toctree}
 :maxdepth: 2
-:caption: Contents:
 
-api/modules
-tutorials/grpc_intro
+ tutorials/grpc_intro
+ tutorials/advanced
+ api/modules
 ```
----
-
-gRPC Frame は gRPC を使った通信フレームです。
-基本センスは「透過型プロキシ」であり、我々の[ese774_frame](http://github.com/ohara-lab-su/ese774_frame/)
-ほぼ同じ動作をするフレームとなります。ese774_frame は pydantic/penAPI 対応と
-していますが、gRPC Frame は完全透過型で、特に I/F 定義を必要としない設計に
-していてるのが良くも悪くも特徴となっています。
-
-基本コンセプトとして、
-```
-[ Python client ]
-    ↓  (*args, **kwargs)
-[ client adapter ]
-    ↓  (JSON)
-[ gRPC / proto ]
-    ↓  (JSON)
-[ server adapter ]
-    ↓  (*args, **kwargs)
-[ ctrl (pure Python) ]
-```
-
-のように、client は server 側にある ctrl class とほぼ同型の
-ctrl class を意識せずに用いることが可能です。
-
-現在のところ、gRPC frame には ese774 frame と異なり
-event 形にも対応しています。
-
-つまり、サーバー側のイベント動作で client を動作させることが
-最小の通信こととで実現されます。
-
-
----
-## 作者
-- Kengo NAKADA
