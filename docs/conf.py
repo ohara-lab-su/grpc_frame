@@ -8,9 +8,8 @@ kengo.nakada@mat.shimane-u.ac.jp, kengo.nakada@gmail.com
 import os, sys
 
 from pathlib import Path
-
-DOCS_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(DOCS_DIR.parent / "src"))
+_DOCS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_DOCS_DIR.parent / "src"))
 
 
 project = "grpc_frame"
