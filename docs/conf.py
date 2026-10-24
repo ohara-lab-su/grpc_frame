@@ -7,11 +7,14 @@ kengo.nakada@mat.shimane-u.ac.jp, kengo.nakada@gmail.com
 
 import os, sys
 
-sys.path.insert(0, os.path.abspath("../src"))
-sys.path.insert(0, os.path.abspath("../../x_logger/src"))
+from pathlib import Path
 
-project = "Project"
-language = "ja"
+DOCS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(DOCS_DIR.parent / "src"))
+
+
+project = "grpc_frame"
+language = "en"
 
 extensions = [
     "sphinx.ext.autodoc",  # autodoc: Pythonのdocstringから自動的にAPIドキュメントを生成
@@ -110,5 +113,5 @@ html_theme_options = {
     "navigation_depth": 4,  # 階層の深さ（toctree の maxdepth に対応）
     "titles_only": False,  # 各ページの見出しもサイドバーに表示
 }
-html_static_path = ["_static"]
-html_extra_path = ["robots.txt"]
+html_static_path = []
+html_extra_path = []

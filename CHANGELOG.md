@@ -1,4 +1,4 @@
-# README
+# CHANGELOG
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/CHANGELOG.md)
@@ -6,47 +6,48 @@
 
 ## v0.5.18 - 2026-10-12
 
-- `build_py` の生成先をビルドディレクトリへ変更し、ソースツリーの生成済みファイルを上書きしない構成に修正。
-- Python 3.7 は既存の gRPC / protobuf 固定版を使用し、それ以降は各 Python に対応する新しい版を解決する。
-- PyPI でインストール環境ごとに生成する場合は wheel を公開せず sdist のみ公開する必要がある（wheel のインストールでは生成されない）。
-- Python 3.7 では `grpcio-tools==1.54.3` を使用し、Python 3.8 以降では対応する新しい `grpcio-tools` を依存解決で選択する。
-- Python 3.7 では `grpcio==1.54.3`、`protobuf==4.21.12` を依存関係として指定し、ビルド用 `setuptools` を Python 3.7 対応範囲に制限。
-- Python 3.8 以降の `grpcio` / `grpcio-tools` / `protobuf` は固定せず、各 Python に対応する新しいバージョンを選択。
-- `setup.py` の `build_py` hook で既存の `build_proto.py` を直接読み込み、`ctrl` / `events` の pb2 ファイルを自動生成。
-- `.proto` ファイルをパッケージデータに含める設定を追加。
-- v0.5.16 は欠番。v0.5.17 からの更新。
-- 注意：生成済みコードはビルド環境の `grpcio-tools` に依存する。新しい Python で生成した wheel が Python 3.7 でも動作するとは限らない。
+- Generate protobuf modules in the build directory rather than overwriting tracked source files.
+- Use pinned gRPC/protobuf versions on Python 3.7 and resolve newer compatible releases on later Python versions.
+- Per-environment generation from PyPI requires publishing only an sdist, not a wheel (wheel installation does not run the build hook).
+- Pinned the build-time `grpcio-tools` version to `1.54.3` to preserve compatibility of generated pb2 modules with Python 3.7.
+- On Python 3.7, pinned runtime `grpcio==1.54.3` and `protobuf==4.21.12`, and restricted build-time `setuptools` to a Python 3.7-compatible version range.
+- For Python 3.8 and later, retained generally unpinned runtime dependencies, with a minimum version for `grpcio`.
+- Added a `build_py` hook in `setup.py` to run the existing `build_proto.py` for `ctrl` and `events` during package builds.
+- Included `.proto` files as package data.
+- v0.5.16 was skipped; this release follows v0.5.17.
+
+- Note: Generated code depends on the build environment. A wheel generated using a recent `grpcio-tools` is not guaranteed to work on Python 3.7.
 
 ## v0.5.14, 2026-10-05, K.Nakada
 
-- README 修正
- 
+- Updated README.
+
 ## v0.5.13, 2026-10-05, K.Nakada
 
-- toml 修正
-- PyPI 対応
+- Updated TOML configuration.
+- Added PyPI support.
 
 ## v0.5.12, 2026-10-05, K.Nakada
 
-grpc_frame 内の proto build / maintenance utility を整理
+Reorganized the proto build and maintenance utilities in `grpc_frame`.
 
-- proto 生成・清掃用スクリプトを `grpc_frame/util/` に移動
+- Moved proto generation and cleanup scripts to `grpc_frame/util/`:
   - `build_proto.py`
   - `build_proto_ctrl.py`
   - `build_proto_events.py`
   - `clean_proto.py`
   - `clean_site_packages.py`
 
-- utility の配置変更に伴い、proto ファイルおよび生成ファイルのパス処理を修正
-  - `ctrl.proto` / `events.proto` は従来どおり `grpc_frame/` 直下に配置
-  - 生成される `ctrl_pb2.py` / `ctrl_pb2_grpc.py` / `events_pb2.py` / `events_pb2_grpc.py` も従来どおり `grpc_frame/` 直下に生成
-  - build utility 自体の配置場所と、proto の入力・生成先を分離
+- Updated path handling for proto files and generated files following the utility relocation:
+  - `ctrl.proto` / `events.proto` remain directly under `grpc_frame/`.
+  - Generated `ctrl_pb2.py` / `ctrl_pb2_grpc.py` / `events_pb2.py` / `events_pb2_grpc.py` also remain directly under `grpc_frame/`.
+  - Separated the location of the build utilities themselves from the proto input and generated-output locations.
 
-- 個別 proto build スクリプトの import 処理を修正
-  - `build_proto_ctrl.py` / `build_proto_events.py` から `grpc_frame` package を経由せず、同一 `util/` 内の `build_proto.py` を直接利用
-  - pb2 ファイルが未生成の状態でも個別 build を実行できるようにした
+- Updated imports in the individual proto build scripts:
+  - `build_proto_ctrl.py` / `build_proto_events.py` now directly use `build_proto.py` in the same `util/` directory without importing through the `grpc_frame` package.
+  - Individual proto builds can now run even when the pb2 files have not yet been generated.
 
-### ディレクトリ構成
+### Directory structure
 
 ```text
 grpc_frame/
@@ -66,29 +67,27 @@ grpc_frame/
     └── clean_site_packages.py
 ```
 
-proto および生成された pb2 は grpc_frame 本体から直接利用するため従来の配置を維持し、build・clean など開発／保守用のスクリプトのみ `util` に分離した。
+The proto files and generated pb2 files remain in their previous locations because they are used directly by the main `grpc_frame` package. Only development and maintenance scripts such as build and cleanup utilities were separated into `util/`.
 
 ## v0.5.11, 2026-08-10, K.Nakada
 
-汎用ディスパッチに server-streaming RPC を追加
+Added a server-streaming RPC to the generic dispatch mechanism.
 
-- `ctrl.proto` の `Control` service に `StreamCall` を追加
+- Added `StreamCall` to the `Control` service in `ctrl.proto`:
   - `rpc StreamCall(DispatchRequest) returns (stream DispatchResponse);`
-  - 既存の `Call` は通常の unary RPC としてそのまま維持
-  - `DispatchRequest` / `DispatchResponse` も既存定義をそのまま利用
+  - Existing `Call` remains unchanged as the standard unary RPC.
+  - Existing `DispatchRequest` / `DispatchResponse` definitions are reused.
 
-- `grpc_server.py` / `grpc_client.py` に `StreamCall` の処理を追加
-  - `Call`：1回の呼び出しに対して1つの結果を返す通常の汎用ディスパッチ
-  - `StreamCall`：1回の呼び出しに対して複数の結果を順次返す汎用 server-streaming ディスパッチ
-  - streaming するデータの種類や用途は grpc_frame 側では規定しない
+- Added `StreamCall` handling to `grpc_server.py` / `grpc_client.py`:
+  - `Call`: standard generic dispatch that returns one result for one invocation.
+  - `StreamCall`: generic server-streaming dispatch that returns multiple results sequentially for one invocation.
+  - `grpc_frame` does not prescribe the type or purpose of streamed data.
 
-### 設計
+### Design
 
-従来の grpc_frame は、`Call` によってデバイス側の Python メソッドを透過的に呼び出す
-汎用 unary RPC を基本としている。
+The original `grpc_frame` design is based on the generic unary `Call` RPC, which transparently invokes Python methods on the device side.
 
-今回、この基本設計は変更せず、gRPC が標準で持つ server-streaming RPC を
-同じ汎用ディスパッチの考え方で扱えるよう `StreamCall` を追加した。
+This basic design remains unchanged. `StreamCall` was added so that gRPC's standard server-streaming RPC can be used with the same generic-dispatch concept.
 
 ```text
 Call
@@ -111,291 +110,278 @@ StreamCall
 
 ## v0.5.10, 2026-07-28, nakada
 
-- after cobotta3/4 setup
- 
-# v0.5.9, 2026.07.14, nakada 
+- After cobotta3/4 setup.
 
-- 八代研引き渡し版
- 
+# v0.5.9, 2026.07.14, nakada
+
+- Version delivered to the Yashiro laboratory.
+
 ## v0.5.8, (2026.07.09), K.Nakada
 
-gRPC の大容量メッセージ option 指定に対応
+Added support for configuring gRPC options for large messages.
 
-- gRPC channel/server 作成時に任意の `grpc_options` を渡せるようにした
-  - `grpc_frame.grpc_client.GrpcClient` に `grpc_options` 引数を追加
-  - `grpc_frame.grpc_server.create_grpc_server()` に `grpc_options` 引数を追加
-  - `grpc_frame.grpc_com.create_com_grpc_server()` に `grpc_options` 引数を追加
-- `grpc_options` は `grpc.insecure_channel()` および `grpc.server()` にそのまま渡す
-- 大きな `bytes` 戻り値を unary RPC で扱う用途に対応
-  - 例: BMP 画像のように gRPC Python の既定上限 4 MB を超えるデータ
-  - 利用側で `grpc.max_receive_message_length` / `grpc.max_send_message_length` を指定可能にした
-- 既定値は従来互換とし、`grpc_options` 未指定時は空 tuple を使う
-- COM 対応 server でも通常 server と同じ option 指定ができるようにした
-  - `create_com_grpc_server()` から `create_grpc_server()` へ `grpc_options` を透過する
-
+- Added support for passing arbitrary `grpc_options` when creating gRPC channels/servers:
+  - Added the `grpc_options` argument to `grpc_frame.grpc_client.GrpcClient`.
+  - Added the `grpc_options` argument to `grpc_frame.grpc_server.create_grpc_server()`.
+  - Added the `grpc_options` argument to `grpc_frame.grpc_com.create_com_grpc_server()`.
+- `grpc_options` are passed directly to `grpc.insecure_channel()` and `grpc.server()`.
+- Added support for large `bytes` return values over unary RPC:
+  - For example, BMP images or other data exceeding gRPC Python's default 4 MB limit.
+  - Users can configure `grpc.max_receive_message_length` / `grpc.max_send_message_length`.
+- The default remains backward-compatible; an empty tuple is used when `grpc_options` is not specified.
+- COM-enabled servers can now use the same option configuration as normal servers:
+  - `create_com_grpc_server()` transparently passes `grpc_options` to `create_grpc_server()`.
 
 ## v0.5.7, (2026.06.29), K.Nakada
 
-DeviceProxy 対応を追加
+Added DeviceProxy support.
 
-- ese774_frame の DeviceProxy と互換の entry API を grpc_frame 側に追加
-  - DeviceProxyEntry
-  - register_device_proxy()
-  - unregister_device_proxy()
-  - get_device_proxy_entry()
-  - list_device_proxies()
-  - DeviceProxy()
-  - create_device_proxy()
-- 直接の client_class を登録し、device_class 名または alias から client インスタンスを生成できるようにした
-- sync/async client class の登録に対応
-- default_async_mode により DeviceProxy() の既定生成モードを指定可能にした
-- DeviceProxy 用 pyi 生成補助を追加
-- grpc_frame.__init__ から DeviceProxy 関連 API を公開
+- Added an entry API compatible with `ese774_frame`'s DeviceProxy:
+  - `DeviceProxyEntry`
+  - `register_device_proxy()`
+  - `unregister_device_proxy()`
+  - `get_device_proxy_entry()`
+  - `list_device_proxies()`
+  - `DeviceProxy()`
+  - `create_device_proxy()`
+- Added direct client-class registration and creation of client instances from a device-class name or alias.
+- Added registration of synchronous/asynchronous client classes.
+- Added `default_async_mode` to configure the default creation mode of `DeviceProxy()`.
+- Added helpers for generating pyi files for DeviceProxy.
+- Exported DeviceProxy-related APIs from `grpc_frame.__init__`.
 
 ## v0.5.6, (2026.04.30), K.Nakada
 
-pyproject.toml 再調整
-- 3.7
-- 3.11.9
-- 3.13.13
+Readjusted `pyproject.toml`.
+
+- Python 3.7
+- Python 3.11.9
+- Python 3.13.13
 
 ## v0.5.5, (2026.04.30), K.Nakada
 
-- setuptools 82 環境での grpc_tools の不具合を修正
-  - build_proto.py
+- Fixed a `grpc_tools` issue under setuptools 82:
+  - `build_proto.py`
 
 ## v0.5.4, K.nakada
 
-python 3.7 対応(まだ未完の可能性)
+Added Python 3.7 support (possibly still incomplete).
 
 ## v0.5.3, K.nakada
 
-- min_pix 検出器対応のために python 3.7 対応
-- そのために gRPC を落とす。toml 書き換えた他のバージョンと切り替え
+- Added Python 3.7 support for the min_pix detector.
+- Downgraded gRPC for that purpose and switched the TOML configuration from the other version.
 
 ## v0.5.2, K nakada
 
-- 出張前 FINALバージョン(2026.03.15)
-- ドキュメント調整
+- Final version before the business trip (2026.03.15).
+- Documentation adjustments.
 
 ## v0.5.1, K nakada
 
-ドキュメント調整
+Documentation adjustments.
 
-## v0.5.0, (v0.4.10+fix),k nakada
+## v0.5.0, (v0.4.10+fix), k nakada
 
-COM スレッド問題対応版 (ORIN2-gRPC/FastAPI対応版)
+Version addressing the COM threading issue (ORIN2-gRPC/FastAPI compatible version).
 
-0.4.10思ったより改変が大きいので別バージョン名
-- bugfix: gRPC で cobotta2 の本番を使った時のトラブル対応
-  - 修正: _collect_public_method_names
-  - 修正: _collect_signatures
- 
+The changes from 0.4.10 were larger than expected, so a separate version number was assigned.
+
+- Bug fix for problems encountered when using the production cobotta2 system through gRPC:
+  - Fixed `_collect_public_method_names`.
+  - Fixed `_collect_signatures`.
+
 ## v0.4.10, nakada
 
-例外処理が出た時がうまくクライアント側に伝わってない問題が発覚
-- 問題解決のためにも、基本的に例外が起きた時には、例外の生メッセージをまず送る
-- スレッド問題
-  - COM のインスタンスから呼びだれる各種メソッドを
-  - gRPCでハンドラ単位でスレッドにしてしまっているのが
-  - 実は大きな問題で、これが例外の主な原因になる。
+Discovered that exceptions were not being propagated correctly to the client.
 
-### COM スレッド問題
+- To address this, the raw exception message is sent first when an exception occurs.
+- Threading issue:
+  - Methods called on a COM instance were being executed in separate gRPC handler threads.
+  - This turned out to be a major problem and was the primary cause of the exceptions.
 
-windows の COM を同一のメモリである必要がある。
-つまり別スレッドだとだめ。COMの初期化をし直さないといけない。
+### COM threading issue
 
-そのため gRPC などでは別スレッドでハンドラが動くしくみなのだが、
-通常は、スレッドなのでメモリはシェアなので考えなくてもいいのだが。
+Windows COM requires operations to remain in the appropriate COM/thread context. Accessing the same COM object from another thread is not valid unless COM is initialized appropriately for that thread.
 
-COM だと、別スレッドで動いてしまうと、その状況を破壊する。
-その対策で制御側のコンストラクタで一回だけの初期化ではなくて
-gRPCハンドラースレッドでCOMを初期化するようにする。
-ハンドラースレッド（COM初期化パート）を、いろいろなハンドラー呼び出しで
-使いまわせる用意、quque で命令をためて切り分ける
+gRPC handlers normally run in separate threads. In ordinary Python code this is often not a concern because threads share process memory, but COM has thread-affinity constraints.
 
-つまり、grpc.serverを使うと、RPC ハンドラ
-（_ControlServicer.Describe/Call） は
-ThreadPoolExecutor のワーカースレッドで実行される。
-一方で、orin2_grpc_server.py の ctrl = ... という
-「制御インスタンス生成」はメインスレッド（server を起動しているスレッド）
-で行われます。したがって「通常版（素の ctrl を _ControlServicer に渡す）」
-は、メインスレッドで作った COM オブジェクトを、別スレッド（ハンドラ）か
-ら触る構図になり、COM では破綻する
+The solution is therefore not to initialize COM only once in the control-side constructor. Instead, COM execution is isolated so that COM initialization and execution occur in a dedicated execution thread. Commands from different gRPC handler threads are queued and serialized through that thread.
 
-- 通常はgRPC はワーカースレッドとメインスレッド(server起動スレッド)の二つとなるのがミソ
+With `grpc.server`, RPC handlers (`_ControlServicer.Describe/Call`) execute in worker threads managed by `ThreadPoolExecutor`. In contrast, the control instance created as `ctrl = ...` in `orin2_grpc_server.py` is constructed in the main server thread. Therefore, in the normal implementation where a raw control object is passed directly to `_ControlServicer`, a COM object created in the main thread is accessed from different handler threads, which breaks COM's threading requirements.
 
+- The important point is that gRPC uses the server startup thread and worker threads.
+
+```text
 gRPC Client
-- grpc_server._ControlServicer (gRPC worker thread)
-- ThreadSafeCtrlProxy
-- ComExecutionRunner (queueで直列化)
-- COM ctrl object (同一スレッドで生成/実行)
+    ↓
+grpc_server._ControlServicer (gRPC worker thread)
+    ↓
+ThreadSafeCtrlProxy
+    ↓
+ComExecutionRunner (serialized through a queue)
+    ↓
+COM ctrl object (created and executed in the same dedicated thread)
+```
 
-要点
-- gRPC worker thread から COM を直接触らない
-- COM の生成/実行は ComExecutionRunner の専用スレッドに固定
-- grpc_server は汎用のまま、COM制約は grpc_com 側で吸収する
-- gRPC サーバーは ThreadPool 上で handler が動くため、ctrl を直接渡すと
-  呼び出しスレッドが分散し、COM 破壊や不安定動作の原因になる。
+Key points:
 
-設計
-- ComExecutionRunner が COM 専用スレッドを持ち、ctrl 生成とメソッド実行を一本化する。
-- ThreadSafeCtrlProxy は gRPC 側に見せる代理で、呼び出しを runner に委譲する。
-- create_com_grpc_server は既存 create_grpc_server と組み合わせるための薄い組み立て関数。
+- gRPC worker threads must not access COM directly.
+- COM object creation and execution are fixed to the dedicated `ComExecutionRunner` thread.
+- `grpc_server` remains generic; COM-specific constraints are handled in `grpc_com`.
+- Because gRPC server handlers execute on a thread pool, directly passing a control object distributes calls across threads and can cause COM corruption or unstable behavior.
+
+Design:
+
+- `ComExecutionRunner` owns a dedicated COM thread and serializes control-object creation and method execution.
+- `ThreadSafeCtrlProxy` is the proxy exposed to gRPC and delegates calls to the runner.
+- `create_com_grpc_server` is a thin assembly function that combines this mechanism with the existing `create_grpc_server`.
 
 ## v0.4.9, nakada
 
-自動ディスパッチで何も考えずに propery まで動的に自動で対応しているので、
-プロパティがあるctlの時に失敗する問題に気がつく
+The automatic dispatcher originally attempted to handle properties dynamically as well as methods. This caused failures for control classes containing properties.
 
-修正(properyを除外する)
+Fixed by excluding properties from automatic dispatch.
 
 ## v0.4.8, nakada
 
-- 細かい修正
-- docstring/comment
+- Minor fixes.
+- Docstring/comment updates.
 
 ## v0.4.7, nakada
 
-dispatch 復元が一方通行だったので
+Dispatch restoration had been one-way:
+
 - list -> tuple
 
-これを
+Changed to preserve both types:
+
 - list <-> list
 - tuple <-> tuple
 
-に修正
-
 ## v0.4.6, nakada
 
-- gRPC client の擬似Async化 追加
-- gRPC client 側に gRPC srver との接続チェック
+- Added pseudo-asynchronous support to the gRPC client.
+- Added a gRPC server connection check on the client side.
 
 ## v0.4.5, nakada
 
-bugfix/コメント追加
+Bug fixes and additional comments.
 
 ## v0.4.4, nakada
 
-- ディパッチされる client 用の pyi 作成スクリプトを
-汎用的に使えるように、フレーム側に入れる
-- make_pyi.py 修正(dispatchされる継承元と継承先)
+- Moved the pyi generation script for dynamically dispatched clients into the framework so it can be used generically.
+- Updated `make_pyi.py` for dispatched base/derived classes.
 
 ## v0.4.3, nakada
 
-Event モードの動作テストおよびそれに対して若干の改修
+Tested Event mode and made minor modifications based on the results.
 
-- v0.4.2 の動作確認による修正
-  - grpc 標準機能の確認(透過型frameとして)
+- Fixes based on v0.4.2 testing.
+  - Verification of standard gRPC functionality as a transparent frame.
 
 ## v0.4.2, nakada
 
-割と大改修
+Relatively large update.
 
-- event 関係の proto 周りを別途追加
-- gRPC での event 処理の仕組みを(client/serverフレーム側に導入)
-- 必要ならば、module 利用先で event を用いることができる
+- Added separate proto definitions for event-related functionality.
+- Added a gRPC event-processing mechanism to the client/server framework.
+- Modules using the framework can use events when required.
 
 ## v0.4.1, nakada
 
-build_proto.py を
-複数 proto で使いやすくするタメに
-関数化して、proto毎にそれを呼び出す
-python にする
+Refactored `build_proto.py` into functions so that it can be used more easily with multiple proto files, with separate Python scripts invoking it for each proto.
 
-複数 proto 対応
+Added multi-proto support.
 
-拡張機能は未テスト。
-gRPCフレームで joypad 外の動作保証のためのテストと改修中
+The extended functionality was not yet tested.
+Testing and modifications were in progress to ensure operation outside the Joypad use case.
 
 ## v0.4.0, nakada
 
-- gRPC Frame 拡張 (汎用的なevent待受機能)
-  - ノーマルの機能はそのまま
-  - 高速でイベントが発生した時だけの通信発生
-  - クライアントでのイベント待機（通信は発生しない)
-  - などが実現できる
- 
-- 拡張機能は未テスト。
+- Extended gRPC Frame with generic event-waiting functionality:
+  - Existing normal functionality remains unchanged.
+  - Communication occurs only when a high-speed event is generated.
+  - The client can wait for events without continuous communication.
+  - Other event-driven behavior can be implemented.
+
+- Extended functionality was not yet tested.
 
 ## v0.3.4, nakada
 
-jopad/server 動作テスト対応完了
- 
+Completed Joypad/server operation testing.
+
 - grpc_frame: 0.3.4
 - fastapi_frame: 0.4.7
 - cobotta2: 0.9.23
 
 ## v0.3.3, nakada
 
-bugfix
+Bug fix.
 
 ## v0.3.2, nakada
 
+A specific method can suppress frame logging:
+
 ```python
-# get_error_count だけ frame logging を抑止
+# Suppress frame logging only for get_error_count
 client.get_error_count._frame_silent = True
 ```
-として、特定のメソッドだけログを表示しないようにすることができる
 
-また、似ている話で、 サーバー側で動的にディスパッチされるメソッドを
-クライアント側で安定的にオーバーライドさせるために、
-工夫が必要となる。(サーバー側の仕掛けを今回実装/cobotta-RestAPIで試した方法)
+A related issue is how to reliably override a dynamically dispatched server method on the client side. A mechanism is required so that the client-side override remains stable. The server-side support for this was implemented in this version, based on the approach tested with cobotta-RestAPI.
 
 ```python
 class JoyPadClient(GrpcClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    # ---- メソッド丸ごと置き換え ----
+    # ---- Replace the method completely ----
     def drive(self, x: float, y: float, z: float) -> bool:
         """
-        ユーザ側で完全に再定義された drive
+        drive completely redefined on the user side
         """
 
-        # ユーザ側処理（ログ・前処理・条件分岐など）
+        # User-side processing such as logging, preprocessing,
+        # and conditional handling
         print("[JoyPadClient] drive override")
 
-        # 元の RPC dispatcher を明示的に呼ぶ
+        # Explicitly call the original RPC dispatcher
         return self._raw_drive(x, y, z)
 ```
 
-
 ## v0.3.1, nakada
 
-デバッグでもあまり使わないログを消去
+Removed logs that were rarely useful even during debugging.
 
 ## v0.3.0, nakada
 
-- 最低限のテスト
-- Joypad 移動
-- Joypad での Hand 開け閉め
+Minimum operation tests completed successfully:
 
-が動作したので、任意の Method 動作は(デフォルト値・有無)
-概ね機能している
+- Joypad movement.
+- Opening and closing the hand with the Joypad.
+
+Because these operations worked, arbitrary method invocation, including handling of default arguments and optional arguments, was considered broadly functional.
 
 ## v0.3.0bata, nakada
 
-### beta版
- 
-- Jopad での操作はテスト済み
-- ハンドの拡張に伴う修正が始まりだったのだがそれはまだ未実装なのでまだ動作テスト不全
+### Beta version
 
-### 内容の概要 
+- Joypad operation was tested.
+- Development originally started with changes required for hand extensions, but those extensions had not yet been implemented, so operation testing remained incomplete.
 
-python側の ctrl を動的に clinet/server にするときに、
-method の引数処理の特にデフォルト値の扱いがいい加減だったものを修正
+### Overview
 
-これが大修正につながる。
-基本方針を大きく変える
+Fixed inadequate handling of method arguments—especially default values—when dynamically exposing a Python-side control object through the client/server framework.
 
-- proto や ctrl に依存していた情報を
-  - 通信レイヤーを json 型にすることで情報を載せることで解決
-  - クライアント側で proto/ctrl 依存を消すことができる
-  - ctrl ごとに書き直していた proto を無修正の汎用 proto にまとめる
-    - 情報をjsonでまとめるだけの一つの proto
+This led to a major redesign of the basic architecture.
 
-```
+- Information that had depended on proto definitions and control classes was moved into the communication layer:
+  - Using JSON-form data in the communication layer carries the required invocation information.
+  - The client no longer depends on the control class or its proto definition.
+  - Proto files that previously had to be rewritten for each control class were consolidated into a generic proto definition.
+  - Invocation information is carried as serialized data through a single generic proto interface.
+
+```text
 [ Python client ]
     ↓  (*args, **kwargs)
 [ client adapter ]
@@ -409,11 +395,9 @@ method の引数処理の特にデフォルト値の扱いがいい加減だっ�
 
 ### proto
 
-今までは gRPC proto に構造を(転送するdataに構造を)
-定義して持たせていたが。これを完全に無くして
-byte 列をやりとりする
+Previously, the gRPC proto defined the structure of the transferred data. This was removed, and the protocol now exchanges byte sequences instead.
 
-```aiignore
+```text
 message CallRequest {
   string method = 1;
   bytes args_json = 2;
@@ -421,48 +405,45 @@ message CallRequest {
 }
 ```
 
-- proto 側は、引数名も型もいみもしらない。
-- proto 側の定義は一つ
-  - (メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる)
+- The proto layer does not know argument names, types, or semantics.
+- There is one generic proto definition.
+  - Only the caller depends on the method name; invocation information is serialized and supplied by the caller.
 
 ### server
 
-gRPCクライアント/サーバ
+gRPC client/server design:
 
-- python clinet は完全な一般の (*args, **kwargs)
-  - pyi から補完できるようにするので editor からみれば従来通り見える
-- pure python xx(pos, force=force)などの形は pyi で定義する
-- client 側は ctl も proto (スタブも) しらない
-  - メソッド名は呼び出し側のみ依存して、呼び出し情報は常に呼び出し側が情報を json でのせる
+- The Python client accepts fully generic `(*args, **kwargs)`.
+  - Editor-visible signatures are provided through pyi files, so the interface appears conventional to the editor.
+- Pure-Python interfaces such as `xx(pos, force=force)` are defined in pyi.
+- The client does not need to know the control class or control-specific proto/stub definitions.
+  - Only the caller depends on the method name; invocation information is serialized by the caller.
 
-ctrl側では一旦、server adapter 側で jON を (*args, **kwargs)にして、
-ctrl 側の pure python で xx(pos, force=force)などにする。
-
+On the control side, the server adapter converts the serialized data back into `(*args, **kwargs)`, and the pure-Python control method is then called in a normal form such as `xx(pos, force=force)`.
 
 ## v0.2.1, nakada
 
-- bugfix
+- Bug fix.
 
 ## v0.2.0, nakada
 
-- 保守でないスパゲティ状態だったので、保守可能レベルに直した
-- dispatch_core 機能をserver/client/core 側に依存があるものは分けた
-- drive()命令など、本格的にorinっぽいI/F APIルールに使える proto とディスパッチテスト
+- Refactored an unmaintainable spaghetti-code state into a maintainable structure.
+- Split `dispatch_core` functionality according to server/client/core dependencies.
+- Added proto and dispatch tests suitable for more complete ORiN-like interface/API rules, including commands such as `drive()`.
 
 ## v0.1.2, nakada, **bug**
 
-タグを打ち忘れたかどうかを忘れたのでもう一度ナンバリング
+Renumbered because it was unclear whether the tag had been created previously.
 
-しかし... 
- 
-- 非常に変ものが入ってしまってごちゃごちゃになったやつ
-- **腐っている**
+However:
+
+- An unusual/incorrect change was accidentally included and the version became inconsistent.
+- **Broken version.**
 
 ## v0.1.1, nakada
 
-- dispatch core 見直し
- 
+- Reviewed `dispatch_core`.
 
 ## v0.1.0, nakada
 
-cobotta2 joypad から分離
+Separated from the cobotta2 Joypad implementation.

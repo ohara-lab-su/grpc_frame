@@ -1,24 +1,23 @@
 # gRPC Frame
-view on [github](https://github.com/ohara-lab-su/grpc_frame/) / [ohara-lab-su (doc)](https://ohara-lab-su.github.io/)
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://ohara-lab-su.github.io/grpc_frame/en/index.html) [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://ohara-lab-su.github.io/grpc_frame/ja/index.html)
 
----
+[GitHub](https://github.com/ohara-lab-su/grpc_frame/) / [ohara-lab-su documentation](https://ohara-lab-su.github.io/)
+
 ```{toctree}
 :maxdepth: 2
 :caption: Contents:
 
-api/modules
 tutorials/grpc_intro
+api/modules
 ```
----
 
-gRPC Frame は gRPC を使った通信フレームです。
-基本センスは「透過型プロキシ」であり、我々の[ese774_frame](http://github.com/ohara-lab-su/ese774_frame/)
-ほぼ同じ動作をするフレームとなります。ese774_frame は pydantic/penAPI 対応と
-していますが、gRPC Frame は完全透過型で、特に I/F 定義を必要としない設計に
-していてるのが良くも悪くも特徴となっています。
+gRPC Frame is a communication framework built on gRPC. Its central design principle is a **transparent proxy**: the client can interact with a server-side Python control class using an interface that closely resembles the original class.
 
-基本コンセプトとして、
+It is similar in purpose to [ese774_frame](https://github.com/ohara-lab-su/ese774_frame/), but differs in its API design. While `ese774_frame` uses Pydantic/OpenAPI-oriented interfaces, `grpc_frame` exposes the control class transparently without requiring an explicit interface definition.
+
+The basic communication model is:
+
 ```
 [ Python client ]
     ↓  (*args, **kwargs)
@@ -31,16 +30,10 @@ gRPC Frame は gRPC を使った通信フレームです。
 [ ctrl (pure Python) ]
 ```
 
-のように、client は server 側にある ctrl class とほぼ同型の
-ctrl class を意識せずに用いることが可能です。
+The client can therefore use the remote control class without needing to manage the underlying gRPC communication directly.
 
-現在のところ、gRPC frame には ese774 frame と異なり
-event 形にも対応しています。
-
-つまり、サーバー側のイベント動作で client を動作させることが
-最小の通信こととで実現されます。
-
+`grpc_frame` also supports event-based interaction, allowing events on the server to trigger actions on the client with minimal communication overhead.
 
 ---
-## 作者
+## Author
 - Kengo NAKADA

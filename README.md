@@ -3,46 +3,47 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.md)
 
-gRPC Frame は、Python の制御クラスを gRPC
-経由で遠隔利用するための通信フレームワークです。
+gRPC Frame is a communication framework for exposing Python control
+classes over gRPC.
 
-基本コンセプトは **透過型プロキシ**
-です。サーバー側に配置した制御クラス（`ctrl` object）の public method
-を自動的に列挙し、クライアント側へ同名の Python method
-として動的に生成します。そのため、通常の unary RPC
-を追加するたびに個別の protobuf message や RPC method
-を定義し直す必要はありません。
+Its central design concept is a **transparent proxy**. Public methods of
+a server-side control object are discovered automatically and
+dynamically bound to the client as Python methods. For ordinary unary
+calls, this removes the need to define a dedicated protobuf message and
+RPC method for every control method.
 
-機器制御、実験装置、計測サーバー、ラボオートメーションなど、「既存の
-Python
-制御クラスをネットワーク越しにほぼ同じ呼び出し方で利用したい」用途を想定しています。
+The framework is intended for device control, experimental instruments,
+measurement servers, laboratory automation, and similar systems where an
+existing Python control class should be accessible over the network with
+nearly the same calling style as a local object.
 
-> gRPC Frame が公開するのは、制御オブジェクトの **public callable**
-> です。`property`
-> は列挙時の副作用を避けるため公開対象から除外されます。
-
-------------------------------------------------------------------------
-
-## 特徴
-
--   サーバー側の public method を `Describe` RPC で自動取得
--   クライアント側へ remote method を動的バインド
--   `*args` / `**kwargs` をそのまま汎用 RPC へ渡せる構成
--   通常の unary call に加えて server-streaming の `StreamCall` を提供
--   topic ベースの event subscribe に対応
--   JSON を優先し、JSON 化できない Python object は pickle
-    へフォールバック
--   `bytes` / `bytearray`、`tuple` を JSON 経由でも保持
--   同期クライアントと async wrapper を提供
--   DeviceProxy registry により機器クラス名から client を生成可能
--   protobuf の generated Stub に依存せず、gRPC low-level API から RPC
-    を構築
+> gRPC Frame exposes **public callables** of the control object.
+> Properties are intentionally excluded from discovery to avoid side
+> effects during introspection.
 
 ------------------------------------------------------------------------
 
-## 基本構成
+## Features
 
-通常のメソッド呼び出しは、概念的には次の経路を通ります。
+-   Automatic discovery of server-side public methods through the
+    `Describe` RPC
+-   Dynamic binding of remote methods on the client
+-   Generic transport of Python `*args` and `**kwargs`
+-   Standard unary calls plus server-streaming `StreamCall`
+-   Topic-based event subscription
+-   JSON-first serialization with pickle fallback
+-   JSON handling for `bytes`, `bytearray`, and `tuple`
+-   Synchronous client and an asynchronous wrapper
+-   DeviceProxy registry for constructing clients from device-class
+    names
+-   Low-level gRPC API usage without depending on generated Stub classes
+    for client dispatch
+
+------------------------------------------------------------------------
+
+## Architecture
+
+A normal method call follows this conceptual path:
 
 ``` text
 [ Python client ]
@@ -72,11 +73,11 @@ Python
 [ Python client ]
 ```
 
-クライアントは接続時に `Control/Describe`
-を呼び出します。サーバーから返された method name と signature
-を基に、`self.<method_name>` が動的に生成されます。
+When a client connects, it calls `Control/Describe`. The returned method
+names and signatures are used to create `self.<method_name>`
+dynamically.
 
-たとえばサーバー側の制御クラスに
+For example, if the server-side control class contains:
 
 ``` python
 class SimpleCtrl:
@@ -87,26 +88,24 @@ class SimpleCtrl:
         return a + b
 ```
 
-が公開されていれば、クライアント側では概念的に
+the client can conceptually use:
 
 ``` python
 client.ping()
 client.add(10, 20)
 ```
 
-のように呼び出せます。
-
-`ping` や `add` ごとの専用 RPC を protobuf に追加するのではなく、共通の
-`Call` RPC が method name、args、kwargs を受け取り、サーバー側で対象
-method を dispatch する設計です。
+Instead of adding dedicated protobuf RPCs for `ping` and `add`, both
+calls are transported through the generic `Call` RPC with a method name,
+positional arguments, and keyword arguments.
 
 ------------------------------------------------------------------------
 
-## RPC インターフェース
+## RPC interface
 
 ### Control service
 
-`ctrl.proto` では次の 3 種類の RPC を定義します。
+`ctrl.proto` defines three RPCs:
 
 ``` proto
 service Control {
@@ -118,20 +117,21 @@ service Control {
 
 ### `Describe`
 
-サーバー側の公開可能な method 一覧を取得します。
+`Describe` returns the callable methods that the server exposes.
 
-各 method について以下を返します。
+For each method, it reports:
 
 -   method name
--   `inspect.signature()` から得た signature 文字列
+-   signature string obtained from `inspect.signature()`
 
-公開対象は public callable です。名前が `_` から始まる member
-は除外されます。また、`property` は値の取得によって COM
-呼び出しや機器アクセスなどの副作用が起きる可能性があるため、静的に判定して除外します。
+Only public callables are included. Members whose names begin with `_`
+are excluded. Properties are also excluded using static inspection
+because evaluating a property during discovery may trigger side effects
+such as COM operations, device access, or other I/O.
 
 ### `Call`
 
-通常の 1 request / 1 response の汎用 method call です。
+`Call` is the generic one-request/one-response method invocation RPC.
 
 ``` proto
 message DispatchRequest {
@@ -147,36 +147,34 @@ message DispatchResponse {
 }
 ```
 
-クライアントは Python の positional arguments と keyword arguments を
-`bytes` へ変換し、method name とともに送信します。正常終了時には result
-を Python object へ復元します。サーバー側が error
-を返した場合、クライアントは `RuntimeError` を送出します。
+The client serializes Python positional and keyword arguments into byte
+payloads and sends them with the target method name. A successful
+response is deserialized back into a Python object. If the server
+returns an error, the client raises `RuntimeError`.
 
 ### `StreamCall`
 
-1 回の request に対して複数の response を返す server-streaming RPC
-です。
+`StreamCall` is a server-streaming variant in which one request can
+produce multiple responses.
 
-クライアントでは明示的に
+The client exposes it explicitly:
 
 ``` python
 for value in client.stream_call("method_name", arg1, arg2):
     print(value)
 ```
 
-のように利用します。
-
-通常の `Describe` → dynamic binding → `Call` とは独立した低レベル API
-です。
+This is a lower-level API independent of the normal `Describe` → dynamic
+binding → `Call` path.
 
 ------------------------------------------------------------------------
 
-## イベント通信
+## Event communication
 
-gRPC Frame は通常の method call だけでなく、server-side streaming
-を使った event subscribe を持ちます。
+gRPC Frame also supports event subscription through server-side
+streaming.
 
-`events.proto` の定義は次の通りです。
+`events.proto` defines:
 
 ``` proto
 service Events {
@@ -184,81 +182,80 @@ service Events {
 }
 ```
 
-購読要求には以下を指定できます。
+A subscription request contains:
 
--   `topic`: 購読する topic
--   `once`: 1 event だけ受信して終了するか
--   `source`: event source の識別情報
+-   `topic`: topic to subscribe to
+-   `once`: whether to stop after one event
+-   `source`: event-source information
 
-クライアント側では、
+Client example:
 
 ``` python
 for payload in client.subscribe(topic="status"):
     print(payload)
 ```
 
-または 1 件だけ取得する場合、
+To receive only one event:
 
 ``` python
 for payload in client.subscribe(topic="status", once=True):
     print(payload)
 ```
 
-のように扱います。
+The internal `EventBus` is a lightweight in-process publish/subscribe
+mechanism. It maintains subscriber queues and uses `threading.Condition`
+to coordinate publishers and subscribers.
 
-内部の `EventBus` は in-process の軽量 publish/subscribe 機構です。topic
-ごとに subscriber queue を持ち、`threading.Condition` を使って publish
-と subscribe を同期します。
-
-現行の `EventBus` 実装では `source`
-は購読状態として保持されていますが、publish 時の source filtering
-にはまだ使用されていません。この点は将来拡張用のフィールドです。
+In the current `EventBus` implementation, `source` is stored as part of
+the subscription state but is not yet applied as a publish-time source
+filter. It is retained for future extension.
 
 ------------------------------------------------------------------------
 
-## シリアライズ
+## Serialization
 
-引数、戻り値、event payload の変換は `adapter` が担当します。
+Arguments, return values, and event payloads are handled by `adapter`.
 
-基本方針は **JSON first + pickle fallback** です。
+The serialization policy is **JSON first + pickle fallback**:
 
-1.  まず JSON serialization を試す
-2.  JSON 化できない object は pickle へフォールバックする
+1.  Attempt JSON serialization.
+2.  If the object cannot be represented as JSON, fall back to pickle.
 
-payload の先頭 1 byte には形式識別子が付加されます。
+The first byte of each payload identifies the format:
 
-  識別子   形式
+  Prefix   Format
   -------- --------
   `b"J"`   JSON
   `b"P"`   pickle
 
-### JSON での追加対応
+### Additional JSON handling
 
-標準 JSON では直接扱えない一部の型も adapter 側で保持します。
+The adapter preserves several Python types that plain JSON cannot
+represent directly:
 
--   `bytes` / `bytearray`: Base64 に変換
--   `tuple`: 専用 marker を付けて list と区別し、decode 時に tuple
-    へ復元
+-   `bytes` / `bytearray`: encoded as Base64
+-   `tuple`: represented with a dedicated marker and restored as a tuple
+    during decoding
 
-これにより、一般的な dict / list / str / int / float / bool / `None`
-に加え、binary data や tuple も JSON 経路で扱えます。
+This allows common dict/list/string/numeric/boolean/`None` data, binary
+payloads, and tuples to remain on the JSON path where possible.
 
-### pickle fallback に関する注意
+### Security note for pickle
 
-pickle は Python object を広く扱える一方、信頼できないデータの
-deserialize には適しません。gRPC Frame
-を信頼できないネットワークへ直接公開する場合は、pickle を含む現在の
-serialization model と non-TLS channel
-の双方を考慮し、ネットワーク分離、認証、TLS、serialization policy
-の制限などを別途設計してください。
+pickle can represent a wide range of Python objects, but it is not
+suitable for deserializing untrusted input. If gRPC Frame is exposed
+beyond a trusted network, the pickle fallback and the current non-TLS
+channel model must be considered explicitly. Network isolation,
+authentication, TLS, and a restricted serialization policy may be
+required.
 
 ------------------------------------------------------------------------
 
-## クライアント
+## Client API
 
 ### `GrpcClient`
 
-基本クライアントです。
+`GrpcClient` is the base generic client.
 
 ``` python
 from grpc_frame.grpc_client import GrpcClient
@@ -277,23 +274,23 @@ print(result)
 client.close()
 ```
 
-初期化時には次の処理が行われます。
+Initialization performs the following steps:
 
-1.  `grpc.insecure_channel()` で channel を作成
-2.  gRPC server が ready になるまで確認
-3.  `Describe` RPC を実行
-4.  method table を取得
-5.  各 remote method の dispatcher を生成
-6.  `self.<method_name>` と `_raw_<method_name>` へ登録
+1.  Create a channel with `grpc.insecure_channel()`.
+2.  Wait for the gRPC server to become ready.
+3.  Call the `Describe` RPC.
+4.  Receive the remote method table.
+5.  Build a dispatcher for each method.
+6.  Register each dispatcher as `self.<method_name>` and
+    `_raw_<method_name>`.
 
-`is_connected()` は `Describe` RPC
-が実際に成功するかどうかで接続状態を確認します。
+`is_connected()` checks whether a real `Describe` RPC succeeds rather
+than only inspecting local channel state.
 
 ### gRPC options
 
-`GrpcClient` は `grpc_options` を受け取れます。大きな画像や binary data
-を転送する場合には、たとえば gRPC message size に関する option
-を指定できます。
+`GrpcClient` accepts `grpc_options`. This is useful when transferring
+large images or other binary payloads.
 
 ``` python
 options = (
@@ -308,12 +305,12 @@ client = GrpcClient(
 )
 ```
 
-サーバー側にも対応する設定が必要です。
+Corresponding server-side limits must also be configured when required.
 
 ### `SyncGrpcClient`
 
-同期 API 用の client class です。remote method
-は通常の関数呼び出しとして利用します。
+`SyncGrpcClient` provides the synchronous interface. Dynamically
+discovered methods behave as normal blocking Python calls.
 
 ``` python
 from grpc_frame.grpc_client import SyncGrpcClient
@@ -328,7 +325,8 @@ value = client.ping()
 
 ### `AsyncGrpcClient`
 
-`Describe` で取得した remote method を async method でラップします。
+`AsyncGrpcClient` wraps methods discovered by `Describe` as async
+methods.
 
 ``` python
 import asyncio
@@ -349,17 +347,17 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-現行実装では `grpc.aio` による native async RPC ではなく、同期 remote
-method を event loop の executor で実行する wrapper です。
+The current implementation is not based on native `grpc.aio` calls. It
+runs the synchronous remote method through the event loop executor.
 
 ------------------------------------------------------------------------
 
 ## DeviceProxy
 
-`device_proxy.py` は、機器クラス名と client class の対応を registry
-へ登録し、名前から client instance を生成する仕組みを提供します。
+`device_proxy.py` provides a registry that maps a device-class name to
+client classes and creates a client instance from that name.
 
-主な API は以下です。
+The public API includes:
 
 ``` text
 DeviceProxyEntry
@@ -371,7 +369,7 @@ DeviceProxy(...)
 create_device_proxy(...)
 ```
 
-登録例:
+Registration example:
 
 ``` python
 from grpc_frame.device_proxy import register_device_proxy
@@ -384,7 +382,7 @@ register_device_proxy(
 )
 ```
 
-生成例:
+Client creation:
 
 ``` python
 from grpc_frame.device_proxy import DeviceProxy
@@ -397,18 +395,18 @@ client = DeviceProxy(
 )
 ```
 
-直接 client class が登録されていない場合は、汎用の `SyncGrpcClient` /
-`AsyncGrpcClient` へフォールバックできます。
+If a direct client class is not registered, DeviceProxy can fall back to
+the generic `SyncGrpcClient` or `AsyncGrpcClient`.
 
-`api_spec` と `object_name` は互換性および tooling 用 metadata
-として保持されます。runtime の method discovery 自体は `Describe` RPC
-によって行われます。
+`api_spec` and `object_name` are retained as compatibility/tooling
+metadata. Runtime method discovery in gRPC Frame itself is performed by
+the `Describe` RPC.
 
 ------------------------------------------------------------------------
 
-## 制御クラスの設計
+## Designing a control class
 
-gRPC Frame へ渡す制御クラスは、通常の Python class として記述できます。
+A control object can be implemented as an ordinary Python class.
 
 ``` python
 from typing import Any, Dict, List, Optional, Tuple
@@ -457,111 +455,111 @@ class SimpleCtrl:
         }
 ```
 
-この場合、`ping`、`add`、`echo`、`sum_list`、`mix`、`make_tuple`、`get_state`
-は public callable として discovery の対象になります。
+In this example, `ping`, `add`, `echo`, `sum_list`, `mix`, `make_tuple`,
+and `get_state` are discoverable public callables.
 
-一方、`name` は `property` なので `Describe` の公開 method
-には含まれません。
+The `name` property is not exposed by `Describe`.
 
 ------------------------------------------------------------------------
 
-## protobuf をどこまで書く必要があるか
+## How much protobuf definition is required?
 
-通常の制御 method を追加するだけであれば、method ごとに protobuf RPC
-を追加する必要はありません。
+Adding an ordinary control method does not require a new protobuf RPC
+for that method.
 
-たとえば `SimpleCtrl` に
+For example, after adding:
 
 ``` python
 def reset(self) -> None:
     ...
 ```
 
-を追加し、サーバー側の `ctrl_obj` として公開すれば、`Describe` が
-`reset` を検出し、接続時にクライアントへ `reset()`
-が動的に追加されます。
+to the server-side control object, `Describe` can discover `reset`, and
+a newly connected client can bind `reset()` dynamically.
 
-つまり、通常の制御 API については、
+The normal workflow is therefore:
 
 ``` text
-ctrl class の public method を追加
-        ↓
-Describe が検出
-        ↓
-client が動的に bind
-        ↓
-共通 Call RPC で実行
+add a public method to the ctrl class
+        |
+        v
+Describe discovers it
+        |
+        v
+the client binds it dynamically
+        |
+        v
+the generic Call RPC executes it
 ```
 
-という流れになります。
-
-一方、通信パターン自体を増やす場合、たとえば新しい種類の streaming
-service や別種の message contract が必要な場合には protobuf
-側の拡張が必要です。
+A protobuf change is required when the communication pattern itself
+changes---for example, when adding a fundamentally different streaming
+service or a new explicit message contract.
 
 ------------------------------------------------------------------------
 
-## `ese774_frame` との位置づけ
+## Relationship to `ese774_frame`
 
-gRPC Frame は `ese774_frame` と同様に、サーバー側の制御 object
-をクライアントから扱いやすくすることを目的としています。
+gRPC Frame shares the goal of making a server-side control object easy
+to use from a client.
 
-gRPC Frame では、通常の method call に対して個別の API schema
-を作るよりも、`Describe` と汎用 dispatch による透過性を優先しています。
+For ordinary method calls, gRPC Frame emphasizes transparent discovery
+and generic dispatch through `Describe` and `Call`, rather than
+requiring a separate API schema for every control method.
 
-また、`device_proxy.py` では `ese774_frame.clients.device_proxy`
-と互換性を意識した entry/register API を保持しています。
+`device_proxy.py` also intentionally preserves an entry/register API
+compatible with `ese774_frame.clients.device_proxy`.
 
 ------------------------------------------------------------------------
 
-## 運用上の注意
+## Operational considerations
 
-### public method は remote API になる
+### Public methods become remote API
 
-制御 object の public callable は discovery
-対象です。サーバー内部だけで使う method を不用意に public
-にしないでください。remote API にしたくない method は `_` で始まる
-private/internal name として設計する必要があります。
+Public callables on the control object are discovery candidates.
+Internal server methods should not be left public unintentionally.
+Methods that must not become remote API should use private/internal
+names beginning with `_`.
 
-### property は remote method ではない
+### Properties are not remote methods
 
-property は discovery から明示的に除外されます。これは property access
-に機器 I/O や COM access などの副作用が含まれる場合に、method
-列挙だけで処理が走ることを避けるためです。
+Properties are explicitly excluded from discovery. This prevents
+introspection from accidentally triggering device I/O, COM access, or
+other side effects.
 
-remote access が必要な値は、`get_status()` のような明示的な public
-method として提供する方が安全です。
+Values that must be queried remotely are better exposed as explicit
+methods such as `get_status()`.
 
-### network security
+### Network security
 
-現行クライアントは `grpc.insecure_channel()`
-を使用します。閉じた実験ネットワーク以外で使用する場合には、TLS、認証、アクセス制御などを別途検討してください。
+The current client uses `grpc.insecure_channel()`. For deployments
+outside a closed experimental network, TLS, authentication,
+authorization, and network access control should be designed separately.
 
 ### API compatibility
 
-dynamic binding により server method の追加は容易ですが、既存 method の
-rename、argument の変更、return type の変更は client program
-との互換性に影響します。装置制御 API として運用する場合は versioning
-policy を設けることを推奨します。
+Dynamic binding makes it easy to add server methods, but renaming
+methods or changing arguments and return values can still break client
+programs. A versioning policy is recommended when the framework is used
+as a stable device-control API.
 
 ------------------------------------------------------------------------
 
-## 関連ドキュメント
+## Documentation
 
-Sphinx ドキュメントでは、チュートリアルおよび API reference
-を参照できます。
+The Sphinx documentation contains the tutorial and API reference:
 
 ``` text
 api/modules
 tutorials/grpc_intro
 ```
 
-リポジトリ:
+Repository:
 
 https://github.com/ohara-lab-su/grpc_frame/
 
 ------------------------------------------------------------------------
 
-## 作者
+## Author
 
 Kengo NAKADA
