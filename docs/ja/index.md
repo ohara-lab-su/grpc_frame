@@ -6,8 +6,15 @@
 
 ```{toctree}
 :maxdepth: 2
+:caption: マニュアル
 
- tutorials/grpc_intro
- tutorials/advanced
- api/modules
+tutorials/grpc_intro
+tutorials/advanced
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: APIリファレンス
+
+api/index
 ```

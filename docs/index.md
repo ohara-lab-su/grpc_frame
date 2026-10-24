@@ -6,8 +6,15 @@ A Python gRPC framework for exposing a local control object's public methods thr
 
 ```{toctree}
 :maxdepth: 2
+:caption: Guides
 
- tutorials/grpc_intro
- tutorials/advanced
- api/modules
+tutorials/grpc_intro
+tutorials/advanced
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: API Reference
+
+api/index
 ```
