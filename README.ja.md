@@ -1,6 +1,6 @@
 # gRPC Frame
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_grame/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/grpc_frame/blob/main/README.ja.md)
 
 [![GitHub](https://img.shields.io/badge/GitHub-ohara--lab--su%2Fgrpc_frame-181717?logo=github)](https://github.com/ohara-lab-su/grpc_frame/)
