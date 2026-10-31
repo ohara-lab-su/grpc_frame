@@ -12,7 +12,7 @@ name = "grpc-frame"
 
 version = "0.5.20"
 
-description = "gRPC server/client frame"
+description = "gRPC communication framework for remote access to Python device classes through server and client APIs."
 authors = [
   { name="Kengo NAKADA", email="kengo.nakada@email.com" }
 ]
@@ -50,6 +50,12 @@ dependencies = [
     # grpcio-tools is only needed when building from source.
     "google",
 ]
+
+[project.urls]
+Homepage = "https://ohara-lab-su.github.io/grpc_frame/"
+Documentation = "https://ohara-lab-su.github.io/grpc_frame/"
+Repository = "https://github.com/ohara-lab-su/grpc_frame"
+Issues = "https://github.com/ohara-lab-su/grpc_frame/issues"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
